@@ -2,7 +2,7 @@
 
 **Track:** D — Học tập thích ứng & tương tác trên VLearn · **Đề:** D3 — Học bằng cách dạy
 **Loại:** Tính năng mới
-**Trạng thái:** bản CP1 — Canvas 4 ô theo template chính thức, phần §1–§9 khai triển bên dưới — hoàn thiện đến hạn chốt spec 21:00 ngày 17/9 (CP4)
+**Trạng thái:** bản **CP2** — Canvas 4 ô + §4/§6 đã cập nhật theo bản mẫu tương tác trong [`codebase/`](codebase/). §5 và §7 hoàn thiện đến hạn chốt spec 21:00 ngày 17/9 (CP4)
 
 ---
 
@@ -130,22 +130,32 @@ Bộ câu hỏi: **[`evidence/survey-questions.md`](evidence/survey-questions.md
 4. **Không đa tác tử.** Đúng một vai agent.
 
 ### Mức prototype nhắm tới
-**Working (thu hẹp phạm vi)** — agent gọi thật, đối chiếu thật với đoạn transcript có mã.
-- *Thật:* lời gọi AI ở quyết định trung tâm (chọn chỗ hổng để hỏi ngược), truy xuất đoạn `[T06-xxx]`, giao diện phiên dạy
-- *Mock:* tiêu chí "đã dạy được" ở bản đầu dùng ngưỡng cứng; log phiên cho giảng viên chỉ là bảng
+**Working (thu hẹp phạm vi)** — đích ở CP3/CP5: agent gọi thật, đối chiếu thật với đoạn transcript có mã.
+
+**Bản mẫu tại CP2:** [`codebase/prototype/index.html`](codebase/prototype/index.html) — một file HTML tự chứa, mở bằng `file://` là chạy, không cần mạng. Bốn màn M1→M4, bấm đi hết được cả 4 nhánh trải nghiệm (§6).
+
+| Thành phần | CP2 | CP3 làm gì tiếp |
+|---|---|---|
+| Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |
+| Panel đoạn nguồn `[T06-xxx]` luôn hiện cạnh câu hỏi | **thật** | giữ nguyên |
+| Nút *Không đồng ý với đánh giá này* ở mọi màn M3 | **thật** | giữ nguyên |
+| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **mock** — heuristic đếm từ khoá trong hàm `decide()` | thay bằng **lời gọi AI thật**; `decide()` là điểm cắm |
+| **Nội dung 4 đoạn `[T06-138]`–`[T06-149]`** | **mock** — fixture nhóm tự viết, gắn nhãn `MOCK` ngay trên UI | đọc thẳng từ `transcript-06-clean.md` |
+| Tiêu chí "đã dạy được" | **mock** — ngưỡng cứng 3/3 tiêu chí | LLM-judge (xem rủi ro văn nói ở §5) |
+
+> **Vì sao đoạn nguồn ở CP2 là fixture tự viết, không phải transcript thật:** data pack của khoá là tài liệu nội bộ và repo nộp bài đang **public**. Nhóm không đưa nội dung transcript vào file commit; bản mẫu chỉ dùng **mã đoạn** `[T06-xxx]` và fixture tự viết có nhãn `MOCK`.
 
 ### Automation: **augment**
 Lý do theo cost-of-error: quyết định đắt nhất **không phải** "hỏi ngược sai chỗ" — học viên thấy câu hỏi lạc thì bỏ qua được, sửa rẻ. Đắt nhất là agent **công nhận "đã hiểu" cho một lời giải thích sai**: học viên rời đi với kiến thức sai và **không tự phát hiện được**, sai lan sang các bài sau. Nên agent không tự chốt: đoạn `[T06-xxx]` gốc luôn hiển thị cạnh câu hỏi để học viên tự đối chiếu, và học viên luôn xem được mình bị đánh giá thiếu ở đâu.
 
-### §4b. Nguyên tắc đã áp dụng
-*(≥4 nguyên tắc, mỗi cái trỏ vào một chỗ cụ thể — hoàn thiện trước CP4)*
+### §4b. Bốn nguyên tắc HAX/PAIR — vị trí áp dụng chính xác trong bản mẫu
 
-| Nguyên tắc | Áp cụ thể vào đâu trong prototype |
-|---|---|
-| **G10** — Thu hẹp phạm vi khi nghi ngờ *(bắt buộc)* | Khi lời giải thích của học viên nằm ngoài đoạn `[T06-138]`–`[T06-149]`, agent nói rõ "phần này không có trong đoạn đang học" thay vì tự phán đúng/sai |
-| **G11** — Giải thích vì sao | Mỗi câu hỏi ngược hiện kèm mã đoạn `[T06-xxx]` mà nó dựa vào |
-| **G2** — Làm rõ nó làm tốt đến đâu | Màn hình mở đầu công bố trước tiêu chí "đã dạy được" và phạm vi: chỉ đối chiếu với transcript buổi Foundation |
-| **G9** — Sửa dễ dàng | Học viên bổ sung/viết lại lời giải thích ngay trên cùng màn hình, không phải bắt đầu lại phiên |
+| Nguyên tắc | Màn | Thành phần cụ thể trong `codebase/prototype/index.html` |
+|---|---|---|
+| **G2** — Làm rõ nó làm tốt đến đâu | **M1** | Khối *"Phạm vi — mình chỉ đối chiếu được đúng chừng này"* và *"Tiêu chí đã dạy được"*: ba tiêu chí được đánh số kèm mã đoạn, in ra **trước** khi học viên gõ chữ nào, và M4 kết luận đúng theo ba tiêu chí đó chứ không theo tiêu chí khác |
+| **G10** — Thu hẹp phạm vi khi nghi ngờ *(bắt buộc)* | **M3**, nhánh `NGOÀI_PHẠM_VI` | Câu *"Bốn đoạn [T06-138]–[T06-149] của mình không có chỗ nào nói về cái đó, nên mình **không nói bạn đúng hay sai**"* — agent từ chối phán xét thay vì đoán bừa |
+| **G11** — Giải thích vì sao | **M3**, mọi câu hỏi ngược | Dòng `mình dựa vào [T06-141] — bấm để xem` ngay dưới **mỗi** câu hỏi; bấm vào là đoạn đó sáng lên trong panel nguồn bên phải |
+| **G9** — Sửa dễ dàng | **M3 → M2** | Nút *"Bổ sung — giữ nguyên bài mình đã viết"*: quay lại M2 **không xoá** nội dung cũ, kèm banner nhắc là bổ sung chứ không gõ lại. Cộng thêm nút *"Không đồng ý với đánh giá này"* có mặt ở **mọi** màn M3 |
 
 ---
 
@@ -166,7 +176,34 @@ Rủi ro lớn nhất đã xác định: transcript là **văn nói** (ẩn dụ
 ---
 
 ## §6. Bốn đường đi của trải nghiệm
-*(hoàn thiện trước CP4)*
+
+Cả bốn đều bấm đi hết được trong [`codebase/prototype/index.html`](codebase/prototype/index.html); bốn nút preset ở cuối màn M2 nạp sẵn câu trả lời mẫu để demo 5 phút không phụ thuộc gõ tay.
+
+### ① Happy path — AI tự tin cao
+- **Kích hoạt:** lời giải thích chạm đủ 3/3 tiêu chí công bố ở M1 → `ĐỦ_CĂN_CỨ`, mức tự tin *cao*
+- **Agent làm gì:** công nhận **tạm**, và nói thẳng là nó **không tự chốt** — đẩy học viên sang panel nguồn để tự đối chiếu. Đây chính là chỗ mức *augment* thể hiện ra giao diện
+- **Học viên đi tiếp:** *Mình đã đối chiếu — đúng rồi* → M4, ghi "đã dạy được" · *Chưa, mình muốn sửa lại* → M2
+- **Ở đâu:** M3, `kind:"ok"`
+
+### ② Low-confidence — AI thiếu tự tin
+- **Kích hoạt:** chạm 1–2/3 tiêu chí → `THIẾU_CĂN_CỨ`, mức tự tin *thấp*. Hai biến thể cùng nhánh: bài **quá ngắn** (<40 ký tự, lớp ② mơ hồ ở §5) và **dán nguyên văn tài liệu** (hard test của đề D3)
+- **Agent làm gì:** hỏi ngược **đúng 2 câu**, nhắm vào đúng tiêu chí còn hổng, mỗi câu gắn mã đoạn. **Không** đưa đáp án — và nói rõ với học viên là cố tình không đưa
+- **Học viên đi tiếp:** *Bổ sung — giữ nguyên bài mình đã viết* → M2, nội dung cũ **không bị xoá** (G9)
+- **Ở đâu:** M3, `kind:"gap" | "short" | "paste"`
+
+### ③ Failure / no-grounding — không tìm thấy căn cứ
+- **Kích hoạt:** không chạm tiêu chí nào, lại nói sang thứ không có trong 4 đoạn → `NGOÀI_PHẠM_VI`, cột tự tin đổi thành *"không đánh giá đúng/sai"*
+- **Agent làm gì:** gọi tên đúng thứ học viên vừa nói, nói rõ nó **không có căn cứ để phán đúng/sai**, không đoán bừa (G10)
+- **Học viên đi tiếp:** *Viết lại trong phạm vi* → M2 · *Cho mình xem phạm vi gồm những gì* → sáng đoạn nguồn
+- **Ở đâu:** M3, `kind:"out"`
+
+### ④ Correction — học viên can thiệp sửa kết quả
+- **Kích hoạt:** nút *Không đồng ý với đánh giá này*, có mặt ở **mọi** màn M3 kể cả happy path
+- **Agent làm gì:** mở form cho học viên nói agent sai chỗ nào **và** chọn lại trạng thái đúng ra phải là gì; ghi cả hai vào log phiên rồi hiện banner *"Đánh giá của mình ở trên không được dùng để kết luận nữa — bạn giữ quyền quyết định"*
+- **Học viên đi tiếp:** ở lại M3, chọn đường nào cũng được; nút *Kết thúc phiên* luôn có nên không bao giờ tắc
+- **Ở đâu:** M3, `#correct` + `#disagree`
+
+**Không có đường cụt:** mọi màn M3 đều có *Kết thúc phiên* → M4, và M4 luôn có *Dạy lại lần nữa* / *Bắt đầu phiên mới*.
 
 ---
 
@@ -206,3 +243,4 @@ Rủi ro lớn nhất đã xác định: transcript là **văn nói** (ẩn dụ
 |---|---|---|
 | 16/9 · CP1 | Chốt Canvas 4 ô, chọn đề D3, loại D1 và D2 | Bảng impact §2 — D3 là ứng viên duy nhất đạt mức Working trong 47,5h và có nguồn đối chiếu sẵn |
 | 16/9 · CP1 | Sửa con số "0 lượt chủ động kiểm tra hiểu" thành **1 lượt (0,03%)** | Đọc nguyên văn cả 6 lượt `ask_probing_question` của K4: 2 lượt do học viên tự xin, 3 lượt là gỡ lỗi kỹ thuật. Con số ban đầu không đúng với dữ liệu |
+| 16/9 · CP2 | Dựng bản mẫu tương tác HTML 4 nhánh trong `codebase/`; điền §6, viết lại §4b thành bảng có vị trí cụ thể | Mốc CP2 yêu cầu bản mẫu chạy thông + §4/§6 cập nhật. Đoạn nguồn dùng fixture tự viết vì repo nộp đang public và data pack là tài liệu nội bộ |

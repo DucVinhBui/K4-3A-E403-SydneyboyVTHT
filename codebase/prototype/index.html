@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent học trò — bản mẫu CP2 · Nhóm SydneyboyVTHT</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#15181d; --mut:#5d6572; --line:#dfe3e8;
+    --ok:#0f7a4d; --ok-bg:#e7f5ee; --warn:#8a5a00; --warn-bg:#fdf3e0;
+    --out:#5a4a8a; --out-bg:#efecf8; --acc:#1f4fd8; --acc-bg:#eaf0ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .brand{font-weight:700;font-size:15px}
+  .brand small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+  .steps{display:flex;gap:6px;flex-wrap:wrap}
+  .step{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+  .step.on{background:var(--acc-bg);border-color:#b9ccfb;color:var(--acc);font-weight:600}
+  .mock{font-size:11px;font-weight:700;letter-spacing:.06em;background:#fde8e8;color:#a21b1b;
+    border:1px solid #f4c4c4;border-radius:5px;padding:3px 8px}
+  main{max-width:1120px;margin:20px auto;padding:0 16px;display:grid;
+    grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+  @media (max-width:880px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+  h1{font-size:21px;margin:0 0 6px}
+  h2{font-size:15px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+  p{margin:8px 0}
+  .lead{color:var(--mut)}
+  ul,ol{margin:8px 0;padding-left:20px}
+  li{margin:4px 0}
+  code{background:#eef1f5;border-radius:4px;padding:1px 5px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  button{font:inherit;cursor:pointer;border-radius:7px;padding:9px 15px;border:1px solid var(--line);
+    background:var(--card);color:var(--ink)}
+  button:hover{border-color:#b6bec9}
+  button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  button.pri:hover{background:#1a44ba}
+  button.sm{padding:6px 11px;font-size:13px}
+  .row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+  textarea{width:100%;min-height:150px;padding:12px;border:1px solid var(--line);border-radius:8px;
+    font:inherit;resize:vertical;background:#fcfcfd}
+  textarea:focus{outline:2px solid var(--acc);outline-offset:-1px}
+  .persona{background:#f3f5f8;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:14px 0}
+  .persona b{display:block;margin-bottom:2px}
+  .chip{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;
+    border-radius:6px;padding:4px 10px;border:1px solid}
+  .chip.ok{background:var(--ok-bg);color:var(--ok);border-color:#b9ddc9}
+  .chip.warn{background:var(--warn-bg);color:var(--warn);border-color:#eccf9a}
+  .chip.out{background:var(--out-bg);color:var(--out);border-color:#c8bff0}
+  .bubble{background:#f3f5f8;border:1px solid var(--line);border-left:3px solid var(--acc);
+    border-radius:0 8px 8px 0;padding:12px 14px;margin:12px 0}
+  .src-ref{display:inline-block;margin-top:6px;font-size:12px;background:none;border:1px dashed #b6bec9;
+    color:var(--mut);border-radius:5px;padding:2px 8px;cursor:pointer}
+  .src-ref:hover{border-style:solid;color:var(--acc);border-color:var(--acc)}
+  .note{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);margin-top:16px;padding-top:12px}
+  aside h3{margin:0 0 4px;font-size:14px}
+  aside .sub{font-size:12.5px;color:var(--mut);margin:0 0 12px}
+  .excerpt{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:9px;background:#fcfcfd}
+  .excerpt.hl{border-color:var(--acc);background:var(--acc-bg)}
+  .excerpt .id{font-size:11.5px;font-weight:700;color:var(--acc);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .excerpt p{margin:3px 0 0;font-size:13.5px}
+  .demo{background:#fffbea;border:1px solid #f0e0a8;border-radius:10px;padding:14px 16px;margin-top:16px}
+  .demo h3{margin:0 0 3px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#8a6d00}
+  .demo p{font-size:12.5px;color:#6f5a12;margin:0 0 10px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+  .verdict{border-radius:9px;padding:14px 16px;margin:14px 0;border:1px solid}
+  .verdict.yes{background:var(--ok-bg);border-color:#b9ddc9}
+  .verdict.no{background:var(--warn-bg);border-color:#eccf9a}
+  .verdict b{font-size:16px}
+  .banner{background:var(--acc-bg);border:1px solid #b9ccfb;border-radius:8px;padding:10px 13px;
+    font-size:13.5px;margin-bottom:12px}
+  fieldset{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:14px 0}
+  legend{font-size:12.5px;color:var(--mut);padding:0 6px}
+  label.opt{display:block;margin:5px 0;font-size:14px}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Agent học trò · học bằng cách dạy lại
+    <small>Track D · đề D3 — Nhóm SydneyboyVTHT · Lớp 3A · Phòng E403 — bản mẫu CP2</small>
+  </div>
+  <div class="steps" id="steps">
+    <span class="step" data-s="m1">1 · Mở phiên</span>
+    <span class="step" data-s="m2">2 · Dạy lại</span>
+    <span class="step" data-s="m3">3 · Agent hỏi ngược</span>
+    <span class="step" data-s="m4">4 · Kết phiên</span>
+  </div>
+  <span class="mock">BẢN MẪU — AI CHẠY MOCK</span>
+</header>
+
+<main>
+<div>
+
+  <!-- ══════════ M1 · MỞ PHIÊN ══════════ -->
+  <section class="card" id="m1">
+    <h1>Bạn sắp dạy lại một khái niệm cho mình</h1>
+    <p class="lead">Trước khi bắt đầu, đây là toàn bộ những gì bản mẫu này làm và không làm.</p>
+
+    <div class="persona">
+      <b>Mình là ai</b>
+      Một agent học trò. Mức hiểu của mình <strong>cố định</strong> và không đổi theo bạn:
+      mình đã đọc lướt slide buổi Foundation, biết LLM sinh văn bản, nhưng
+      <em>chưa hiểu vì sao nó lại bịa ra thông tin sai</em>. Mình sẽ hỏi lại chỗ nào mình thấy hổng.
+      Mình <strong>không</strong> đưa đáp án cho bạn.
+    </div>
+
+    <h2>Phạm vi — mình chỉ đối chiếu được đúng chừng này</h2>
+    <p>Bốn đoạn <code>[T06-138]</code> → <code>[T06-149]</code> của transcript buổi Foundation, đang hiện
+      ở cột bên phải. Bạn nói gì ngoài bốn đoạn đó, mình sẽ nói thẳng là
+      <strong>ngoài phạm vi</strong> chứ không phán đúng hay sai.</p>
+
+    <h2>Tiêu chí “đã dạy được” — công bố trước, không đổi giữa phiên</h2>
+    <ol>
+      <li>Nêu được <strong>cơ chế</strong>: mô hình dự đoán token tiếp theo, không tra cứu — <code>[T06-138]</code></li>
+      <li>Nêu được <strong>vì sao vẫn trả lời</strong> khi chỗ đó gần như không có dữ liệu — <code>[T06-141]</code></li>
+      <li>Nêu được <strong>vì sao câu bịa nghe trôi chảy</strong> — <code>[T06-145]</code></li>
+    </ol>
+    <p>Đủ cả 3 ý, <strong>bằng lời của bạn</strong> (dán lại nguyên văn tài liệu không tính) thì mình
+      ghi là “đã dạy được”.</p>
+
+    <h2>Đây không phải bài thi</h2>
+    <p>Không có điểm số. Không có gì được gửi về giảng viên. Log phiên ở màn cuối là để
+      <strong>bạn</strong> biết mình hổng chỗ nào.</p>
+
+    <div class="row">
+      <button class="pri" data-go="m2">Bắt đầu dạy lại →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ M2 · HỌC VIÊN DẠY LẠI ══════════ -->
+  <section class="card" id="m2" hidden>
+    <div class="banner" id="m2-banner" hidden></div>
+    <h1>Vì sao LLM lại bịa?</h1>
+    <p class="lead">Giải thích cho mình bằng lời của bạn. Đoạn nguồn để ở bên phải — bạn cứ mở ra xem,
+      mình không tính đó là gian lận; chỉ là đừng dán lại nguyên văn.</p>
+    <textarea id="answer" placeholder="Ví dụ mở đầu: “Mô hình không tra cứu ở đâu cả, nó…”"></textarea>
+    <div class="row">
+      <button class="pri" id="send">Gửi cho agent học trò</button>
+      <button class="sm" data-go="m1">← Xem lại tiêu chí</button>
+    </div>
+
+    <div class="demo">
+      <h3>Bảng điều khiển demo · MOCK</h3>
+      <p>Bốn nút này chỉ để buổi demo 5 phút đi hết được 4 nhánh mà không phụ thuộc gõ tay.
+        Gõ tự do vẫn chạy — quyết định do một bộ định tuyến heuristic, <strong>chưa phải lời gọi AI thật</strong>.
+        Nhánh <em>correction</em> nằm ở nút “Không đồng ý” trong màn 3.</p>
+      <div class="row" style="margin-top:0">
+        <button class="sm" data-preset="0">① Trả lời đủ ý</button>
+        <button class="sm" data-preset="1">② Trả lời thiếu ý</button>
+        <button class="sm" data-preset="2">③ Nói sang chuyện khác</button>
+        <button class="sm" data-preset="3">④ Dán nguyên văn tài liệu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ M3 · AGENT QUYẾT ĐỊNH ══════════ -->
+  <section class="card" id="m3" hidden>
+    <div class="banner" id="m3-banner" hidden></div>
+    <p><span class="chip" id="state-chip"></span>
+       <span style="font-size:13px;color:var(--mut);margin-left:8px" id="conf"></span></p>
+    <h1 id="m3-head"></h1>
+    <div id="m3-body"></div>
+
+    <div class="row" id="m3-actions"></div>
+
+    <div class="note">
+      <button class="sm" id="disagree">Không đồng ý với đánh giá này</button>
+      <button class="sm" id="end-now">Kết thúc phiên</button>
+      <span style="margin-left:6px">Hai nút này có mặt ở <strong>mọi</strong> đánh giá — bạn không bao giờ bị kẹt.</span>
+    </div>
+
+    <!-- correction -->
+    <fieldset id="correct" hidden>
+      <legend>Bạn thấy mình đánh giá sai chỗ nào?</legend>
+      <textarea id="correct-text" style="min-height:90px"
+        placeholder="Ví dụ: “Mình có nói ý này rồi, ở câu thứ hai.”"></textarea>
+      <p style="font-size:13px;color:var(--mut);margin:10px 0 2px">Theo bạn thì đúng ra phải là:</p>
+      <label class="opt"><input type="radio" name="fix" value="ĐỦ_CĂN_CỨ"> <code>ĐỦ_CĂN_CỨ</code> — mình đã nói đủ ý</label>
+      <label class="opt"><input type="radio" name="fix" value="THIẾU_CĂN_CỨ"> <code>THIẾU_CĂN_CỨ</code> — còn hổng thật, nhưng hổng chỗ khác</label>
+      <label class="opt"><input type="radio" name="fix" value="NGOÀI_PHẠM_VI"> <code>NGOÀI_PHẠM_VI</code> — cái này không nằm trong bài</label>
+      <div class="row">
+        <button class="pri sm" id="correct-save">Ghi lại phản hồi</button>
+        <button class="sm" id="correct-cancel">Bỏ qua</button>
+      </div>
+    </fieldset>
+  </section>
+
+  <!-- ══════════ M4 · KẾT PHIÊN ══════════ -->
+  <section class="card" id="m4" hidden>
+    <h1>Log phiên dạy</h1>
+    <p class="lead">Bảng này là của bạn. Không gửi đi đâu cả.</p>
+    <div id="verdict"></div>
+    <table>
+      <thead><tr><th style="width:44px">Lượt</th><th>Việc đã xảy ra</th><th style="width:130px">Trạng thái</th><th style="width:150px">Đoạn đối chiếu</th></tr></thead>
+      <tbody id="logbody"></tbody>
+    </table>
+    <div class="row">
+      <button class="pri" data-go="m2">Dạy lại lần nữa</button>
+      <button id="restart">Bắt đầu phiên mới</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══════════ CỘT NGUỒN — LUÔN HIỆN Ở M2/M3 ══════════ -->
+<aside class="card" id="source" hidden>
+  <h3>Đoạn nguồn đang đối chiếu</h3>
+  <p class="sub">Transcript buổi Foundation · <code>[T06-138]</code>–<code>[T06-149]</code>.
+    Luôn hiện ở đây trong lúc bạn viết và trong lúc mình hỏi lại — để bạn tự kiểm mình,
+    không phải tin mình.</p>
+  <div id="excerpts"></div>
+  <p class="note" style="margin-top:14px">
+    <strong>MOCK.</strong> Bốn đoạn dưới đây do nhóm tự viết lại làm fixture cho CP2.
+    Data pack của khoá là tài liệu nội bộ, không đưa vào repo public.
+    CP3 sẽ đọc thẳng từ <code>transcript-06-clean.md</code> thật.
+  </p>
+</aside>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ───────── FIXTURE (MOCK — nhóm tự viết, không phải data thật) ───────── */
+  var SRC = [
+    {id:"T06-138", t:"Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo có xác suất cao nhất theo những gì đã học được."},
+    {id:"T06-141", t:"Ở vùng kiến thức gần như không có dữ liệu, xác suất vẫn được chuẩn hoá cho đủ một. Mô hình vẫn buộc phải chọn ra một token, nên nó vẫn sinh ra câu trả lời thay vì im lặng."},
+    {id:"T06-145", t:"Câu bịa thường đọc lên rất trôi chảy, vì thứ mô hình được tối ưu là độ hợp lý về mặt ngôn ngữ, không phải độ đúng so với sự thật."},
+    {id:"T06-149", t:"Muốn giảm bịa thì phải cấp nguồn cho mô hình đọc, hoặc cho nó quyền nói là không biết."}
+  ];
+
+  /* ───────── 3 tiêu chí công bố ở M1 ───────── */
+  var CRIT = [
+    {key:"c1", src:"T06-138", label:"cơ chế dự đoán token, không tra cứu",
+     kw:["dự đoán","du doan","token","xác suất","xac suat","tiếp theo","kế tiếp","không tra","khong tra","không tìm","predict"],
+     probe:"Chỗ này mình chưa theo kịp: lúc bị hỏi một câu nó chưa gặp bao giờ, mô hình lấy câu trả lời ở đâu ra? Bạn nói lại bước đó giúp mình."},
+    {key:"c2", src:"T06-141", label:"vì sao vẫn trả lời khi thiếu dữ liệu",
+     kw:["thiếu dữ liệu","không có dữ liệu","khong co du lieu","hiếm","thưa","vẫn chọn","vẫn phải","vẫn trả lời","buộc phải","chuẩn hoá","chuẩn hóa","không im"],
+     probe:"Nếu chỗ đó gần như không có dữ liệu, sao nó không im luôn mà vẫn ra được một câu? Mình đang kẹt ở đây."},
+    {key:"c3", src:"T06-145", label:"vì sao câu bịa nghe trôi chảy",
+     kw:["trôi chảy","troi chay","hợp lý","hop ly","nghe xuôi","mượt","tự tin","đúng sự thật","sự thật","ngôn ngữ","ngu phap","ngữ pháp"],
+     probe:"Câu bịa mà mình đọc thấy còn xuôi hơn cả câu đúng. Theo bạn thì vì sao lại thế?"}
+  ];
+  var DEEP = {src:"T06-149", probe:"Cho mình một ví dụ cụ thể mà mình tự kiểm lại được, để mình chắc là mình hiểu chứ không phải gật bừa."};
+
+  var OUT_KW = ["fine-tune","finetune","rlhf","gpu","huấn luyện lại","huan luyen lai","chi phí","chi phi","giá thành","mcp","đa tác tử","quantiz","tokenizer"];
+
+  /* ───────── preset demo ───────── */
+  var PRESET = [
+    "Theo mình hiểu thì LLM không tra cứu ở đâu cả, nó chỉ dự đoán token tiếp theo dựa trên xác suất đã học. Nên kể cả khi chỗ đó gần như không có dữ liệu, nó vẫn buộc phải chọn ra một token chứ không im lặng, thành ra vẫn sinh được một câu trả lời. Và vì thứ nó tối ưu là câu nghe hợp lý chứ không phải câu đúng sự thật, nên câu bịa đọc lên vẫn rất trôi chảy.",
+    "LLM bịa là vì nó dự đoán token tiếp theo chứ không tra cứu gì cả.",
+    "Mình nghĩ muốn hết bịa thì cứ fine-tune lại mô hình bằng RLHF trên GPU cho nó chuẩn là xong thôi.",
+    SRC[0].t + " " + SRC[1].t
+  ];
+
+  /* ───────── state ───────── */
+  var turn = 0, log = [], last = null, screen = "m1";
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function norm(s){ return (s||"").toLowerCase().replace(/\s+/g," ").trim(); }
+
+  function show(id){
+    screen = id;
+    ["m1","m2","m3","m4"].forEach(function(s){ $(s).hidden = (s !== id); });
+    $("source").hidden = !(id === "m2" || id === "m3");
+    Array.prototype.forEach.call($("steps").children, function(el){
+      el.classList.toggle("on", el.dataset.s === id);
+    });
+    window.scrollTo(0,0);
+  }
+
+  function renderSource(hl){
+    $("excerpts").innerHTML = SRC.map(function(s){
+      return '<div class="excerpt' + (hl === s.id ? ' hl' : '') + '" id="ex-' + s.id + '">' +
+             '<span class="id">[' + s.id + ']</span><p>' + s.t + '</p></div>';
+    }).join("");
+  }
+
+  function highlight(id){
+    renderSource(id);
+    var el = $("ex-" + id);
+    if (el) el.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+
+  /* ───────── bộ định tuyến MOCK — CP3 thay bằng lời gọi AI thật ───────── */
+  function decide(raw){
+    var a = norm(raw);
+
+    // dán nguyên văn tài liệu? (hard test §5)
+    for (var i = 0; i < SRC.length; i++){
+      var src = norm(SRC[i].t);
+      for (var j = 0; j + 40 <= src.length; j += 10){
+        if (a.indexOf(src.substr(j, 40)) !== -1){
+          return {state:"THIẾU_CĂN_CỨ", conf:"thấp", kind:"paste", src:SRC[i].id,
+                  probes:[{t:"Đoạn này là chữ trong tài liệu, không phải chữ của bạn. Bạn nói lại ý đó bằng lời mình được không?", src:SRC[i].id},
+                          {t:DEEP.probe, src:DEEP.src}]};
+        }
+      }
+    }
+    // quá ngắn, chưa đủ để đánh giá (lớp ② mơ hồ)
+    if (a.length < 40){
+      return {state:"THIẾU_CĂN_CỨ", conf:"thấp", kind:"short", src:CRIT[0].src,
+              probes:[{t:"Mới chừng này thì mình chưa đủ để hiểu. Bạn viết dài thêm một chút được không?", src:CRIT[0].src},
+                      {t:CRIT[0].probe, src:CRIT[0].src}]};
+    }
+    var miss = CRIT.filter(function(c){
+      return !c.kw.some(function(k){ return a.indexOf(k) !== -1; });
+    });
+    var hitOut = OUT_KW.filter(function(k){ return a.indexOf(k) !== -1; });
+
+    // ngoài phạm vi: không chạm tiêu chí nào, lại nói sang thứ không có trong 4 đoạn
+    if (miss.length === 3 && hitOut.length > 0){
+      return {state:"NGOÀI_PHẠM_VI", conf:"—", kind:"out", out:hitOut};
+    }
+    if (miss.length === 0){
+      return {state:"ĐỦ_CĂN_CỨ", conf:"cao", kind:"ok", src:"T06-138/141/145"};
+    }
+    var p = miss.slice(0,2).map(function(c){ return {t:c.probe, src:c.src, label:c.label}; });
+    while (p.length < 2) p.push({t:DEEP.probe, src:DEEP.src, label:"kiểm tra chiều sâu"});
+    return {state:"THIẾU_CĂN_CỨ", conf:"thấp", kind:"gap", probes:p,
+            missLabels:miss.map(function(c){ return c.label; })};
+  }
+
+  /* ───────── render M3 ───────── */
+  function renderM3(d){
+    var cls = d.state === "ĐỦ_CĂN_CỨ" ? "ok" : (d.state === "NGOÀI_PHẠM_VI" ? "out" : "warn");
+    $("state-chip").className = "chip " + cls;
+    $("state-chip").textContent = d.state;
+    $("conf").textContent = d.conf === "—" ? "không đánh giá đúng/sai" : "mức tự tin của mình: " + d.conf;
+    $("m3-banner").hidden = true;
+    $("correct").hidden = true;
+
+    var body = "", head = "", acts = "";
+
+    if (d.kind === "ok"){
+      head = "Mình nghĩ là mình hiểu rồi — nhưng bạn kiểm lại giúp mình";
+      body =
+        '<p>Bạn đã chạm đủ cả ba ý trong tiêu chí công bố ở đầu phiên. Nhưng mình <strong>không tự chốt</strong> ' +
+        'chuyện bạn hiểu hay chưa: mình chỉ là một agent đối chiếu chữ, mình sai được.</p>' +
+        '<div class="bubble">Bốn đoạn nguồn đang mở nguyên ở cột bên phải. Bạn đọc lại và tự đối chiếu với ' +
+        'những gì vừa viết — <em>bạn</em> mới là người kết luận.</div>' +
+        '<p style="font-size:13.5px;color:var(--mut)">Vì sao mình không tự chốt: công nhận nhầm một lời giải ' +
+        'thích sai thì bạn rời đi với kiến thức sai mà không biết. Hỏi lạc chỗ thì bạn bỏ qua được, rẻ hơn nhiều.</p>';
+      acts = '<button class="pri" data-act="confirm">Mình đã đối chiếu — đúng rồi</button>' +
+             '<button data-act="revise">Chưa, mình muốn sửa lại</button>';
+    }
+    else if (d.kind === "out"){
+      head = "Phần này không nằm trong đoạn mình đang học";
+      body =
+        '<div class="bubble">Bạn đang nói về <strong>' + d.out.join(", ") + '</strong>. ' +
+        'Bốn đoạn <code>[T06-138]</code>–<code>[T06-149]</code> của mình không có chỗ nào nói về cái đó, ' +
+        'nên mình <strong>không nói bạn đúng hay sai</strong> — mình không có căn cứ để nói.</div>' +
+        '<p>Câu mình cần bạn dạy lại là: <strong>vì sao LLM bịa</strong>, theo đúng bốn đoạn bên phải.</p>';
+      acts = '<button class="pri" data-act="revise">Viết lại trong phạm vi</button>' +
+             '<button data-act="see">Cho mình xem phạm vi gồm những gì</button>';
+    }
+    else {
+      head = d.kind === "paste" ? "Chỗ này là chữ của tài liệu, chưa phải chữ của bạn"
+           : d.kind === "short" ? "Mình chưa đủ dữ kiện để hiểu"
+           : "Mình còn hổng hai chỗ";
+      if (d.kind === "gap"){
+        body = '<p>Bạn đã nói được một phần. Còn <strong>' + d.missLabels.join("</strong> và <strong>") +
+               '</strong> thì mình chưa nắm được. Mình hỏi đúng hai câu thôi:</p>';
+      } else {
+        body = "<p>Mình hỏi lại đúng hai câu:</p>";
+      }
+      body += d.probes.map(function(p, i){
+        return '<div class="bubble"><strong>Câu ' + (i+1) + '.</strong> ' + p.t +
+               '<br><span class="src-ref" data-src="' + p.src + '">mình dựa vào [' + p.src + '] — bấm để xem</span></div>';
+      }).join("");
+      body += '<p style="font-size:13.5px;color:var(--mut)">Mình cố tình <strong>không</strong> đưa đáp án. ' +
+              'Bạn trả lời được hai câu này thì tự bạn sẽ thấy chỗ hổng nằm ở đâu.</p>';
+      acts = '<button class="pri" data-act="revise">Bổ sung — giữ nguyên bài mình đã viết</button>';
+    }
+
+    $("m3-head").textContent = head;
+    $("m3-body").innerHTML = body;
+    $("m3-actions").innerHTML = acts;
+  }
+
+  /* ───────── log + kết phiên ───────── */
+  function addLog(what, state, src){
+    log.push({turn:turn, what:what, state:state || "—", src:src || "—"});
+  }
+
+  function renderM4(){
+    $("logbody").innerHTML = log.map(function(r){
+      return "<tr><td>" + r.turn + "</td><td>" + r.what + "</td><td><code>" + r.state +
+             "</code></td><td><code>" + r.src + "</code></td></tr>";
+    }).join("");
+    var taught = log.some(function(r){ return r.what.indexOf("tự đối chiếu và xác nhận") !== -1; });
+    $("verdict").innerHTML = taught
+      ? '<div class="verdict yes"><b>Đã dạy được</b><br>Bạn chạm đủ 3/3 tiêu chí công bố ở đầu phiên ' +
+        '<em>và</em> tự đối chiếu lại với đoạn nguồn. Kết luận này là của bạn, không phải của mình.</div>'
+      : '<div class="verdict no"><b>Chưa đủ căn cứ để kết luận</b><br>Phiên này chưa chạm đủ 3 tiêu chí công bố ' +
+        'ở đầu phiên, hoặc bạn chưa tự đối chiếu lại. Không sao — không có điểm nào bị ghi ở đây.</div>';
+    show("m4");
+  }
+
+  /* ───────── sự kiện ───────── */
+  document.addEventListener("click", function(e){
+    var t = e.target.closest("button, .src-ref");
+    if (!t) return;
+
+    if (t.dataset.go){ 
+      if (t.dataset.go === "m2") $("m2-banner").hidden = true;
+      show(t.dataset.go); return; 
+    }
+    if (t.dataset.preset !== undefined){
+      $("answer").value = PRESET[+t.dataset.preset];
+      $("answer").focus(); return;
+    }
+    if (t.classList.contains("src-ref")){ highlight(t.dataset.src); return; }
+
+    switch (t.dataset.act){
+      case "confirm":
+        addLog("Học viên <strong>tự đối chiếu và xác nhận</strong> với đoạn nguồn", last.state, "T06-138/141/145");
+        renderM4(); return;
+      case "revise":
+        $("m2-banner").hidden = false;
+        $("m2-banner").innerHTML = last.state === "NGOÀI_PHẠM_VI"
+          ? "Bài cũ vẫn ở nguyên đây. Viết lại theo bốn đoạn bên phải nhé."
+          : "Bài cũ vẫn ở nguyên đây — bạn <strong>bổ sung thêm</strong> vào, không phải gõ lại từ đầu.";
+        addLog("Học viên quay lại bổ sung (bài viết được giữ nguyên)", last.state, "—");
+        show("m2"); $("answer").focus(); return;
+      case "see":
+        highlight("T06-138"); return;
+    }
+
+    if (t.id === "send"){
+      var v = $("answer").value.trim();
+      if (!v){ $("answer").focus(); return; }
+      turn++;
+      last = decide(v);
+      addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → mình đánh giá",
+             last.state, last.probes ? last.probes.map(function(p){return p.src;}).join(", ") : (last.src || "—"));
+      renderSource(null);
+      renderM3(last);
+      show("m3"); return;
+    }
+    if (t.id === "disagree"){ $("correct").hidden = false; $("correct-text").focus(); return; }
+    if (t.id === "correct-cancel"){ $("correct").hidden = true; return; }
+    if (t.id === "correct-save"){
+      var pick = document.querySelector('input[name="fix"]:checked');
+      var why = $("correct-text").value.trim();
+      addLog("<strong>Học viên không đồng ý</strong> với đánh giá của mình" + (why ? ': “' + why + '”' : ""),
+             (pick ? pick.value : last.state) + " (học viên sửa)", "—");
+      $("correct").hidden = true;
+      $("m3-banner").hidden = false;
+      $("m3-banner").innerHTML = "Đã ghi phản hồi của bạn vào log phiên. Đánh giá của mình ở trên " +
+        "<strong>không</strong> được dùng để kết luận nữa — bạn giữ quyền quyết định.";
+      document.querySelectorAll('input[name="fix"]').forEach(function(r){ r.checked = false; });
+      $("correct-text").value = "";
+      return;
+    }
+    if (t.id === "end-now"){
+      addLog("Học viên kết thúc phiên", last ? last.state : "—", "—");
+      renderM4(); return;
+    }
+    if (t.id === "restart"){
+      turn = 0; log = []; last = null;
+      $("answer").value = ""; $("m2-banner").hidden = true;
+      renderSource(null); show("m1"); return;
+    }
+  });
+
+  renderSource(null);
+  show("m1");
+})();
+</script>
+</body>
+</html>

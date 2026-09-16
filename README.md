@@ -15,6 +15,15 @@
 
 > Nhóm copy nguyên file README này về repo của mình, rồi điền bảng trên. Cột **Phần việc đảm nhiệm** ghi càng cụ thể càng tốt.
 
+### 📦 Bài nộp của nhóm
+
+| Mốc | File | Là gì |
+|---|---|---|
+| CP1 | [`spec.md`](spec.md) | Canvas 4 ô + §1–§9 |
+| CP1 | [`evidence/`](evidence/) | Nhật ký mining + bộ câu hỏi khảo sát chuẩn A + QR |
+| **CP2** | **[`codebase/prototype/index.html`](codebase/prototype/index.html)** | **Bản mẫu tương tác — tải về double-click là chạy, không cần mạng.** Hướng dẫn bấm 4 nhánh: [`codebase/README.md`](codebase/README.md) |
+| — | [`teammates.md`](teammates.md) | Phân công chi tiết + danh sách người thử |
+
 - Thời lượng: **47,5 giờ** từ phát đề đến thuyết trình (ca 3A) — LAB 5 (phát đề + build) · LEC 6 (tiếp tục build theo ca) · LAB 6 (vòng thi)
 - Nhóm: **3-4 người** · thi theo phòng (E403 / E402), chia cụm rồi chung kết phòng — xem *Thể thức thi*
 - **Chia cụm theo bàn**, không cần chung đề tài. Chủ đề tự chọn trong khuôn khổ đề bài
