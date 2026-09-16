@@ -134,6 +134,8 @@ Bộ câu hỏi: **[`evidence/survey-questions.md`](evidence/survey-questions.md
 
 **Bản mẫu tại CP2:** [`codebase/prototype/index.html`](codebase/prototype/index.html) — một file HTML tự chứa, mở bằng `file://` là chạy, không cần mạng. Bốn màn M1→M4, bấm đi hết được cả 4 nhánh trải nghiệm (§6).
 
+Cùng file còn có **sơ đồ luồng** (nút *⤳ Sơ đồ luồng* trên thanh tiêu đề): vẽ rõ điểm nhập liệu, hai cổng chặn trước, **điểm gọi quyết định AI** `decide()`, ba nhánh đi ra và hai nhánh ngoại lệ — đáp ứng luôn hình thức flowchart mà mốc CP2 chấp nhận.
+
 | Thành phần | CP2 | CP3 làm gì tiếp |
 |---|---|---|
 | Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |

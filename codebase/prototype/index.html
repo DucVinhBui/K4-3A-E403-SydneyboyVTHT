@@ -24,6 +24,7 @@
     border:1px solid #f4c4c4;border-radius:5px;padding:3px 8px}
   main{max-width:1120px;margin:20px auto;padding:0 16px;display:grid;
     grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+  main.wide{grid-template-columns:1fr}
   @media (max-width:880px){main{grid-template-columns:1fr}}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
   h1{font-size:21px;margin:0 0 6px}
@@ -79,6 +80,27 @@
   fieldset{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:14px 0}
   legend{font-size:12.5px;color:var(--mut);padding:0 6px}
   label.opt{display:block;margin:5px 0;font-size:14px}
+  .flowwrap{overflow-x:auto;margin:14px -6px 0;padding:0 6px}
+  .flowwrap svg{display:block;min-width:820px;width:100%;height:auto}
+  .fbox{fill:#fff;stroke:var(--line);stroke-width:1.4}
+  .fbox.inp{fill:var(--acc-bg);stroke:#9dbaf8;stroke-width:1.8}
+  .fbox.ai{fill:var(--out-bg);stroke:var(--out);stroke-width:3}
+  .fbox.exc{fill:var(--warn-bg);stroke:#eccf9a}
+  .fbox.ok{fill:var(--ok-bg);stroke:#8fc9a9}
+  .fbox.warn{fill:var(--warn-bg);stroke:#e0b465}
+  .fbox.out{fill:var(--out-bg);stroke:#b3a5e6}
+  .fbox.dash{fill:#fbfaff;stroke:var(--out);stroke-width:1.6;stroke-dasharray:7 5}
+  .fdia{fill:#fff;stroke:#b6bec9;stroke-width:1.4}
+  .fln{stroke:#8c95a3;stroke-width:1.6;fill:none}
+  .fln.dash{stroke-dasharray:5 4}
+  .ft{font:11.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--ink)}
+  .ft.hd{font-size:10.5px;font-weight:700;letter-spacing:.09em;fill:var(--mut)}
+  .ft.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;font-weight:700}
+  .ft.sm{font-size:10.5px;fill:var(--mut)}
+  .ft.lbl{font-size:10.5px;fill:var(--mut);font-style:italic}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;font-size:12.5px;color:var(--mut)}
+  .legend i{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:6px;
+    vertical-align:-2px;border:1.5px solid}
   [hidden]{display:none !important}
 </style>
 </head>
@@ -94,6 +116,7 @@
     <span class="step" data-s="m3">3 · Agent hỏi ngược</span>
     <span class="step" data-s="m4">4 · Kết phiên</span>
   </div>
+  <button class="sm" id="btn-flow">⤳ Sơ đồ luồng</button>
   <span class="mock">BẢN MẪU — AI CHẠY MOCK</span>
 </header>
 
@@ -209,6 +232,152 @@
     </div>
   </section>
 
+
+  <!-- ══════════ SƠ ĐỒ LUỒNG ══════════ -->
+  <section class="card" id="flow" hidden>
+    <h1>Hệ thống đang làm gì</h1>
+    <p class="lead">Một vòng dạy lại: học viên nhập gì, hệ thống gọi quyết định AI ở đâu,
+      và ba nhánh đi ra cùng hai nhánh ngoại lệ chặn trước.</p>
+
+    <div class="flowwrap">
+    <svg viewBox="0 0 920 1110" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Sơ đồ luồng phiên dạy lại">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#8c95a3"/>
+        </marker>
+      </defs>
+
+      <!-- M1 -->
+      <rect class="fbox" x="310" y="20" width="300" height="72" rx="9"/>
+      <text class="ft hd" x="460" y="42" text-anchor="middle">M1 · MỞ PHIÊN</text>
+      <text class="ft" x="460" y="60" text-anchor="middle">Công bố trước: phạm vi 4 đoạn nguồn</text>
+      <text class="ft" x="460" y="77" text-anchor="middle">+ 3 tiêu chí “đã dạy được”</text>
+      <path class="fln" d="M460,92 L460,120" marker-end="url(#ah)"/>
+
+      <!-- M2 -->
+      <rect class="fbox inp" x="310" y="124" width="300" height="78" rx="9"/>
+      <text class="ft hd" x="460" y="146" text-anchor="middle">M2 · NHẬP LIỆU CỦA NGƯỜI</text>
+      <text class="ft" x="460" y="165" text-anchor="middle">Học viên viết lời giải thích bằng lời mình</text>
+      <text class="ft sm" x="460" y="184" text-anchor="middle">Panel nguồn [T06-xxx] luôn hiện bên cạnh</text>
+      <path class="fln" d="M460,202 L460,226" marker-end="url(#ah)"/>
+
+      <!-- cổng 1 -->
+      <path class="fdia" d="M460,230 L586,274 L460,318 L334,274 Z"/>
+      <text class="ft" x="460" y="270" text-anchor="middle">Dán nguyên văn</text>
+      <text class="ft" x="460" y="287" text-anchor="middle">tài liệu?</text>
+      <path class="fln" d="M586,274 L636,274" marker-end="url(#ah)"/>
+      <text class="ft lbl" x="611" y="266" text-anchor="middle">có</text>
+      <rect class="fbox exc" x="640" y="244" width="260" height="60" rx="9"/>
+      <text class="ft hd" x="770" y="264" text-anchor="middle">NGOẠI LỆ → THIẾU_CĂN_CỨ</text>
+      <text class="ft" x="770" y="283" text-anchor="middle">Đòi nói lại bằng lời của mình</text>
+
+      <text class="ft lbl" x="472" y="336">không</text>
+      <path class="fln" d="M460,318 L460,342" marker-end="url(#ah)"/>
+
+      <!-- cổng 2 -->
+      <path class="fdia" d="M460,346 L586,390 L460,434 L334,390 Z"/>
+      <text class="ft" x="460" y="386" text-anchor="middle">Ngắn hơn</text>
+      <text class="ft" x="460" y="403" text-anchor="middle">40 ký tự?</text>
+      <path class="fln" d="M586,390 L636,390" marker-end="url(#ah)"/>
+      <text class="ft lbl" x="611" y="382" text-anchor="middle">có</text>
+      <rect class="fbox exc" x="640" y="356" width="260" height="68" rx="9"/>
+      <text class="ft hd" x="770" y="376" text-anchor="middle">NGOẠI LỆ → THIẾU_CĂN_CỨ</text>
+      <text class="ft" x="770" y="394" text-anchor="middle">Chưa đủ dữ kiện để đánh giá.</text>
+      <text class="ft" x="770" y="412" text-anchor="middle">Xin học viên viết thêm.</text>
+
+      <text class="ft lbl" x="472" y="452">không</text>
+      <path class="fln" d="M460,434 L460,458" marker-end="url(#ah)"/>
+
+      <!-- điểm gọi AI -->
+      <rect class="fbox ai" x="280" y="462" width="360" height="104" rx="11"/>
+      <text class="ft hd" x="460" y="487" text-anchor="middle" style="fill:#5a4a8a">◆ ĐIỂM GỌI QUYẾT ĐỊNH AI ◆</text>
+      <text class="ft mono" x="460" y="509" text-anchor="middle">decide()</text>
+      <text class="ft" x="460" y="529" text-anchor="middle">Đối chiếu lời giải thích với [T06-138 / 141 / 145]</text>
+      <text class="ft sm" x="460" y="551" text-anchor="middle">CP2: heuristic mock · CP3: lời gọi AI thật</text>
+      <path class="fln" d="M460,566 L460,600"/>
+
+      <!-- chia 3 nhánh -->
+      <path class="fln" d="M175,600 L745,600"/>
+      <path class="fln" d="M175,600 L175,630" marker-end="url(#ah)"/>
+      <path class="fln" d="M460,600 L460,630" marker-end="url(#ah)"/>
+      <path class="fln" d="M745,600 L745,630" marker-end="url(#ah)"/>
+
+      <rect class="fbox out"  x="60"  y="634" width="230" height="46" rx="8"/>
+      <text class="ft mono" x="175" y="662" text-anchor="middle">NGOÀI_PHẠM_VI</text>
+      <rect class="fbox warn" x="345" y="634" width="230" height="46" rx="8"/>
+      <text class="ft mono" x="460" y="662" text-anchor="middle">THIẾU_CĂN_CỨ</text>
+      <rect class="fbox ok"   x="630" y="634" width="230" height="46" rx="8"/>
+      <text class="ft mono" x="745" y="662" text-anchor="middle">ĐỦ_CĂN_CỨ</text>
+
+      <path class="fln" d="M175,680 L175,702" marker-end="url(#ah)"/>
+      <path class="fln" d="M460,680 L460,702" marker-end="url(#ah)"/>
+      <path class="fln" d="M745,680 L745,702" marker-end="url(#ah)"/>
+
+      <rect class="fbox" x="60"  y="706" width="230" height="92" rx="9"/>
+      <text class="ft" x="175" y="729" text-anchor="middle">Không phán đúng/sai.</text>
+      <text class="ft" x="175" y="748" text-anchor="middle">Gọi tên thứ học viên</text>
+      <text class="ft" x="175" y="766" text-anchor="middle">vừa nói, chỉ rõ 4 đoạn</text>
+      <text class="ft" x="175" y="784" text-anchor="middle">nguồn không có nội dung đó</text>
+
+      <rect class="fbox" x="345" y="706" width="230" height="92" rx="9"/>
+      <text class="ft" x="460" y="729" text-anchor="middle">Hỏi ngược ĐÚNG 2 câu</text>
+      <text class="ft" x="460" y="748" text-anchor="middle">vào chỗ hổng.</text>
+      <text class="ft" x="460" y="766" text-anchor="middle">Mỗi câu gắn mã [T06-xxx].</text>
+      <text class="ft" x="460" y="784" text-anchor="middle">Không đưa đáp án.</text>
+
+      <rect class="fbox" x="630" y="706" width="230" height="92" rx="9"/>
+      <text class="ft" x="745" y="729" text-anchor="middle">Agent KHÔNG tự chốt.</text>
+      <text class="ft" x="745" y="748" text-anchor="middle">Đẩy học viên tự đối chiếu</text>
+      <text class="ft" x="745" y="766" text-anchor="middle">với đoạn nguồn bên cạnh.</text>
+      <text class="ft sm" x="745" y="784" text-anchor="middle">← đây là mức augment</text>
+
+      <path class="fln" d="M175,798 L175,822" marker-end="url(#ah)"/>
+      <path class="fln" d="M460,798 L460,822" marker-end="url(#ah)"/>
+      <path class="fln" d="M745,798 L745,822" marker-end="url(#ah)"/>
+
+      <!-- correction -->
+      <rect class="fbox dash" x="60" y="826" width="800" height="64" rx="10"/>
+      <text class="ft hd" x="460" y="850" text-anchor="middle" style="fill:#5a4a8a">CHẶNG TUỲ CHỌN — CÓ Ở MỌI NHÁNH: NÚT “KHÔNG ĐỒNG Ý VỚI ĐÁNH GIÁ NÀY”</text>
+      <text class="ft" x="460" y="872" text-anchor="middle">Học viên nói agent sai chỗ nào + chọn lại trạng thái → ghi vào log, đánh giá của agent bị vô hiệu</text>
+
+      <!-- vòng lặp về M2 -->
+      <path class="fln" d="M175,890 L175,930"/>
+      <path class="fln" d="M460,890 L460,930"/>
+      <path class="fln" d="M460,930 L25,930"/>
+      <path class="fln" d="M25,930 L25,163 L306,163" marker-end="url(#ah)"/>
+      <text class="ft lbl" x="300" y="950" text-anchor="middle">Bổ sung / Viết lại — bài cũ giữ nguyên, không gõ lại từ đầu</text>
+
+      <!-- M4 -->
+      <path class="fln" d="M745,890 L745,936" marker-end="url(#ah)"/>
+      <rect class="fbox" x="615" y="940" width="260" height="76" rx="9"/>
+      <text class="ft hd" x="745" y="963" text-anchor="middle">M4 · KẾT PHIÊN</text>
+      <text class="ft" x="745" y="982" text-anchor="middle">Log phiên + kết luận theo đúng</text>
+      <text class="ft" x="745" y="1000" text-anchor="middle">3 tiêu chí đã công bố ở M1</text>
+      <text class="ft sm" x="745" y="1038" text-anchor="middle">Mọi màn M3 còn có nút “Kết thúc phiên” → M4: không có đường cụt</text>
+    </svg>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:var(--acc-bg);border-color:#9dbaf8"></i>Người nhập liệu</span>
+      <span><i style="background:var(--out-bg);border-color:var(--out);border-width:3px"></i>Điểm gọi quyết định AI</span>
+      <span><i style="background:var(--warn-bg);border-color:#eccf9a"></i>Nhánh ngoại lệ</span>
+      <span><i style="background:#fbfaff;border-color:var(--out);border-style:dashed"></i>Chặng tuỳ chọn</span>
+    </div>
+
+    <div class="note">
+      <strong>Đọc sơ đồ này thế nào.</strong> Hai cổng hình thoi là bộ chặn <em>trước</em> khi tốn một lời gọi AI:
+      dán nguyên văn tài liệu và bài quá ngắn thì không cần AI cũng biết là chưa đánh giá được.
+      Ô viền tím đậm là chỗ duy nhất hệ thống ra quyết định — CP2 đang chạy heuristic trong hàm
+      <code>decide()</code>, CP3 thay đúng hàm đó bằng lời gọi AI thật, phần còn lại của sơ đồ giữ nguyên.
+    </div>
+
+    <div class="row">
+      <button class="pri" id="flow-back">← Quay lại bản mẫu</button>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══════════ CỘT NGUỒN — LUÔN HIỆN Ở M2/M3 ══════════ -->
@@ -263,7 +432,7 @@
   ];
 
   /* ───────── state ───────── */
-  var turn = 0, log = [], last = null, screen = "m1";
+  var turn = 0, log = [], last = null, screen = "m1", prevScreen = "m1";
 
   var $ = function(id){ return document.getElementById(id); };
 
@@ -271,8 +440,10 @@
 
   function show(id){
     screen = id;
-    ["m1","m2","m3","m4"].forEach(function(s){ $(s).hidden = (s !== id); });
-    $("source").hidden = !(id === "m2" || id === "m3");
+    ["m1","m2","m3","m4","flow"].forEach(function(s){ $(s).hidden = (s !== id); });
+    var hasSrc = (id === "m2" || id === "m3");
+    $("source").hidden = !hasSrc;
+    document.querySelector("main").classList.toggle("wide", !hasSrc);
     Array.prototype.forEach.call($("steps").children, function(el){
       el.classList.toggle("on", el.dataset.s === id);
     });
@@ -448,6 +619,8 @@
       renderM3(last);
       show("m3"); return;
     }
+    if (t.id === "btn-flow"){ if (screen !== "flow") prevScreen = screen; show("flow"); return; }
+    if (t.id === "flow-back"){ show(prevScreen); return; }
     if (t.id === "disagree"){ $("correct").hidden = false; $("correct-text").focus(); return; }
     if (t.id === "correct-cancel"){ $("correct").hidden = true; return; }
     if (t.id === "correct-save"){

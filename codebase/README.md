@@ -15,6 +15,12 @@ Một file HTML duy nhất, tự chứa hoàn toàn: không framework, không CD
 | **M3 · Agent hỏi ngược** | Chip trạng thái + mức tự tin + nội dung theo nhánh. Mỗi câu hỏi ngược gắn mã đoạn nó dựa vào |
 | **M4 · Kết phiên** | Log phiên + kết luận theo đúng tiêu chí đã công bố ở M1 |
 
+## Xem hệ thống đang làm gì
+
+Nút **⤳ Sơ đồ luồng** ở góc phải thanh tiêu đề mở sơ đồ toàn bộ một vòng dạy lại: học viên nhập gì, hai cổng chặn trước, **điểm gọi quyết định AI** (`decide()`, viền tím đậm), ba nhánh đi ra, chặng correction và vòng lặp về M2. Bấm *← Quay lại bản mẫu* để về đúng màn đang dở.
+
+Sơ đồ này cũng là hình thức nộp thứ hai mà mốc CP2 chấp nhận (flowchart), nằm luôn trong file bản mẫu nên không phải mở thêm gì.
+
 ## Bấm nút nào ra nhánh nào
 
 Dùng **Bảng điều khiển demo** ở cuối màn M2 (4 nút preset) để demo 5 phút đi hết 4 nhánh mà không phụ thuộc gõ tay:
