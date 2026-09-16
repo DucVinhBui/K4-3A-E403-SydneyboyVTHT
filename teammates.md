@@ -1,4 +1,4 @@
-# Thành viên nhóm — SydleyboyVTHT
+# Thành viên nhóm — SydneyboyVTHT
 
 **Lớp:** 3A · **Phòng:** E403 · **Cụm:** ____ · **Track:** D — Học tập thích ứng & tương tác trên VLearn · **Đề:** D3 — Học bằng cách dạy
 

@@ -1,8 +1,50 @@
-# AI SPEC — Agent học trò: học bằng cách dạy lại · Nhóm SydleyboyVTHT · Lớp 3A · Phòng E403
+# AI SPEC — Agent học trò: học bằng cách dạy lại · Nhóm SydneyboyVTHT · Lớp 3A · Phòng E403
 
 **Track:** D — Học tập thích ứng & tương tác trên VLearn · **Đề:** D3 — Học bằng cách dạy
 **Loại:** Tính năng mới
-**Trạng thái:** bản CP1 (Canvas 4 ô) — hoàn thiện đến hạn chốt spec 21:00 ngày 17/9 (CP4)
+**Trạng thái:** bản CP1 — Canvas 4 ô theo template chính thức, phần §1–§9 khai triển bên dưới — hoàn thiện đến hạn chốt spec 21:00 ngày 17/9 (CP4)
+
+---
+
+---
+
+# CANVAS CP1 — 4 ô
+
+## 01 · NGƯỜI DÙNG & NỖI ĐAU
+
+### Học viên tưởng đã hiểu, nhưng không có gì kiểm chứng
+
+**Job:** học viên khoá 4 vừa học xong một khái niệm trên VLearn (bài Foundation — transformer & attention), cần xác nhận mình đã thật sự hiểu trước khi đi tiếp.
+
+**Pain:** căn cứ duy nhất để kết luận "mình hiểu rồi" là cảm giác đọc trôi. Trong 3.097 lượt hỏi-đáp của khoá, **99,81% lượt không ghi nhận mức hiểu nào** và chỉ **1 lượt (0,03%)** có ai chủ động hỏi ngược lại người học. Lỗ hổng chỉ lộ ra khi làm bài hoặc bị hỏi — lúc đó đã học sai sang các bài sau.
+
+## 02 · BẰNG CHỨNG BAN ĐẦU
+
+### Mining chatlog khoá 4, khảo sát lớp đang chạy
+
+Mining `data/vlearn-pack/chatlog/tutor_turns.csv` (13.494 lượt, lọc `cohort_hint == "K4"` còn 3.097 lượt): phương pháp đếm kiểm lại được, số liệu ALL vs K4, và 5 trích dẫn nguyên văn dẫn `turn_id` — chi tiết trong [`evidence/mining-log.md`](evidence/mining-log.md).
+
+Song song: khảo sát chuẩn A 6 câu đang thu, định nghĩa "một người xác nhận" đã chốt **trước** khi phát form — [`evidence/survey-questions.md`](evidence/survey-questions.md).
+
+> 🔵 Không copy số liệu thô, snippet hay đoạn dài từ `data/` ra ngoài. Repo nộp chỉ chứa **số đếm và mã `turn_id`**, không chứa data pack.
+
+## 03 · LÁT CẮT & AUTOMATION
+
+### Một lời giải thích, một quyết định hỏi ngược
+
+`ĐỦ_CĂN_CỨ`  `THIẾU_CĂN_CỨ`  `NGOÀI_PHẠM_VI`
+
+Một học viên K4 vừa học xong đoạn "vì sao LLM bịa" **cần** giải thích lại khái niệm đó bằng lời của mình, **được** một agent học trò đối chiếu lời giải thích với đoạn `[T06-138]`–`[T06-149]` và quyết định hỏi ngược đúng 2 câu tại chỗ thiếu căn cứ, **giúp** học viên bổ sung được dẫn chứng còn thiếu và đạt mức "đã dạy được" theo tiêu chí công bố trước phiên.
+
+> 🟣 **Augment:** agent không tự chốt "đã hiểu". Hỏi ngược lạc chỗ thì học viên bỏ qua được, sửa rẻ; nhưng **công nhận nhầm một lời giải thích sai** thì học viên rời đi với kiến thức sai và không tự phát hiện được. Nên đoạn nguồn `[T06-xxx]` luôn hiện cạnh câu hỏi để học viên tự kiểm.
+
+## 04 · NGƯỜI THỬ & PHÂN CÔNG
+
+### Sáu người thử, bốn phần việc có tên
+
+**Willing users dự kiến:** mời **≥6 người ngoài nhóm** thử prototype trước CP5. Track D bắt buộc ≥5 người *thực sự học một đoạn* bằng prototype, không chỉ bấm thử giao diện — nên mời dư để phòng người bận.
+
+> 🟠 **4 vai trò:** spec + điều phối (Bùi Đức Vinh, đội trưởng) · evidence + mining (Đinh Công Tú) · prompt + eval (Đỗ Phúc Hưng) · build + demo (Bùi Đức Thông). Chi tiết: [`teammates.md`](teammates.md).
 
 ---
 
