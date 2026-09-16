@@ -14,6 +14,9 @@ studio-pack/
 secrets.json
 **/sources.local.json
 
+.agents
+.codex
+
 # Rác hệ thống
 .DS_Store
 __pycache__/

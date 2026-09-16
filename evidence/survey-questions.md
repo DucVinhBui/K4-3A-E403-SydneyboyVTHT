@@ -79,17 +79,32 @@ Căn cứ "ai trả lời" của chuẩn A dựa vào ô **Họ tên + Mã học
 
 ---
 
-## Bảng log *(`evidence/survey-log.md`, mỗi người một dòng)*
+## Bảng log câu trả lời *(cập nhật 16/09/2026)*
+
+Nguồn: tab **Câu trả lời → Cá nhân** của Google Form. Form có **6 lượt gửi**; đã lọc **1 phiếu trùng hoàn toàn** của Lê Phan Việt Cường (`2A202602641`), gửi liền nhau lúc 19:24–19:25. Bảng dưới giữ **5 người duy nhất**. Đỗ Phúc Hưng chỉ nhập họ tên, không nhập mã học viên; ô mã được ghi đúng là thiếu thay vì suy đoán.
 
 | # | Họ tên | Mã HV | C1 | **C2** | **C3** | C4 | **Xác nhận (a∧b)** | Quote từ C5 (nguyên văn) | C6 |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 |  |  |  |  |  |  |  |  |  |
+| 1 | Lê Phan Việt Cường | `2A202602641` | Hỏi AI tutor trên VLearn | Tự làm được bài tập về nó | Có — nhưng không nhớ rõ lần nào | Ngại hỏi / mất tự tin | Không | Học lec1 | *(bỏ trống)* |
+| 2 | Đỗ Phúc Hưng | *(không cung cấp)* | Hỏi AI tutor trên VLearn | Tự làm được bài tập về nó | Có — nhưng không nhớ rõ lần nào | Mất thời gian làm lại; Ngại hỏi / mất tự tin | Không | tôi học Transformet, hiểu khá sau | không |
+| 3 | Đinh Công Tú | `2A202602479` | Hỏi AI tutor trên VLearn | Đọc lại thấy ổn | Có — nhưng không nhớ rõ lần nào | Mất điểm bài tập/quiz; Mất thời gian làm lại | Không | Khái niệm chung chung, đọc lại không hiểu sâu | Có cần người huongws dẫn, kiểm tra lại |
+| 4 | Bùi Gia Chính | `2A202602693` | Đi thẳng sang phần tiếp theo | Thấy quen, đọc trôi được | Có — nhưng không nhớ rõ lần nào | Mất điểm bài tập/quiz | Không | Khi học về các nội dung buổi 1, 2, tôi trả lời sai khái niệm ở quiz ôn tập | *(bỏ trống)* |
+| 5 | Nguyễn Ngọc Thái An | `2A202602462` | Đọc lại slide một lượt nữa | Đọc lại thấy ổn | Có — nhưng không nhớ rõ lần nào | Mất điểm bài tập/quiz | Không | Phát hiện nhớ nhầm về attention trong transformer<br>Phát hiện ra lúc search lại trên mạng | *(bỏ trống)* |
 
-**Bốn dòng tổng kết cuối bảng:**
-1. n = ___ · số xác nhận = ___ · **tỉ lệ = ___%** · đạt/không đạt ngưỡng >50%
-2. Phương án nhiều nhất ở C2 và C4 — nói lên điều gì
-3. Nếu **không** đạt >50%: pattern nào thay thế, nhóm đổi gì ở §1
-4. 5 quote chọn đưa vào `spec.md` §1 + tên người nói
+### Tổng kết hiện tại
+
+1. **Số liệu:** 6 lượt gửi thô → 5 người duy nhất sau lọc trùng; trong đó 4/5 người cung cấp đủ tên + mã học viên. Số xác nhận `a∧b` = **0/5 (0%)**. Kết quả **chưa đạt chuẩn A** vì vừa chưa đủ `n ≥ 20`, vừa không đạt ngưỡng `>50%`.
+2. **C2:** hai phương án đồng hạng cao nhất là *"Tự làm được bài tập về nó"* và *"Đọc lại thấy ổn"* (mỗi phương án 2/5). Dữ liệu hiện tại cho thấy một nhóm đã tự kiểm chứng bằng bài tập, còn một nhóm vẫn dựa vào cảm giác đọc lại.
+3. **C4:** *"Mất điểm bài tập/quiz"* nhiều nhất (3/5); tiếp theo là *"Mất thời gian làm lại"* và *"Ngại hỏi / mất tự tin"* (mỗi phương án 2/5). Tuy nhiên, **không ai** chọn C3 *"Có — tôi kể lại được lần đó"*, nên chưa có phiếu nào thỏa định nghĩa xác nhận đã chốt trước khảo sát.
+4. **Pattern thay thế / việc cần đổi ở `spec.md` §1:** với mẫu hiện tại, bằng chứng mạnh hơn là người học từng nhận ra hiểu sai nhưng **không nhớ rõ một lần cụ thể**, trong khi hậu quả thường xuất hiện ở điểm quiz. Không được kết luận nỗi đau đã được xác nhận; cần tiếp tục lấy ít nhất 15 người duy nhất và ưu tiên phỏng vấn gợi nhớ tình huống cụ thể.
+
+### 5 quote C5 nguyên văn để cân nhắc đưa vào `spec.md` §1
+
+- Lê Phan Việt Cường: “Học lec1”
+- Đỗ Phúc Hưng: “tôi học Transformet, hiểu khá sau”
+- Đinh Công Tú: “Khái niệm chung chung, đọc lại không hiểu sâu”
+- Bùi Gia Chính: “Khi học về các nội dung buổi 1, 2, tôi trả lời sai khái niệm ở quiz ôn tập”
+- Nguyễn Ngọc Thái An: “Phát hiện nhớ nhầm về attention trong transformer<br>Phát hiện ra lúc search lại trên mạng”
 
 ---
 
