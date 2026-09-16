@@ -1,0 +1,20 @@
+# ── TUYỆT ĐỐI KHÔNG ĐẨY LÊN ─────────────────────────────
+# Data pack của khoá là tài liệu nội bộ. Repo này PUBLIC.
+data/
+*.csv
+vlearn-pack/
+discord-pack/
+studio-pack/
+
+# Khoá API — lộ là mất tài khoản
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+**/sources.local.json
+
+# Rác hệ thống
+.DS_Store
+__pycache__/
+node_modules/
