@@ -9,6 +9,7 @@ studio-pack/
 # Khoá API — lộ là mất tài khoản
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 secrets.json

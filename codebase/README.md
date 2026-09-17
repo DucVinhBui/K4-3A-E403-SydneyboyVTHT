@@ -1,10 +1,30 @@
-# codebase/ — Bản mẫu tương tác CP2
+# codebase/ — Prototype CP3 dùng AI thật
 
-## Mở thế nào
+## Chạy thế nào
 
-Tải repo về → double-click **`codebase/prototype/index.html`**.
+Yêu cầu Node.js 18 trở lên; không cần cài package ngoài.
 
-Một file HTML duy nhất, tự chứa hoàn toàn: không framework, không CDN, không cài gì, **không cần mạng**. Mở bằng `file://` chạy được.
+```bash
+cp .env.example .env
+# Mở .env và điền OPENAI_API_KEY
+npm start
+```
+
+Nếu server đang chạy khi bạn thêm key, nhấn `Ctrl+C` rồi chạy lại `npm start`.
+
+Mở `http://127.0.0.1:4173`. Không mở `index.html` bằng `file://` khi demo CP3 vì trình duyệt cần gọi server cục bộ để giữ kín API key.
+
+API key chỉ được đọc ở `codebase/server.mjs`, không được gửi xuống trình duyệt. File `.env` đã nằm trong `.gitignore`.
+
+### Nguồn transcript nội bộ
+
+Prototype chạy được ngay với `sources.example.json`, nhưng giao diện sẽ ghi rõ **NGUỒN MẪU**. Trước khi quay CP3:
+
+```bash
+cp codebase/prototype/sources.example.json codebase/prototype/sources.local.json
+```
+
+Thay bốn trường `text` trong `sources.local.json` bằng nội dung thật của `[T06-138]`, `[T06-141]`, `[T06-145]`, `[T06-149]`. File này được Git bỏ qua và không được đẩy lên repo public.
 
 ## Bốn màn
 
@@ -33,27 +53,38 @@ Dùng **Bảng điều khiển demo** ở cuối màn M2 (4 nút preset) để d
 | ④ Dán nguyên văn tài liệu | low-confidence *(hard test)* | `THIẾU_CĂN_CỨ` | Phát hiện dán lại tài liệu, đòi nói bằng lời mình |
 | **Không đồng ý với đánh giá này** *(có ở mọi màn M3)* | **correction** | học viên chọn lại | Ghi phản hồi vào log; đánh giá của agent bị vô hiệu |
 
-Gõ tự do cũng chạy — quyết định đi qua một bộ định tuyến heuristic.
+Gõ tự do sẽ gọi OpenAI Responses API qua server cục bộ. Hai trường hợp rẻ và rõ ràng — bài quá ngắn hoặc dán nguyên văn nguồn — được chặn trước để không tốn một lời gọi API.
 
-## Phần nào mock, phần nào thật
+## Phần nào thật, phần nào còn cần dữ liệu cục bộ
 
-| | CP2 (bản này) | CP3 làm gì tiếp |
+| Thành phần | Trạng thái CP3 |
 |---|---|---|
-| Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |
-| Panel đoạn nguồn luôn hiện, nút correction | **thật** | giữ nguyên |
-| **Quyết định chọn trạng thái** | **mock** — heuristic đếm từ khoá trong `decide()` | thay bằng lời gọi AI thật |
-| **Nội dung 4 đoạn `[T06-xxx]`** | **mock** — fixture nhóm tự viết | đọc thẳng từ `transcript-06-clean.md` |
-| Tiêu chí "đã dạy được" | **mock** — ngưỡng cứng 3/3 tiêu chí | LLM-judge (transcript là văn nói, so chuỗi sẽ vỡ — xem `spec.md` §5) |
+| Luồng 4 màn, điều hướng, log phiên | **Thật**, chạy trong trình duyệt |
+| Panel nguồn và correction | **Thật** |
+| Quyết định ba trạng thái | **AI thật**, structured output từ Responses API |
+| API key | **Server-side**, đọc từ `.env` |
+| Bốn đoạn nguồn | Dùng `sources.local.json` nếu có; nếu chưa có thì dùng fixture và hiện cảnh báo |
+| Hai cổng quá ngắn / dán nguyên văn | Kiểm tra cục bộ trước khi gọi AI |
 
-> ⚠️ **Vì sao đoạn nguồn là fixture tự viết:** data pack của khoá là tài liệu nội bộ và repo này đang public, nên không đưa nội dung transcript thật vào đây. Mọi fixture đều gắn nhãn `MOCK` ngay trên giao diện.
+## Chạy số đo CP3
+
+Giữ server đang chạy, mở terminal thứ hai:
+
+```bash
+npm run eval
+```
+
+Script chạy 20 ca trong `eval/cases.json`, in `đúng/tổng` và lưu chi tiết vào `eval/results.json`. Chỉ quay con số thật được tạo sau lần chạy này.
 
 ## Sửa ở đâu
 
-Toàn bộ trong `prototype/index.html`:
+Các điểm chính:
 
 | Muốn đổi | Sửa chỗ nào |
 |---|---|
-| Nội dung 4 đoạn nguồn | mảng `SRC` |
-| 3 tiêu chí "đã dạy được" + câu hỏi ngược | mảng `CRIT` |
+| Nội dung 4 đoạn nguồn thật | `prototype/sources.local.json` — không commit |
+| Prompt, schema và model | `server.mjs` + `.env` |
 | Câu trả lời mẫu cho demo | mảng `PRESET` |
-| **Logic quyết định** | hàm `decide()` — đây là chỗ CP3 cắm lời gọi AI vào |
+| Gọi backend | hàm `decide()` trong `prototype/index.html` |
+| Bộ 20 ca | `eval/cases.json` |
+| Kịch bản quay | `evidence/cp3-video-script.md` |

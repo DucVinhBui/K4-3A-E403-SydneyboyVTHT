@@ -1,8 +1,12 @@
 # Nhật ký khảo sát chuẩn A
 
-**Nguồn:** [Google Form — tab Câu trả lời](https://docs.google.com/forms/d/14juAFGo64X_ekgWMhwQxPh24NBebLL7rNsDRf7BD9fw/edit#responses)  
-**Số lượt gửi trên Form:** 24  
-**Số người duy nhất sau lọc trùng:** 23  
+**Khảo sát:** Cách mọi người học trong khoá AI20k<br>
+**Nguồn:** [Google Form](https://docs.google.com/forms/d/14juAFGo64X_ekgWMhwQxPh24NBebLL7rNsDRf7BD9fw/edit?no_redirect=true#responses) · bộ câu hỏi tại [survey-questions.md](survey-questions.md)<br>
+**Ngày trích dữ liệu:** 16/09/2026<br>
+**Người phụ trách:** Đinh Công Tú — `2A202602479`<br>
+**Mục tiêu chuẩn A:** ít nhất 20 người ngoài nhóm và hơn 50% số người thỏa định nghĩa xác nhận đã khóa trước khi phát form.<br>
+**Số lượt gửi trên Form:** 24<br>
+**Số người duy nhất sau lọc trùng:** 23<br>
 **Số người ngoài nhóm có thể xác minh:** 20
 
 > Log này không lưu thời gian gửi của từng câu trả lời. Các câu C5 và C6 được giữ nguyên văn, kể cả lỗi chính tả; câu không có nội dung được ghi là `*(bỏ trống)*`.

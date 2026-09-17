@@ -1,0 +1,22 @@
+{
+  "mock": true,
+  "label": "Fixture công khai — thay bằng sources.local.json trước khi quay CP3",
+  "excerpts": [
+    {
+      "id": "T06-136",
+      "text": "Fixture: mô hình sinh tiếp bằng cách dự đoán token có xác suất cao."
+    },
+    {
+      "id": "T06-138",
+      "text": "Fixture: dữ liệu internet đầu vào có thể chứa bias nên mô hình không thể luôn đúng."
+    },
+    {
+      "id": "T06-139",
+      "text": "Fixture: chuyên gia trong các giai đoạn tinh chỉnh vẫn có thể mang bias; truy xuất có nguồn là một hướng giảm lỗi."
+    },
+    {
+      "id": "T06-148",
+      "text": "Fixture: knowledge cutoff khiến mô hình không có tri thức sau mốc huấn luyện nếu không được cấp công cụ truy xuất."
+    }
+  ]
+}

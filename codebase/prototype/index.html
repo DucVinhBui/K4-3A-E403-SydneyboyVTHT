@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent học trò — bản mẫu CP2 · Nhóm SydneyboyVTHT</title>
+<title>Agent học trò — prototype CP3 · Nhóm SydneyboyVTHT</title>
 <style>
   :root{
     --bg:#f6f7f9; --card:#fff; --ink:#15181d; --mut:#5d6572; --line:#dfe3e8;
@@ -22,6 +22,7 @@
   .step.on{background:var(--acc-bg);border-color:#b9ccfb;color:var(--acc);font-weight:600}
   .mock{font-size:11px;font-weight:700;letter-spacing:.06em;background:#fde8e8;color:#a21b1b;
     border:1px solid #f4c4c4;border-radius:5px;padding:3px 8px}
+  .mock.live{background:#e5f6ec;color:#176b3a;border-color:#9fd5b5}
   main{max-width:1120px;margin:20px auto;padding:0 16px;display:grid;
     grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
   main.wide{grid-template-columns:1fr}
@@ -108,7 +109,7 @@
 
 <header>
   <div class="brand">Agent học trò · học bằng cách dạy lại
-    <small>Track D · đề D3 — Nhóm SydneyboyVTHT · Lớp 3A · Phòng E403 — bản mẫu CP2</small>
+    <small>Track D · đề D3 — Nhóm SydneyboyVTHT · Lớp 3A · Phòng E403 — prototype CP3</small>
   </div>
   <div class="steps" id="steps">
     <span class="step" data-s="m1">1 · Mở phiên</span>
@@ -117,7 +118,7 @@
     <span class="step" data-s="m4">4 · Kết phiên</span>
   </div>
   <button class="sm" id="btn-flow">⤳ Sơ đồ luồng</button>
-  <span class="mock">BẢN MẪU — AI CHẠY MOCK</span>
+  <span class="mock" id="ai-status">ĐANG KIỂM TRA AI…</span>
 </header>
 
 <main>
@@ -137,15 +138,15 @@
     </div>
 
     <h2>Phạm vi — mình chỉ đối chiếu được đúng chừng này</h2>
-    <p>Bốn đoạn <code>[T06-138]</code> → <code>[T06-149]</code> của transcript buổi Foundation, đang hiện
+    <p>Bốn đoạn <code>[T06-136]</code>, <code>[T06-138]</code>, <code>[T06-139]</code>, <code>[T06-148]</code> của transcript buổi Foundation, đang hiện
       ở cột bên phải. Bạn nói gì ngoài bốn đoạn đó, mình sẽ nói thẳng là
       <strong>ngoài phạm vi</strong> chứ không phán đúng hay sai.</p>
 
     <h2>Tiêu chí “đã dạy được” — công bố trước, không đổi giữa phiên</h2>
     <ol>
-      <li>Nêu được <strong>cơ chế</strong>: mô hình dự đoán token tiếp theo, không tra cứu — <code>[T06-138]</code></li>
-      <li>Nêu được <strong>vì sao vẫn trả lời</strong> khi chỗ đó gần như không có dữ liệu — <code>[T06-141]</code></li>
-      <li>Nêu được <strong>vì sao câu bịa nghe trôi chảy</strong> — <code>[T06-145]</code></li>
+      <li>Nêu được <strong>cơ chế</strong>: mô hình dự đoán token có xác suất cao nhất — <code>[T06-136]</code></li>
+      <li>Nêu được <strong>nguồn bias</strong>: từ dữ liệu internet đến chuyên gia tinh chỉnh — <code>[T06-138]</code>, <code>[T06-139]</code></li>
+      <li>Nêu được <strong>knowledge cutoff</strong>: thiếu dữ kiện sau mốc huấn luyện nếu không có truy xuất — <code>[T06-148]</code></li>
     </ol>
     <p>Đủ cả 3 ý, <strong>bằng lời của bạn</strong> (dán lại nguyên văn tài liệu không tính) thì mình
       ghi là “đã dạy được”.</p>
@@ -172,9 +173,9 @@
     </div>
 
     <div class="demo">
-      <h3>Bảng điều khiển demo · MOCK</h3>
+      <h3>Bảng điều khiển demo · CP3</h3>
       <p>Bốn nút này chỉ để buổi demo 5 phút đi hết được 4 nhánh mà không phụ thuộc gõ tay.
-        Gõ tự do vẫn chạy — quyết định do một bộ định tuyến heuristic, <strong>chưa phải lời gọi AI thật</strong>.
+        Gõ tự do vẫn chạy — quyết định trung tâm được gửi tới AI thật qua server cục bộ.
         Nhánh <em>correction</em> nằm ở nút “Không đồng ý” trong màn 3.</p>
       <div class="row" style="margin-top:0">
         <button class="sm" data-preset="0">① Trả lời đủ ý</button>
@@ -294,8 +295,8 @@
       <rect class="fbox ai" x="280" y="462" width="360" height="104" rx="11"/>
       <text class="ft hd" x="460" y="487" text-anchor="middle" style="fill:#5a4a8a">◆ ĐIỂM GỌI QUYẾT ĐỊNH AI ◆</text>
       <text class="ft mono" x="460" y="509" text-anchor="middle">decide()</text>
-      <text class="ft" x="460" y="529" text-anchor="middle">Đối chiếu lời giải thích với [T06-138 / 141 / 145]</text>
-      <text class="ft sm" x="460" y="551" text-anchor="middle">CP2: heuristic mock · CP3: lời gọi AI thật</text>
+      <text class="ft" x="460" y="529" text-anchor="middle">Đối chiếu với [T06-136 / 138 / 139 / 148]</text>
+      <text class="ft sm" x="460" y="551" text-anchor="middle">CP3: lời gọi AI thật · structured output</text>
       <path class="fln" d="M460,566 L460,600"/>
 
       <!-- chia 3 nhánh -->
@@ -369,8 +370,8 @@
     <div class="note">
       <strong>Đọc sơ đồ này thế nào.</strong> Hai cổng hình thoi là bộ chặn <em>trước</em> khi tốn một lời gọi AI:
       dán nguyên văn tài liệu và bài quá ngắn thì không cần AI cũng biết là chưa đánh giá được.
-      Ô viền tím đậm là chỗ duy nhất hệ thống ra quyết định — CP2 đang chạy heuristic trong hàm
-      <code>decide()</code>, CP3 thay đúng hàm đó bằng lời gọi AI thật, phần còn lại của sơ đồ giữ nguyên.
+      Ô viền tím đậm là chỗ duy nhất hệ thống ra quyết định. Hàm <code>decide()</code> gọi server cục bộ;
+      API key không xuất hiện trong trình duyệt.
     </div>
 
     <div class="row">
@@ -383,15 +384,11 @@
 <!-- ══════════ CỘT NGUỒN — LUÔN HIỆN Ở M2/M3 ══════════ -->
 <aside class="card" id="source" hidden>
   <h3>Đoạn nguồn đang đối chiếu</h3>
-  <p class="sub">Transcript buổi Foundation · <code>[T06-138]</code>–<code>[T06-149]</code>.
+  <p class="sub">Transcript buổi Foundation · <code>[T06-136]</code>, <code>[T06-138]</code>, <code>[T06-139]</code>, <code>[T06-148]</code>.
     Luôn hiện ở đây trong lúc bạn viết và trong lúc mình hỏi lại — để bạn tự kiểm mình,
     không phải tin mình.</p>
   <div id="excerpts"></div>
-  <p class="note" style="margin-top:14px">
-    <strong>MOCK.</strong> Bốn đoạn dưới đây do nhóm tự viết lại làm fixture cho CP2.
-    Data pack của khoá là tài liệu nội bộ, không đưa vào repo public.
-    CP3 sẽ đọc thẳng từ <code>transcript-06-clean.md</code> thật.
-  </p>
+  <p class="note" id="source-note" style="margin-top:14px">Đang kiểm tra nguồn cục bộ…</p>
 </aside>
 </main>
 
@@ -399,44 +396,50 @@
 (function(){
   "use strict";
 
-  /* ───────── FIXTURE (MOCK — nhóm tự viết, không phải data thật) ───────── */
+  /* ───────── fallback công khai; server thay bằng sources.local.json nếu có ───────── */
   var SRC = [
-    {id:"T06-138", t:"Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo có xác suất cao nhất theo những gì đã học được."},
-    {id:"T06-141", t:"Ở vùng kiến thức gần như không có dữ liệu, xác suất vẫn được chuẩn hoá cho đủ một. Mô hình vẫn buộc phải chọn ra một token, nên nó vẫn sinh ra câu trả lời thay vì im lặng."},
-    {id:"T06-145", t:"Câu bịa thường đọc lên rất trôi chảy, vì thứ mô hình được tối ưu là độ hợp lý về mặt ngôn ngữ, không phải độ đúng so với sự thật."},
-    {id:"T06-149", t:"Muốn giảm bịa thì phải cấp nguồn cho mô hình đọc, hoặc cho nó quyền nói là không biết."}
+    {id:"T06-136", t:"Fixture: mô hình sinh tiếp bằng cách dự đoán token có xác suất cao."},
+    {id:"T06-138", t:"Fixture: dữ liệu internet đầu vào có thể chứa bias nên mô hình không thể luôn đúng."},
+    {id:"T06-139", t:"Fixture: chuyên gia trong các giai đoạn tinh chỉnh vẫn có thể mang bias."},
+    {id:"T06-148", t:"Fixture: knowledge cutoff khiến mô hình thiếu tri thức sau mốc huấn luyện nếu không có truy xuất."}
   ];
 
   /* ───────── 3 tiêu chí công bố ở M1 ───────── */
   var CRIT = [
-    {key:"c1", src:"T06-138", label:"cơ chế dự đoán token, không tra cứu",
+    {key:"c1", src:"T06-136", label:"cơ chế dự đoán token theo xác suất",
      kw:["dự đoán","du doan","token","xác suất","xac suat","tiếp theo","kế tiếp","không tra","khong tra","không tìm","predict"],
      probe:"Chỗ này mình chưa theo kịp: lúc bị hỏi một câu nó chưa gặp bao giờ, mô hình lấy câu trả lời ở đâu ra? Bạn nói lại bước đó giúp mình."},
-    {key:"c2", src:"T06-141", label:"vì sao vẫn trả lời khi thiếu dữ liệu",
-     kw:["thiếu dữ liệu","không có dữ liệu","khong co du lieu","hiếm","thưa","vẫn chọn","vẫn phải","vẫn trả lời","buộc phải","chuẩn hoá","chuẩn hóa","không im"],
-     probe:"Nếu chỗ đó gần như không có dữ liệu, sao nó không im luôn mà vẫn ra được một câu? Mình đang kẹt ở đây."},
-    {key:"c3", src:"T06-145", label:"vì sao câu bịa nghe trôi chảy",
-     kw:["trôi chảy","troi chay","hợp lý","hop ly","nghe xuôi","mượt","tự tin","đúng sự thật","sự thật","ngôn ngữ","ngu phap","ngữ pháp"],
-     probe:"Câu bịa mà mình đọc thấy còn xuôi hơn cả câu đúng. Theo bạn thì vì sao lại thế?"}
+    {key:"c2", src:"T06-138", label:"bias từ dữ liệu và quá trình tinh chỉnh",
+     kw:["bias","thiên lệch","thiên kiến","internet","dữ liệu đầu vào","fine-tun","tinh chỉnh","chuyên gia","reinforcement"],
+     probe:"Bias có thể đi vào mô hình từ dữ liệu và người tinh chỉnh như thế nào?"},
+    {key:"c3", src:"T06-148", label:"knowledge cutoff và dữ kiện mới",
+     kw:["knowledge cutoff","cutoff","mốc chặn","mốc tri thức","sự kiện mới","tin mới","sau mốc","search","tìm kiếm","truy xuất"],
+     probe:"Nếu sự kiện xảy ra sau mốc dữ liệu đã học, mô hình cần gì để biết được?"}
   ];
-  var DEEP = {src:"T06-149", probe:"Cho mình một ví dụ cụ thể mà mình tự kiểm lại được, để mình chắc là mình hiểu chứ không phải gật bừa."};
+  var DEEP = {src:"T06-139", probe:"Cho mình một ví dụ cụ thể để tự kiểm lại cách hiểu này được không?"};
 
   var OUT_KW = ["fine-tune","finetune","rlhf","gpu","huấn luyện lại","huan luyen lai","chi phí","chi phi","giá thành","mcp","đa tác tử","quantiz","tokenizer"];
 
   /* ───────── preset demo ───────── */
   var PRESET = [
-    "Theo mình hiểu thì LLM không tra cứu ở đâu cả, nó chỉ dự đoán token tiếp theo dựa trên xác suất đã học. Nên kể cả khi chỗ đó gần như không có dữ liệu, nó vẫn buộc phải chọn ra một token chứ không im lặng, thành ra vẫn sinh được một câu trả lời. Và vì thứ nó tối ưu là câu nghe hợp lý chứ không phải câu đúng sự thật, nên câu bịa đọc lên vẫn rất trôi chảy.",
-    "LLM bịa là vì nó dự đoán token tiếp theo chứ không tra cứu gì cả.",
+    "Theo mình hiểu thì LLM dự đoán token có xác suất cao nhất. Hallucination vẫn có thể xuất hiện vì dữ liệu internet và cả chuyên gia tinh chỉnh đều có bias. Ngoài ra knowledge cutoff khiến mô hình thiếu dữ kiện mới nếu không được nối với công cụ truy xuất.",
+    "LLM sinh câu bằng cách dự đoán token tiếp theo theo xác suất.",
     "Mình nghĩ muốn hết bịa thì cứ fine-tune lại mô hình bằng RLHF trên GPU cho nó chuẩn là xong thôi.",
     SRC[0].t + " " + SRC[1].t
   ];
 
   /* ───────── state ───────── */
   var turn = 0, log = [], last = null, screen = "m1", prevScreen = "m1";
+  var runtime = {api:false, sourceMock:true, model:"—"};
 
   var $ = function(id){ return document.getElementById(id); };
 
   function norm(s){ return (s||"").toLowerCase().replace(/\s+/g," ").trim(); }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(ch){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];
+    });
+  }
 
   function show(id){
     screen = id;
@@ -452,8 +455,8 @@
 
   function renderSource(hl){
     $("excerpts").innerHTML = SRC.map(function(s){
-      return '<div class="excerpt' + (hl === s.id ? ' hl' : '') + '" id="ex-' + s.id + '">' +
-             '<span class="id">[' + s.id + ']</span><p>' + s.t + '</p></div>';
+      return '<div class="excerpt' + (hl === s.id ? ' hl' : '') + '" id="ex-' + esc(s.id) + '">' +
+             '<span class="id">[' + esc(s.id) + ']</span><p>' + esc(s.t) + '</p></div>';
     }).join("");
   }
 
@@ -463,8 +466,8 @@
     if (el) el.scrollIntoView({behavior:"smooth", block:"center"});
   }
 
-  /* ───────── bộ định tuyến MOCK — CP3 thay bằng lời gọi AI thật ───────── */
-  function decide(raw){
+  /* ───────── hai cổng chặn rẻ trước lời gọi AI ───────── */
+  function localGate(raw){
     var a = norm(raw);
 
     // dán nguyên văn tài liệu? (hard test §5)
@@ -484,22 +487,34 @@
               probes:[{t:"Mới chừng này thì mình chưa đủ để hiểu. Bạn viết dài thêm một chút được không?", src:CRIT[0].src},
                       {t:CRIT[0].probe, src:CRIT[0].src}]};
     }
-    var miss = CRIT.filter(function(c){
-      return !c.kw.some(function(k){ return a.indexOf(k) !== -1; });
-    });
-    var hitOut = OUT_KW.filter(function(k){ return a.indexOf(k) !== -1; });
+    return null;
+  }
 
-    // ngoài phạm vi: không chạm tiêu chí nào, lại nói sang thứ không có trong 4 đoạn
-    if (miss.length === 3 && hitOut.length > 0){
-      return {state:"NGOÀI_PHẠM_VI", conf:"—", kind:"out", out:hitOut};
-    }
-    if (miss.length === 0){
-      return {state:"ĐỦ_CĂN_CỨ", conf:"cao", kind:"ok", src:"T06-138/141/145"};
-    }
-    var p = miss.slice(0,2).map(function(c){ return {t:c.probe, src:c.src, label:c.label}; });
-    while (p.length < 2) p.push({t:DEEP.probe, src:DEEP.src, label:"kiểm tra chiều sâu"});
-    return {state:"THIẾU_CĂN_CỨ", conf:"thấp", kind:"gap", probes:p,
-            missLabels:miss.map(function(c){ return c.label; })};
+  /* ───────── quyết định trung tâm bằng AI thật ───────── */
+  async function decide(raw){
+    var gated = localGate(raw);
+    if (gated) return gated;
+
+    var response = await fetch("/api/decide", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({answer:raw})
+    });
+    var body = await response.json().catch(function(){ return {}; });
+    if (!response.ok) throw new Error(body.error || "Không gọi được AI.");
+
+    return {
+      state:body.state,
+      conf:body.confidence === "không đánh giá" ? "—" : body.confidence,
+      kind:body.kind,
+      summary:body.summary,
+      src:(body.citations || []).join("/") || "—",
+      out:body.out_topics || [],
+      missLabels:body.missing_labels || [],
+      probes:(body.probes || []).map(function(p){
+        return {t:p.text, src:p.source_id, label:p.source_id};
+      })
+    };
   }
 
   /* ───────── render M3 ───────── */
@@ -528,8 +543,8 @@
     else if (d.kind === "out"){
       head = "Phần này không nằm trong đoạn mình đang học";
       body =
-        '<div class="bubble">Bạn đang nói về <strong>' + d.out.join(", ") + '</strong>. ' +
-        'Bốn đoạn <code>[T06-138]</code>–<code>[T06-149]</code> của mình không có chỗ nào nói về cái đó, ' +
+        '<div class="bubble">Bạn đang nói về <strong>' + esc(d.out.join(", ") || "một nội dung khác") + '</strong>. ' +
+        'Bốn đoạn <code>[T06-136/138/139/148]</code> của mình không có chỗ nào nói về cái đó, ' +
         'nên mình <strong>không nói bạn đúng hay sai</strong> — mình không có căn cứ để nói.</div>' +
         '<p>Câu mình cần bạn dạy lại là: <strong>vì sao LLM bịa</strong>, theo đúng bốn đoạn bên phải.</p>';
       acts = '<button class="pri" data-act="revise">Viết lại trong phạm vi</button>' +
@@ -540,14 +555,14 @@
            : d.kind === "short" ? "Mình chưa đủ dữ kiện để hiểu"
            : "Mình còn hổng hai chỗ";
       if (d.kind === "gap"){
-        body = '<p>Bạn đã nói được một phần. Còn <strong>' + d.missLabels.join("</strong> và <strong>") +
+        body = '<p>Bạn đã nói được một phần. Còn <strong>' + d.missLabels.map(esc).join("</strong> và <strong>") +
                '</strong> thì mình chưa nắm được. Mình hỏi đúng hai câu thôi:</p>';
       } else {
         body = "<p>Mình hỏi lại đúng hai câu:</p>";
       }
       body += d.probes.map(function(p, i){
-        return '<div class="bubble"><strong>Câu ' + (i+1) + '.</strong> ' + p.t +
-               '<br><span class="src-ref" data-src="' + p.src + '">mình dựa vào [' + p.src + '] — bấm để xem</span></div>';
+        return '<div class="bubble"><strong>Câu ' + (i+1) + '.</strong> ' + esc(p.t) +
+               '<br><span class="src-ref" data-src="' + esc(p.src) + '">mình dựa vào [' + esc(p.src) + '] — bấm để xem</span></div>';
       }).join("");
       body += '<p style="font-size:13.5px;color:var(--mut)">Mình cố tình <strong>không</strong> đưa đáp án. ' +
               'Bạn trả lời được hai câu này thì tự bạn sẽ thấy chỗ hổng nằm ở đâu.</p>';
@@ -579,7 +594,7 @@
   }
 
   /* ───────── sự kiện ───────── */
-  document.addEventListener("click", function(e){
+  document.addEventListener("click", async function(e){
     var t = e.target.closest("button, .src-ref");
     if (!t) return;
 
@@ -595,7 +610,7 @@
 
     switch (t.dataset.act){
       case "confirm":
-        addLog("Học viên <strong>tự đối chiếu và xác nhận</strong> với đoạn nguồn", last.state, "T06-138/141/145");
+        addLog("Học viên <strong>tự đối chiếu và xác nhận</strong> với đoạn nguồn", last.state, "T06-136/138/139/148");
         renderM4(); return;
       case "revise":
         $("m2-banner").hidden = false;
@@ -605,19 +620,33 @@
         addLog("Học viên quay lại bổ sung (bài viết được giữ nguyên)", last.state, "—");
         show("m2"); $("answer").focus(); return;
       case "see":
-        highlight("T06-138"); return;
+        highlight("T06-136"); return;
     }
 
     if (t.id === "send"){
       var v = $("answer").value.trim();
       if (!v){ $("answer").focus(); return; }
-      turn++;
-      last = decide(v);
-      addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → mình đánh giá",
-             last.state, last.probes ? last.probes.map(function(p){return p.src;}).join(", ") : (last.src || "—"));
-      renderSource(null);
-      renderM3(last);
-      show("m3"); return;
+      var oldText = t.textContent;
+      t.disabled = true;
+      t.textContent = "AI đang đối chiếu…";
+      $("m2-banner").hidden = true;
+      try {
+        last = await decide(v);
+        turn++;
+        addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → AI đánh giá",
+               last.state, last.probes ? last.probes.map(function(p){return p.src;}).join(", ") : (last.src || "—"));
+        renderSource(null);
+        renderM3(last);
+        show("m3");
+      } catch (error) {
+        $("m2-banner").hidden = false;
+        $("m2-banner").innerHTML = "<strong>Chưa gọi được AI:</strong> " + esc(error.message) +
+          " Kiểm tra file <code>.env</code> và terminal rồi thử lại.";
+      } finally {
+        t.disabled = false;
+        t.textContent = oldText;
+      }
+      return;
     }
     if (t.id === "btn-flow"){ if (screen !== "flow") prevScreen = screen; show("flow"); return; }
     if (t.id === "flow-back"){ show(prevScreen); return; }
@@ -626,7 +655,8 @@
     if (t.id === "correct-save"){
       var pick = document.querySelector('input[name="fix"]:checked');
       var why = $("correct-text").value.trim();
-      addLog("<strong>Học viên không đồng ý</strong> với đánh giá của mình" + (why ? ': “' + why + '”' : ""),
+      if (!pick && !why){ $("correct-text").focus(); return; }
+      addLog("<strong>Học viên không đồng ý</strong> với đánh giá của mình" + (why ? ': “' + esc(why) + '”' : ""),
              (pick ? pick.value : last.state) + " (học viên sửa)", "—");
       $("correct").hidden = true;
       $("m3-banner").hidden = false;
@@ -647,8 +677,31 @@
     }
   });
 
-  renderSource(null);
-  show("m1");
+  async function boot(){
+    renderSource(null);
+    show("m1");
+    try {
+      var pair = await Promise.all([fetch("/api/health"), fetch("/api/source")]);
+      var health = await pair[0].json();
+      var source = await pair[1].json();
+      if (!pair[0].ok || !pair[1].ok) throw new Error("Server chưa sẵn sàng.");
+      runtime = {api:health.apiKeyConfigured, sourceMock:health.sourceMock, model:health.model};
+      SRC = source.excerpts.map(function(item){ return {id:item.id, t:item.text}; });
+      PRESET[3] = SRC[0].t + " " + SRC[1].t;
+      renderSource(null);
+
+      $("ai-status").textContent = runtime.api ? "AI THẬT · " + runtime.model : "CHƯA CÓ API KEY";
+      $("ai-status").classList.toggle("live", runtime.api);
+      $("source-note").innerHTML = runtime.sourceMock
+        ? '<strong>NGUỒN MẪU.</strong> Backend đã sẵn sàng' + (runtime.api ? ' và API key đã được cấu hình' : ' nhưng chưa có API key') + '. Copy <code>sources.example.json</code> thành <code>sources.local.json</code> và thay bằng 4 đoạn transcript thật trước khi quay CP3.'
+        : '<strong>NGUỒN CỤC BỘ.</strong> Đang đọc <code>sources.local.json</code>; file này bị Git bỏ qua để không làm lộ data pack.';
+    } catch (error) {
+      $("ai-status").textContent = "CHƯA CHẠY SERVER";
+      $("source-note").innerHTML = 'Hãy chạy <code>npm start</code> rồi mở <code>http://127.0.0.1:4173</code>. Không mở trực tiếp bằng <code>file://</code> ở CP3.';
+    }
+  }
+
+  boot();
 })();
 </script>
 </body>

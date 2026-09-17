@@ -1,0 +1,22 @@
+[
+  {"id":"ok-01","expected":"ĐỦ_CĂN_CỨ","answer":"LLM tạo câu bằng cách dự đoán token có xác suất cao nhất. Hallucination vẫn tồn tại vì dữ liệu internet đã có thiên lệch và cả chuyên gia tinh chỉnh cũng có thể mang thiên lệch. Ngoài ra, knowledge cutoff khiến mô hình không biết sự kiện sau mốc huấn luyện nếu không được cấp công cụ tìm kiếm."},
+  {"id":"ok-02","expected":"ĐỦ_CĂN_CỨ","answer":"Cơ chế của mô hình là chọn token tiếp theo theo xác suất. Nó có thể bịa vì bias đi vào từ dữ liệu đầu vào rồi tiếp tục xuất hiện trong quá trình fine-tuning bởi con người. Một giới hạn khác là cutoff tri thức: thông tin mới hơn dữ liệu đào tạo không có sẵn nếu mô hình không được truy xuất bên ngoài."},
+  {"id":"ok-03","expected":"ĐỦ_CĂN_CỨ","answer":"Mô hình không hiểu ngôn ngữ như người mà nối tiếp bằng token được dự đoán có xác suất cao. Nguồn internet lẫn người giám sát huấn luyện đều có khả năng thiên lệch nên việc tinh chỉnh không loại hết hallucination. Khi câu hỏi liên quan điều xảy ra sau knowledge cutoff, mô hình cũng thiếu kiến thức trừ khi có tool tìm kiếm."},
+  {"id":"ok-04","expected":"ĐỦ_CĂN_CỨ","answer":"LLM sinh đầu ra từng bước bằng dự báo token. Dữ liệu dùng để học không trung lập tuyệt đối và đánh giá của chuyên gia ở reinforcement learning cũng có bias, nên kết quả vẫn có thể sai. Nó còn bị giới hạn bởi mốc knowledge cutoff và cần truy xuất ngoài cho các sự kiện mới."},
+  {"id":"ok-05","expected":"ĐỦ_CĂN_CỨ","answer":"Việc sinh văn bản là chọn token kế tiếp theo phân bố xác suất. Nếu tài liệu trên mạng và những người tham gia fine-tune mang thiên kiến thì mô hình có thể học và lặp lại chúng, tạo hallucination. Nó cũng không biết dữ kiện phát sinh sau mốc chặn tri thức nếu không được nối với công cụ search."},
+  {"id":"ok-06","expected":"ĐỦ_CĂN_CỨ","answer":"Theo bài học, LLM dự đoán token có xác suất cao nhất thay vì hiểu như con người. Hallucination có thể bắt nguồn từ bias của dữ liệu internet và bias của chuyên gia xuyên suốt các bước tinh chỉnh. Knowledge cutoff là nguyên nhân bổ sung: mô hình không tự có thông tin mới sau mốc đào tạo, trừ khi dùng truy xuất."},
+  {"id":"gap-01","expected":"THIẾU_CĂN_CỨ","answer":"LLM tạo câu bằng cách dự đoán token có xác suất cao nhất."},
+  {"id":"gap-02","expected":"THIẾU_CĂN_CỨ","answer":"Hallucination xuất hiện vì dữ liệu trên internet có bias và chuyên gia fine-tune cũng có thể thiên lệch."},
+  {"id":"gap-03","expected":"THIẾU_CĂN_CỨ","answer":"Knowledge cutoff khiến mô hình không biết các sự kiện xảy ra sau mốc dữ liệu đã học."},
+  {"id":"gap-04","expected":"THIẾU_CĂN_CỨ","answer":"Mô hình dự đoán token kế tiếp và dữ liệu internet có thể thiên lệch, nhưng knowledge cutoff không liên quan vì nó luôn biết tin mới nhất."},
+  {"id":"gap-05","expected":"THIẾU_CĂN_CỨ","answer":"Chuyên gia fine-tune hoàn toàn loại bỏ mọi bias nên sau reinforcement learning mô hình không thể hallucinate nữa."},
+  {"id":"gap-06","expected":"THIẾU_CĂN_CỨ","answer":"LLM hiểu ngôn ngữ hệt như con người, còn hallucination chỉ xảy ra do người dùng viết prompt chưa rõ."},
+  {"id":"short-01","expected":"THIẾU_CĂN_CỨ","answer":"Vì nó đoán."},
+  {"id":"short-02","expected":"THIẾU_CĂN_CỨ","answer":"Do dữ liệu có bias."},
+  {"id":"paste-01","expected":"THIẾU_CĂN_CỨ","mode":"paste","sourceIds":["T06-136"]},
+  {"id":"paste-02","expected":"THIẾU_CĂN_CỨ","mode":"paste","sourceIds":["T06-138","T06-139"]},
+  {"id":"out-01","expected":"NGOÀI_PHẠM_VI","answer":"Muốn huấn luyện lại bằng RLHF thì cần bao nhiêu GPU và chi phí điện mỗi tháng là bao nhiêu?"},
+  {"id":"out-02","expected":"NGOÀI_PHẠM_VI","answer":"Bạn hãy so sánh kiến trúc encoder-decoder với decoder-only và cho biết loại nào chạy nhanh hơn."},
+  {"id":"out-03","expected":"NGOÀI_PHẠM_VI","answer":"Hướng dẫn tôi cài MCP server và kết nối nó với cơ sở dữ liệu của công ty."},
+  {"id":"out-04","expected":"NGOÀI_PHẠM_VI","answer":"Quantization 4-bit ảnh hưởng như thế nào đến tốc độ suy luận và dung lượng VRAM?"}
+]

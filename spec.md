@@ -64,7 +64,7 @@ Nghe giảng / đọc slide → thấy chưa chắc thì bôi đen đoạn và h
 ### Problem statement *(một câu, KHÔNG chữ AI)*
 > Học viên K4 rời một bài học với cảm giác đã hiểu mà không có bằng chứng nào cho thấy lời giải thích của chính họ đúng hay sai: trong 3.097 lượt hỏi-đáp của khoá, 99,81% lượt không ghi nhận mức hiểu nào, và chỉ 1 lượt duy nhất (0,03%) là có ai đó chủ động hỏi ngược lại người học để kiểm tra.
 
-### Evidence — chuẩn B (mining), đang bổ sung chuẩn A (khảo sát)
+### Evidence — chuẩn B (mining) + kết quả chuẩn A (khảo sát không đạt ngưỡng)
 
 Log đầy đủ + phương pháp đếm kiểm lại được: **[`evidence/mining-log.md`](evidence/mining-log.md)**
 
@@ -78,19 +78,21 @@ Log đầy đủ + phương pháp đếm kiểm lại được: **[`evidence/min
 
 Năm ví dụ nguyên văn kèm `turn_id`: `T10296` · `T10300` · `T10970` · `T10939` · `T10507` — xem `evidence/mining-log.md` §4.
 
-#### Chuẩn A — đang chạy, chốt trước CP4
+#### Chuẩn A — đã chốt kết quả
 
-Bộ câu hỏi: **[`evidence/survey-questions.md`](evidence/survey-questions.md)** · Log kết quả: `evidence/survey-log.md` *(đang thu)*
+Bộ câu hỏi: **[`evidence/survey-questions.md`](evidence/survey-questions.md)** · Log kết quả: **[`evidence/survey-log.md`](evidence/survey-log.md)**
 
-**Định nghĩa "một người xác nhận" — chốt trước khi phát form, không sửa sau:** người trả lời thoả CẢ HAI: **(a)** ở Câu 2 chọn *"Thấy quen, đọc trôi được"* hoặc *"Đọc lại thấy ổn"* (căn cứ duy nhất là cảm giác, không có bằng chứng bên ngoài), **VÀ (b)** ở Câu 3 chọn *"Có — và tôi kể lại được lần đó"* (đã thật sự hiểu sai sau khi tưởng đã hiểu).
+**Định nghĩa "một người xác nhận" — chốt trước khi phát form, không sửa sau:** người trả lời thoả CẢ HAI: **(a)** ở Câu 2 chọn *"Thấy quen, đọc trôi được"* hoặc *"Đọc lại thấy ổn"* (căn cứ duy nhất là cảm giác, không có bằng chứng bên ngoài), **VÀ (b)** ở Câu 3 chọn *"Có — tôi kể lại được lần đó"* (đã thật sự hiểu sai sau khi tưởng đã hiểu).
 
 **Ngưỡng đạt:** n ≥ 20 người ngoài nhóm và tỉ lệ xác nhận > 50%.
 
-**Bộ câu hỏi có thể fail:** người chọn *"Tự làm được bài tập"* hoặc *"Giải thích lại được cho người khác"* ở C5 là người **không** xác nhận. Nếu >50% chọn nhóm đó thì nỗi đau nhóm giả định không tồn tại và nhóm chọn lại bài toán — ghi vào §9 Changelog.
+**Bộ câu hỏi có thể fail:** người chọn *"Tự làm được bài tập"* hoặc *"Giải thích lại được cho người khác"* ở C2 là người **không** xác nhận. Không đổi định nghĩa sau khi xem dữ liệu.
 
 | | n | Xác nhận | Tỉ lệ | Đạt? |
 |---|---|---|---|---|
-| Kết quả | ___ | ___ | ___% | ___ |
+| Kết quả | **20** | **2** | **10%** | **Không đạt** |
+
+Kết quả chuẩn A không xác nhận giả định mạnh rằng hơn một nửa học viên vừa dựa vào cảm giác đọc trôi/đọc lại thấy ổn, vừa kể lại được một lần họ đã hiểu sai. Tuy vậy, dữ liệu vẫn cho hai tín hiệu hẹp hơn: **11/20** người dùng dấu hiệu yếu ở C2 và **18/20** nói từng phát hiện mình hiểu sai ở C3. Vì vậy nhóm không dùng khảo sát để tuyên bố pain point đã được đa số xác nhận; nhóm giữ lát cắt D3 dựa trên bằng chứng hành vi chuẩn B và thu hẹp phát biểu thành: **luồng học hiện tại thiếu một bước kiểm tra ngay tại chỗ buộc học viên giải thích bằng lời của mình trước khi đi tiếp.**
 
 ---
 
@@ -214,8 +216,11 @@ Cả bốn đều bấm đi hết được trong [`codebase/prototype/index.html
 
 **Ràng buộc riêng của track D:** quality bar bắt buộc có ít nhất một chỉ số về **việc học**, không chỉ "AI trả lời đúng". Hướng đang cân nhắc: *tỉ lệ học viên bổ sung được dẫn chứng còn thiếu ngay trong phiên* · *tỉ lệ học viên nêu được một ví dụ đúng sau khi bị hỏi ngược*.
 
-- Golden set ≥20 case (≥2 case/lớp chỗ khó + 8–10 case thường + 2–4 case hiếm; ≥10 case lấy từ chatlog thật) → `eval/`
-- Quality bar: *"Đạt khi ≥ ___% qua bộ, và ___"* — **chưa chốt**
+- Golden set CP3 hiện có **20 case** trong `eval/cases.json`: 6 đủ căn cứ · 6 thiếu/sai căn cứ · 2 quá ngắn · 2 dán nguyên văn · 4 ngoài phạm vi.
+- Lần chạy thật bằng `gpt-4o-mini`: **19/20 case đạt (95%)** theo đồng thời hai điều kiện: đúng trạng thái và đúng cấu trúc/dẫn nguồn. Chi tiết từng ca nằm trong `eval/results.json`.
+- Ca chưa đạt `ok-06` vẫn chọn đúng `ĐỦ_CĂN_CỨ` và đủ ba mã nguồn, nhưng một lần chạy vi phạm cấu trúc phụ; chạy lại riêng ca này đạt. Nhóm vẫn giữ **19/20**, không thay kết quả bằng lần chạy đẹp hơn, và ghi nhận đây là dấu hiệu độ ổn định cần tiếp tục đo.
+- Giới hạn của số đo CP3: lần chạy này dùng fixture công khai trong `sources.example.json` (`sourceMock: true`). Phải chạy lại sau khi đặt transcript thật vào `sources.local.json` trước khi dùng con số cho bản nộp cuối.
+- Chỉ số học tập cho Track D vẫn cần đo với ≥5 người thật ở CP5: **tỉ lệ người học bổ sung đúng ít nhất một dẫn chứng còn thiếu sau câu hỏi ngược**. Chưa có dữ liệu người dùng nên chưa công bố kết quả chỉ số này.
 
 ---
 
@@ -246,3 +251,5 @@ Cả bốn đều bấm đi hết được trong [`codebase/prototype/index.html
 | 16/9 · CP1 | Chốt Canvas 4 ô, chọn đề D3, loại D1 và D2 | Bảng impact §2 — D3 là ứng viên duy nhất đạt mức Working trong 47,5h và có nguồn đối chiếu sẵn |
 | 16/9 · CP1 | Sửa con số "0 lượt chủ động kiểm tra hiểu" thành **1 lượt (0,03%)** | Đọc nguyên văn cả 6 lượt `ask_probing_question` của K4: 2 lượt do học viên tự xin, 3 lượt là gỡ lỗi kỹ thuật. Con số ban đầu không đúng với dữ liệu |
 | 16/9 · CP2 | Dựng bản mẫu tương tác HTML 4 nhánh trong `codebase/`; điền §6, viết lại §4b thành bảng có vị trí cụ thể | Mốc CP2 yêu cầu bản mẫu chạy thông + §4/§6 cập nhật. Đoạn nguồn dùng fixture tự viết vì repo nộp đang public và data pack là tài liệu nội bộ |
+| 17/9 · Chuẩn A | Chốt khảo sát ở **2/20 (10%) — không đạt**; không đổi định nghĩa xác nhận | Giả định mạnh không được dữ liệu xác nhận. Thu hẹp pain point thành thiếu bước kiểm tra hiểu ngay tại chỗ; tiếp tục D3 dựa trên bằng chứng hành vi chuẩn B 99,81% / 0,03% |
+| 17/9 · CP3 | Thay quyết định heuristic bằng lời gọi AI server-side; thêm bộ 20 ca và kịch bản video 30 giây | API key chỉ nằm trong `.env`; nguồn nội bộ nằm trong `sources.local.json` và không được commit vào repo public |
