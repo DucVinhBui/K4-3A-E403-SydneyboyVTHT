@@ -144,23 +144,31 @@ phân tích chi tiết nguyên nhân từng case fail: [`eval/run_results.md`](e
 4. `004-qua-ngan.txt` — quá ngắn (<40 ký tự) → THIẾU_CĂN_CỨ
 5. `005-dan-nguyen-van.txt` — dán nguyên văn [T06-138] → THIẾU_CĂN_CỨ + verbatim=True
 
-# codebase/ — Prototype CP3 dùng AI thật
+# Chạy bản mẫu để demo CP3
 
-## Chạy thế nào
+> ⚠️ **`npm start` và cổng `4173` là stack Node cũ của CP2 — không còn dùng.**
+> `index.html` hiện gọi 5 endpoint (`/api/config`, `/api/decide`, `/api/eval/cases`, `/api/eval/run`, `/api/flow`)
+> mà **chỉ `api/server.py` phục vụ đủ**. Chạy `npm start` sẽ 404 ở màn eval và sơ đồ luồng.
 
-Yêu cầu Node.js 18 trở lên; không cần cài package ngoài.
+Tạo `codebase/.env` (đã bị `.gitignore` chặn):
 
-```bash
-cp .env.example .env
-# Mở .env và điền OPENAI_API_KEY
-npm start
+```
+MINILAB_PROVIDER=openrouter
+MINILAB_MODEL=openai/gpt-4o-mini
+OPENROUTER_API_KEY=<khoá thật>
 ```
 
-Nếu server đang chạy khi bạn thêm key, nhấn `Ctrl+C` rồi chạy lại `npm start`.
+Chạy:
 
-Mở `http://127.0.0.1:4173`. Không mở `index.html` bằng `file://` khi demo CP3 vì trình duyệt cần gọi server cục bộ để giữ kín API key.
+```bash
+cd codebase && python3 -m api.server --port 8765
+```
 
-API key chỉ được đọc ở `codebase/server.mjs`, không được gửi xuống trình duyệt. File `.env` đã nằm trong `.gitignore`.
+Mở `http://127.0.0.1:8765`. Thanh trạng thái phải hiện **`OPENROUTER · OPENAI/GPT-4O-MINI`**;
+còn hiện `BẢN MẪU — MOCK` nghĩa là khoá chưa vào.
+
+Không mở `index.html` bằng `file://` khi demo — trình duyệt cần server cục bộ để giữ kín API key.
+API key chỉ được đọc trong tiến trình Python, không gửi xuống trình duyệt.
 
 ### Nguồn transcript nội bộ
 
@@ -222,10 +230,11 @@ print(session.verdict())  # True nếu "đã dạy được"
 
 ## Bước tiếp (CP3 thật)
 
-1. **Đổi `sources.py`** để đọc từ `transcript-06-clean.md` (data pack, không commit lên repo public).
-2. **Thêm test case** từ 5 lên 15-20 — bao phủ lớp lỗi ③ agent bỏ sót một tiêu chí (spec §5).
-3. **Tích hợp UI** — đổi prototype HTML để gọi agent backend qua API thay cho `decide()` JS.
-4. **Log real session** — ghi phiên thật của học viên, tính recall/precision giữa agent và human label (spec §6).
+1. ~~Thêm test case lên 15-20~~ — **xong**, golden set 25 case trong `eval/golden_set.json`.
+2. ~~Tích hợp UI gọi backend~~ — **xong**, `index.html` gọi `/api/decide` qua `api/server.py`.
+3. **Đổi `sources.py`** đọc từ `transcript-06-clean.md` — **chưa làm**, vẫn dùng fixture MOCK. Cần trước bản nộp cuối.
+4. **Chặn false-positive `ĐỦ_CĂN_CỨ`** (case G14) — bắt LLM trả thêm `evidence_quote` cho mỗi tiêu chí rồi validate ở Python. Đây là lỗi đắt nhất theo §7 điều kiện 3.
+5. **Log phiên thật** của học viên ở vòng validation CP5 để đo chỉ số học (§7 điều kiện 4).
 
 ## Bảo mật
 
