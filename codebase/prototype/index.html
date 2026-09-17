@@ -4,106 +4,246 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent học trò — prototype CP3 · Nhóm SydneyboyVTHT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;800&display=swap">
 <style>
   :root{
-    --bg:#f6f7f9; --card:#fff; --ink:#15181d; --mut:#5d6572; --line:#dfe3e8;
-    --ok:#0f7a4d; --ok-bg:#e7f5ee; --warn:#8a5a00; --warn-bg:#fdf3e0;
-    --out:#5a4a8a; --out-bg:#efecf8; --acc:#1f4fd8; --acc-bg:#eaf0ff;
+    /* ── trung tính, ngả ấm rất nhẹ ───────────────────────────── */
+    --bg:oklch(0.975 0.004 80); --card:#fff;
+    --ink:oklch(0.25 0.015 260); --mut:oklch(0.53 0.015 260);
+    --line:oklch(0.91 0.006 260); --line-soft:oklch(0.945 0.005 260);
+    --hover:oklch(0.80 0.012 260); --surface:oklch(0.975 0.004 260);
+
+    /* ── bốn màu CÙNG L=0.52 C=0.13, chỉ khác hue ──────────────
+       ĐỦ / THIẾU / NGOÀI là câu chuyện của sản phẩm, nên chúng
+       phải đứng cạnh nhau như một bộ, không phải ba màu nhặt rời. */
+    --ok:oklch(0.52 0.13 155); --warn:oklch(0.52 0.13 65);
+    --out:oklch(0.52 0.13 300); --acc:oklch(0.52 0.13 255);
+    --ok-bg:oklch(0.965 0.028 155); --warn-bg:oklch(0.965 0.028 65);
+    --out-bg:oklch(0.965 0.028 300); --acc-bg:oklch(0.965 0.028 255);
+    --ok-ln:oklch(0.87 0.055 155); --warn-ln:oklch(0.87 0.055 65);
+    --out-ln:oklch(0.87 0.055 300); --acc-ln:oklch(0.87 0.055 255);
+    --acc-dk:oklch(0.45 0.14 255);
+
+    /* màu của trạng thái ĐANG hiện ở M3 — khối #m3:has() ghi đè */
+    --state:var(--acc); --state-bg:var(--acc-bg); --state-ln:var(--acc-ln);
+
+    --r-card:14px; --r-ctl:9px;
+    --shadow:0 1px 2px rgba(16,20,30,.04), 0 10px 28px -14px rgba(16,20,30,.10);
+    --sans:"Be Vietnam Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-  header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;
-    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-  .brand{font-weight:700;font-size:15px}
-  .brand small{display:block;font-weight:400;color:var(--mut);font-size:12px}
-  .steps{display:flex;gap:6px;flex-wrap:wrap}
-  .step{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
-  .step.on{background:var(--acc-bg);border-color:#b9ccfb;color:var(--acc);font-weight:600}
-  .mock{font-size:11px;font-weight:700;letter-spacing:.06em;background:#fde8e8;color:#a21b1b;
-    border:1px solid #f4c4c4;border-radius:5px;padding:3px 8px}
-  .mock.live{background:#e5f6ec;color:#176b3a;border-color:#9fd5b5}
-  main{max-width:1120px;margin:20px auto;padding:0 16px;display:grid;
-    grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+  body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--sans);
+    -webkit-font-smoothing:antialiased}
+
+  /* ── thanh đầu trang ───────────────────────────────────────── */
+  header{position:sticky;top:0;z-index:20;padding:10px 20px;
+    background:color-mix(in oklab,#fff 88%,transparent);backdrop-filter:blur(10px) saturate(1.5);
+    border-bottom:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+  .brand{font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.3;max-width:330px}
+  .brand small{display:block;font-weight:400;color:var(--mut);font-size:11.5px;letter-spacing:0}
+
+  .steps{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+  .step{position:relative;font-size:11.5px;padding:5px 10px;border-radius:99px;
+    border:1px solid transparent;color:var(--mut);white-space:nowrap;transition:.18s}
+  .step+.step{margin-left:12px}
+  .step+.step::before{content:"";position:absolute;left:-13px;top:50%;
+    width:13px;height:1px;background:var(--line)}
+  .step.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  @media (max-width:1080px){.step+.step{margin-left:0}.step+.step::before{display:none}}
+
+  .mock,.api-live{font-size:10.5px;font-weight:700;letter-spacing:.07em;border-radius:99px;
+    padding:4px 11px;border:1px solid;white-space:nowrap}
+  .mock{background:oklch(0.97 0.022 25);color:oklch(0.5 0.14 25);border-color:oklch(0.88 0.05 25)}
+  .mock.live,.api-live{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-ln);
+    display:inline-flex;align-items:center;gap:7px}
+  .mock.live::before,.api-live::before{content:"";width:6px;height:6px;border-radius:99px;
+    background:var(--ok);flex:none}
+
+  /* ── lưới ──────────────────────────────────────────────────── */
+  main{max-width:1240px;margin:26px auto 60px;padding:0 20px;display:grid;
+    grid-template-columns:minmax(0,1.5fr) minmax(0,430px);gap:20px;align-items:start}
   main.wide{grid-template-columns:1fr}
-  @media (max-width:880px){main{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
-  h1{font-size:21px;margin:0 0 6px}
-  h2{font-size:15px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
-  p{margin:8px 0}
-  .lead{color:var(--mut)}
-  ul,ol{margin:8px 0;padding-left:20px}
-  li{margin:4px 0}
-  code{background:#eef1f5;border-radius:4px;padding:1px 5px;font-size:12.5px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  button{font:inherit;cursor:pointer;border-radius:7px;padding:9px 15px;border:1px solid var(--line);
-    background:var(--card);color:var(--ink)}
-  button:hover{border-color:#b6bec9}
-  button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
-  button.pri:hover{background:#1a44ba}
-  button.sm{padding:6px 11px;font-size:13px}
-  .row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-  textarea{width:100%;min-height:150px;padding:12px;border:1px solid var(--line);border-radius:8px;
-    font:inherit;resize:vertical;background:#fcfcfd}
-  textarea:focus{outline:2px solid var(--acc);outline-offset:-1px}
-  .persona{background:#f3f5f8;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:14px 0}
-  .persona b{display:block;margin-bottom:2px}
-  .chip{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;
-    border-radius:6px;padding:4px 10px;border:1px solid}
-  .chip.ok{background:var(--ok-bg);color:var(--ok);border-color:#b9ddc9}
-  .chip.warn{background:var(--warn-bg);color:var(--warn);border-color:#eccf9a}
-  .chip.out{background:var(--out-bg);color:var(--out);border-color:#c8bff0}
-  .bubble{background:#f3f5f8;border:1px solid var(--line);border-left:3px solid var(--acc);
-    border-radius:0 8px 8px 0;padding:12px 14px;margin:12px 0}
-  .src-ref{display:inline-block;margin-top:6px;font-size:12px;background:none;border:1px dashed #b6bec9;
-    color:var(--mut);border-radius:5px;padding:2px 8px;cursor:pointer}
-  .src-ref:hover{border-style:solid;color:var(--acc);border-color:var(--acc)}
-  .note{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);margin-top:16px;padding-top:12px}
-  aside h3{margin:0 0 4px;font-size:14px}
-  aside .sub{font-size:12.5px;color:var(--mut);margin:0 0 12px}
-  .excerpt{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:9px;background:#fcfcfd}
-  .excerpt.hl{border-color:var(--acc);background:var(--acc-bg)}
-  .excerpt .id{font-size:11.5px;font-weight:700;color:var(--acc);
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  .excerpt p{margin:3px 0 0;font-size:13.5px}
-  .demo{background:#fffbea;border:1px solid #f0e0a8;border-radius:10px;padding:14px 16px;margin-top:16px}
-  .demo h3{margin:0 0 3px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#8a6d00}
-  .demo p{font-size:12.5px;color:#6f5a12;margin:0 0 10px}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
-  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
-  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
-  .verdict{border-radius:9px;padding:14px 16px;margin:14px 0;border:1px solid}
-  .verdict.yes{background:var(--ok-bg);border-color:#b9ddc9}
-  .verdict.no{background:var(--warn-bg);border-color:#eccf9a}
-  .verdict b{font-size:16px}
-  .banner{background:var(--acc-bg);border:1px solid #b9ccfb;border-radius:8px;padding:10px 13px;
-    font-size:13.5px;margin-bottom:12px}
-  fieldset{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:14px 0}
-  legend{font-size:12.5px;color:var(--mut);padding:0 6px}
-  label.opt{display:block;margin:5px 0;font-size:14px}
-  .flowwrap{overflow-x:auto;margin:14px -6px 0;padding:0 6px}
+  /* M1 trải hết 1240px thì thành bức tường chữ — bó lại. M4/M5 có bảng, KHÔNG bó. */
+  main.wide:has(#m1:not([hidden]))>div{max-width:820px;margin-inline:auto}
+  @media (max-width:900px){main{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+    padding:26px 30px;box-shadow:var(--shadow)}
+
+  /* ── chữ ───────────────────────────────────────────────────── */
+  h1{font-size:clamp(26px,2.3vw,34px);font-weight:800;letter-spacing:-.022em;line-height:1.16;
+    margin:0 0 10px;text-wrap:pretty;max-width:22ch}
+  #m3-head,#m2-title{max-width:26ch}
+  h2{font-size:12px;font-weight:700;margin:30px 0 10px;text-transform:uppercase;
+    letter-spacing:.09em;color:var(--mut);text-wrap:pretty}
+  p{margin:10px 0;max-width:68ch;text-wrap:pretty}
+  .lead{color:var(--mut);font-size:17px;line-height:1.55;max-width:60ch}
+  ul,ol{margin:10px 0;padding-left:22px;max-width:68ch}
+  li{margin:6px 0}
+  li::marker{color:var(--mut)}
+  code{background:oklch(0.955 0.006 260);color:oklch(0.36 0.03 260);border-radius:5px;
+    padding:1.5px 6px;font-size:.84em;font-family:var(--mono)}
+
+  /* ── nút ───────────────────────────────────────────────────── */
+  button{font:500 15px/1.2 var(--sans);cursor:pointer;border-radius:var(--r-ctl);padding:11px 17px;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);transition:.16s}
+  button:hover{border-color:var(--hover);background:var(--surface)}
+  button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+  button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600;
+    box-shadow:0 1px 2px rgba(16,20,30,.12)}
+  button.pri:hover{background:var(--acc-dk);border-color:var(--acc-dk)}
+  button.sm{padding:7px 13px;font-size:13.5px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+  textarea{width:100%;min-height:172px;padding:15px 16px;border:1px solid var(--line);
+    border-radius:var(--r-ctl);font:400 16px/1.6 var(--sans);resize:vertical;background:var(--surface);
+    color:var(--ink);transition:.16s}
+  textarea:focus{outline:none;border-color:var(--acc);background:var(--card);
+    box-shadow:0 0 0 3px oklch(0.52 0.13 255/.13)}
+
+  .persona{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;
+    padding:16px 18px;margin:18px 0;font-size:15px;max-width:68ch}
+  .persona b{display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--mut)}
+
+  /* ── chip trạng thái ───────────────────────────────────────── */
+  .chip{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.05em;
+    border-radius:99px;padding:6px 14px;border:1px solid}
+  .chip.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-ln)}
+  .chip.warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-ln)}
+  .chip.out{background:var(--out-bg);color:var(--out);border-color:var(--out-ln)}
+
+  /* ── M3 đổi tông theo kết luận, không chỉ một cái chip nhỏ ──── */
+  #m3:has(#state-chip.ok){--state:var(--ok);--state-bg:var(--ok-bg);--state-ln:var(--ok-ln)}
+  #m3:has(#state-chip.warn){--state:var(--warn);--state-bg:var(--warn-bg);--state-ln:var(--warn-ln)}
+  #m3:has(#state-chip.out){--state:var(--out);--state-bg:var(--out-bg);--state-ln:var(--out-ln)}
+  #m3{border-top:3px solid var(--state)}
+  #m3 button.pri{background:var(--state);border-color:var(--state)}
+  #m3 button.pri:hover{filter:brightness(.92)}
+  #conf{font-size:13.5px !important;color:var(--mut) !important;margin-left:12px !important}
+
+  /* ── bong bóng thoại (thay khuôn "hộp bo góc + vạch màu trái") ─ */
+  .bubble{background:var(--state-bg);border:1px solid var(--state-ln);
+    border-radius:18px 18px 18px 5px;padding:15px 18px;margin:14px 0;max-width:66ch}
+  #m3-body .bubble:has(.src-ref)>strong:first-child{display:block;margin-bottom:6px;
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+  .src-ref{display:inline-block;margin-top:11px;font-family:var(--mono);font-size:11.5px;
+    font-weight:600;background:var(--card);border:1px solid var(--state-ln);color:var(--state);
+    border-radius:99px;padding:5px 12px;cursor:pointer;transition:.16s}
+  .src-ref:hover{background:var(--state);color:#fff;border-color:var(--state)}
+  .src-ref:focus-visible{outline:2px solid var(--state);outline-offset:2px}
+  /* JS nhét inline style vào hai đoạn chú thích này — phải !important mới đè được */
+  #m3-body p[style]{font-size:14px !important;color:var(--mut) !important;
+    max-width:64ch;margin-top:18px !important}
+
+  .note{font-size:13.5px;color:var(--mut);border-top:1px solid var(--line-soft);
+    margin-top:24px;padding-top:16px}
+
+  /* ── cột nguồn: ghim lại, đây là bằng chứng của mức augment ─── */
+  aside{position:sticky;top:76px;max-height:calc(100vh - 100px);overflow:auto}
+  aside h3{margin:0 0 5px;font-size:11.5px;font-weight:700;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--mut)}
+  aside .sub{font-size:13px;color:var(--mut);margin:0 0 14px;max-width:none}
+  .excerpt{border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;
+    background:var(--surface);transition:border-color .22s,background .22s,box-shadow .22s}
+  /* Phải đọc được ở khoảng cách xem video, không phải nhìn kỹ mới thấy:
+     chênh 0.01 độ sáng là vô hình trên máy chiếu. */
+  .excerpt.hl{border-color:var(--acc);border-width:1.5px;background:oklch(0.935 0.055 255);
+    box-shadow:0 0 0 3px oklch(0.52 0.13 255/.16);animation:ping .9s ease-out 1}
+  .excerpt.hl .id{color:var(--acc-dk)}
+  @keyframes ping{
+    0%{box-shadow:0 0 0 0 oklch(0.52 0.13 255/.55)}
+    70%{box-shadow:0 0 0 14px oklch(0.52 0.13 255/0)}
+    100%{box-shadow:0 0 0 3px oklch(0.52 0.13 255/.16)}
+  }
+  @media (prefers-reduced-motion:reduce){.excerpt.hl{animation:none}}
+  .excerpt .id{font-size:11.5px;font-weight:700;color:var(--acc);font-family:var(--mono)}
+  .excerpt p{margin:4px 0 0;font-size:14px;line-height:1.55;max-width:none}
+
+  /* ── bảng điều khiển demo: hậu trường, không được át nội dung ── */
+  .demo{background:var(--card);border:1px dashed var(--line);border-radius:12px;
+    padding:16px 18px;margin-top:24px}
+  .demo h3{margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--mut)}
+  .demo p{font-size:13px;color:var(--mut);margin:0 0 12px;max-width:none}
+
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+  th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line-soft);
+    vertical-align:top}
+  th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--mut);border-bottom-color:var(--line)}
+  tbody tr:hover{background:var(--surface)}
+
+  .verdict{border-radius:12px;padding:18px 20px;margin:18px 0;border:1px solid}
+  .verdict.yes{background:var(--ok-bg);border-color:var(--ok-ln)}
+  .verdict.no{background:var(--warn-bg);border-color:var(--warn-ln)}
+  .verdict b{font-size:18px;font-weight:700;letter-spacing:-.01em}
+  .banner{background:var(--acc-bg);border:1px solid var(--acc-ln);border-radius:11px;
+    padding:12px 15px;font-size:14px;margin-bottom:16px;max-width:none}
+
+  fieldset{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:20px 0}
+  legend{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--mut);padding:0 8px}
+  label.opt{display:block;margin:7px 0;font-size:15px}
+
+  .flowwrap{overflow-x:auto;margin:16px -6px 0;padding:0 6px}
   .flowwrap svg{display:block;min-width:820px;width:100%;height:auto}
-  .api-live{font-size:11px;font-weight:700;letter-spacing:.06em;background:#e8f5e9;color:#1b5e20;
-    border:1px solid #a5d6a7;border-radius:5px;padding:3px 8px}
+
+  /* ── Bước 7 · trong M3, dựng lại #m2 làm lời của học viên ─────
+     renderM3() không bao giờ in lại bài của học viên, nên M3 vốn là
+     độc thoại một phía. Không có :has() thì mọi quy tắc dưới đây im
+     lặng bỏ qua và M3 hiện đúng như cũ — hỏng an toàn. */
+  body:has(#m3:not([hidden])) #m2{display:block !important;padding:17px 22px;
+    background:oklch(0.955 0.006 260);box-shadow:none;border-color:var(--line);margin-bottom:16px}
+  body:has(#m3:not([hidden])) #m2::before{content:"Bài bạn vừa viết";display:block;
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--mut);margin-bottom:9px}
+  body:has(#m3:not([hidden])) #m2 h1,
+  body:has(#m3:not([hidden])) #m2 .lead,
+  body:has(#m3:not([hidden])) #m2 .row,
+  body:has(#m3:not([hidden])) #m2 .demo{display:none !important}
+  body:has(#m3:not([hidden])) #m2 textarea{border:0;background:transparent;padding:0;
+    box-shadow:none;resize:none;pointer-events:none;min-height:0;max-height:210px;overflow:auto;
+    font-size:15.5px;color:var(--ink);field-sizing:content}
+
+  /* ── sơ đồ luồng (SVG dùng chung biến màu ở trên) ───────────── */
   .fbox{fill:#fff;stroke:var(--line);stroke-width:1.4}
-  .fbox.inp{fill:var(--acc-bg);stroke:#9dbaf8;stroke-width:1.8}
+  .fbox.inp{fill:var(--acc-bg);stroke:var(--acc-ln);stroke-width:1.8}
   .fbox.ai{fill:var(--out-bg);stroke:var(--out);stroke-width:3}
-  .fbox.exc{fill:var(--warn-bg);stroke:#eccf9a}
-  .fbox.ok{fill:var(--ok-bg);stroke:#8fc9a9}
-  .fbox.warn{fill:var(--warn-bg);stroke:#e0b465}
-  .fbox.out{fill:var(--out-bg);stroke:#b3a5e6}
-  .fbox.dash{fill:#fbfaff;stroke:var(--out);stroke-width:1.6;stroke-dasharray:7 5}
-  .fdia{fill:#fff;stroke:#b6bec9;stroke-width:1.4}
-  .fln{stroke:#8c95a3;stroke-width:1.6;fill:none}
+  .fbox.exc{fill:var(--warn-bg);stroke:var(--warn-ln)}
+  .fbox.ok{fill:var(--ok-bg);stroke:var(--ok-ln)}
+  .fbox.warn{fill:var(--warn-bg);stroke:var(--warn-ln)}
+  .fbox.out{fill:var(--out-bg);stroke:var(--out-ln)}
+  .fbox.dash{fill:oklch(0.985 0.008 300);stroke:var(--out);stroke-width:1.6;stroke-dasharray:7 5}
+  .fdia{fill:#fff;stroke:var(--hover);stroke-width:1.4}
+  .fln{stroke:oklch(0.65 0.015 260);stroke-width:1.6;fill:none}
   .fln.dash{stroke-dasharray:5 4}
-  .ft{font:11.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--ink)}
+  .ft{font:11.5px var(--sans);fill:var(--ink)}
   .ft.hd{font-size:10.5px;font-weight:700;letter-spacing:.09em;fill:var(--mut)}
-  .ft.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;font-weight:700}
+  .ft.mono{font-family:var(--mono);font-size:11.5px;font-weight:700}
   .ft.sm{font-size:10.5px;fill:var(--mut)}
   .ft.lbl{font-size:10.5px;fill:var(--mut);font-style:italic}
-  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;font-size:12.5px;color:var(--mut)}
-  .legend i{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:6px;
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;font-size:13px;color:var(--mut)}
+  .legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:7px;
     vertical-align:-2px;border:1.5px solid}
+
+  select{font:500 14px/1.2 var(--sans);padding:8px 11px;border:1px solid var(--line);
+    border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer}
+  select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+  @media (max-width:560px){
+    main{padding:0 14px;margin-top:18px}
+    .card{padding:20px 18px}
+    body:has(#m3:not([hidden])) #m2{padding:15px 18px}
+    h1{font-size:26px;max-width:none}
+    .lead{font-size:16px}
+    .bubble{padding:14px 15px}
+  }
+
   [hidden]{display:none !important}
 </style>
 </head>
