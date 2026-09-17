@@ -83,6 +83,8 @@
   label.opt{display:block;margin:5px 0;font-size:14px}
   .flowwrap{overflow-x:auto;margin:14px -6px 0;padding:0 6px}
   .flowwrap svg{display:block;min-width:820px;width:100%;height:auto}
+  .api-live{font-size:11px;font-weight:700;letter-spacing:.06em;background:#e8f5e9;color:#1b5e20;
+    border:1px solid #a5d6a7;border-radius:5px;padding:3px 8px}
   .fbox{fill:#fff;stroke:var(--line);stroke-width:1.4}
   .fbox.inp{fill:var(--acc-bg);stroke:#9dbaf8;stroke-width:1.8}
   .fbox.ai{fill:var(--out-bg);stroke:var(--out);stroke-width:3}
@@ -116,9 +118,10 @@
     <span class="step" data-s="m2">2 · Dạy lại</span>
     <span class="step" data-s="m3">3 · Agent hỏi ngược</span>
     <span class="step" data-s="m4">4 · Kết phiên</span>
+    <span class="step" data-s="m5">5 · Test eval set</span>
   </div>
   <button class="sm" id="btn-flow">⤳ Sơ đồ luồng</button>
-  <span class="mock" id="ai-status">ĐANG KIỂM TRA AI…</span>
+  <span class="mock" id="api-badge">Đang kiểm tra…</span>
 </header>
 
 <main>
@@ -132,21 +135,21 @@
     <div class="persona">
       <b>Mình là ai</b>
       Một agent học trò. Mức hiểu của mình <strong>cố định</strong> và không đổi theo bạn:
-      mình đã đọc lướt slide buổi Foundation, biết LLM sinh văn bản, nhưng
-      <em>chưa hiểu vì sao nó lại bịa ra thông tin sai</em>. Mình sẽ hỏi lại chỗ nào mình thấy hổng.
+      mình đã đọc lướt slide buổi học. Chỗ mình đang hổng:
+      <em id="persona-gap">chưa hiểu vì sao nó lại bịa ra thông tin sai</em>. Mình sẽ hỏi lại chỗ nào mình thấy hổng.
       Mình <strong>không</strong> đưa đáp án cho bạn.
     </div>
 
     <h2>Phạm vi — mình chỉ đối chiếu được đúng chừng này</h2>
-    <p>Bốn đoạn <code>[T06-136]</code>, <code>[T06-138]</code>, <code>[T06-139]</code>, <code>[T06-148]</code> của transcript buổi Foundation, đang hiện
+    <p id="scope-line">Bốn đoạn <code>[T06-138]</code> → <code>[T06-149]</code>, đang hiện
       ở cột bên phải. Bạn nói gì ngoài bốn đoạn đó, mình sẽ nói thẳng là
       <strong>ngoài phạm vi</strong> chứ không phán đúng hay sai.</p>
 
     <h2>Tiêu chí “đã dạy được” — công bố trước, không đổi giữa phiên</h2>
-    <ol>
-      <li>Nêu được <strong>cơ chế</strong>: mô hình dự đoán token có xác suất cao nhất — <code>[T06-136]</code></li>
-      <li>Nêu được <strong>nguồn bias</strong>: từ dữ liệu internet đến chuyên gia tinh chỉnh — <code>[T06-138]</code>, <code>[T06-139]</code></li>
-      <li>Nêu được <strong>knowledge cutoff</strong>: thiếu dữ kiện sau mốc huấn luyện nếu không có truy xuất — <code>[T06-148]</code></li>
+    <ol id="crit-list">
+      <li>Nêu được <strong>cơ chế</strong>: mô hình dự đoán token tiếp theo, không tra cứu — <code>[T06-138]</code></li>
+      <li>Nêu được <strong>vì sao vẫn trả lời</strong> khi chỗ đó gần như không có dữ liệu — <code>[T06-141]</code></li>
+      <li>Nêu được <strong>vì sao câu bịa nghe trôi chảy</strong> — <code>[T06-145]</code></li>
     </ol>
     <p>Đủ cả 3 ý, <strong>bằng lời của bạn</strong> (dán lại nguyên văn tài liệu không tính) thì mình
       ghi là “đã dạy được”.</p>
@@ -157,13 +160,14 @@
 
     <div class="row">
       <button class="pri" data-go="m2">Bắt đầu dạy lại →</button>
+      <button data-go="m5">Chạy test eval set →</button>
     </div>
   </section>
 
   <!-- ══════════ M2 · HỌC VIÊN DẠY LẠI ══════════ -->
   <section class="card" id="m2" hidden>
     <div class="banner" id="m2-banner" hidden></div>
-    <h1>Vì sao LLM lại bịa?</h1>
+    <h1 id="m2-title">Vì sao LLM lại bịa?</h1>
     <p class="lead">Giải thích cho mình bằng lời của bạn. Đoạn nguồn để ở bên phải — bạn cứ mở ra xem,
       mình không tính đó là gian lận; chỉ là đừng dán lại nguyên văn.</p>
     <textarea id="answer" placeholder="Ví dụ mở đầu: “Mô hình không tra cứu ở đâu cả, nó…”"></textarea>
@@ -230,6 +234,7 @@
     <div class="row">
       <button class="pri" data-go="m2">Dạy lại lần nữa</button>
       <button id="restart">Bắt đầu phiên mới</button>
+      <button data-go="m5">→ Mở test eval set</button>
     </div>
   </section>
 
@@ -295,7 +300,7 @@
       <rect class="fbox ai" x="280" y="462" width="360" height="104" rx="11"/>
       <text class="ft hd" x="460" y="487" text-anchor="middle" style="fill:#5a4a8a">◆ ĐIỂM GỌI QUYẾT ĐỊNH AI ◆</text>
       <text class="ft mono" x="460" y="509" text-anchor="middle">decide()</text>
-      <text class="ft" x="460" y="529" text-anchor="middle">Đối chiếu với [T06-136 / 138 / 139 / 148]</text>
+      <text class="ft" x="460" y="529" text-anchor="middle">Đối chiếu với [T06-138 / 141 / 145]</text>
       <text class="ft sm" x="460" y="551" text-anchor="middle">CP3: lời gọi AI thật · structured output</text>
       <path class="fln" d="M460,566 L460,600"/>
 
@@ -379,12 +384,69 @@
     </div>
   </section>
 
+
+  <!-- ══════════ M5 · TEST EVAL SET ══════════ -->
+  <section class="card" id="m5" hidden>
+    <h1>Chạy test bộ eval (Golden set)</h1>
+    <p class="lead">Chạy <strong>toàn bộ golden set</strong> qua API. Cùng endpoint <code>POST /api/eval/run</code>
+      mà bạn dùng khi gõ PowerShell, nhưng bấm nút ở đây cho nhanh.</p>
+
+    <fieldset>
+      <legend>Thiết lập lượt chạy</legend>
+      <label class="opt">Provider:
+        <select id="eval-provider">
+          <option value="mock">mock — heuristic offline</option>
+          <option value="openrouter" selected>openrouter — gọi AI thật</option>
+          <option value="openai">openai</option>
+          <option value="anthropic">anthropic</option>
+        </select>
+      </label>
+      <label class="opt">Model (để trống để lấy mặc định của provider):
+        <input id="eval-model" type="text" placeholder="openai/gpt-4o-mini, claude-3-5-haiku, …"
+               style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit">
+      </label>
+      <div class="row" style="margin-top:10px">
+        <button class="pri" id="btn-run-eval">▶ Chạy eval</button>
+        <button class="sm" id="btn-load-cases">↻ Tải danh sách test cases</button>
+        <span id="eval-status" style="font-size:13px;color:var(--mut);align-self:center"></span>
+      </div>
+    </fieldset>
+
+    <div id="eval-summary" hidden>
+      <div class="verdict" id="eval-summary-box"></div>
+      <table>
+        <thead><tr>
+          <th style="width:60px">ID</th>
+          <th style="width:140px">Lớp</th>
+          <th>Input (preview)</th>
+          <th style="width:110px">Expected</th>
+          <th style="width:110px">Actual</th>
+          <th style="width:60px">Pass?</th>
+          <th>Reasons</th>
+        </tr></thead>
+        <tbody id="eval-tbody"></tbody>
+      </table>
+      <h2>Golden set đầy đủ</h2>
+      <p class="lead" style="font-size:13px">Bấm vào từng ca để bơm input vào màn học và thử trực tiếp.</p>
+      <table>
+        <thead><tr>
+          <th style="width:60px">ID</th>
+          <th style="width:120px">Lớp</th>
+          <th>Input</th>
+          <th style="width:110px">Expected</th>
+          <th style="width:60px"></th>
+        </tr></thead>
+        <tbody id="cases-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══════════ CỘT NGUỒN — LUÔN HIỆN Ở M2/M3 ══════════ -->
 <aside class="card" id="source" hidden>
   <h3>Đoạn nguồn đang đối chiếu</h3>
-  <p class="sub">Transcript buổi Foundation · <code>[T06-136]</code>, <code>[T06-138]</code>, <code>[T06-139]</code>, <code>[T06-148]</code>.
+  <p class="sub" id="source-sub">Knowledge base · <code>[T06-138]</code>–<code>[T06-149]</code>.
     Luôn hiện ở đây trong lúc bạn viết và trong lúc mình hỏi lại — để bạn tự kiểm mình,
     không phải tin mình.</p>
   <div id="excerpts"></div>
@@ -396,33 +458,116 @@
 (function(){
   "use strict";
 
-  /* ───────── fallback công khai; server thay bằng sources.local.json nếu có ───────── */
+  /* ───────── API config ───────── */
+  var API_BASE = "";          // "" = same origin (server serves HTML)
+  var _config = null;         // fetched from GET /api/config
+  var _apiLive = false;       // true once /api/config returns 2xx
+
+  function apiEndpoint(method, path, body) {
+    return new Promise(function(resolve, reject) {
+      var opts = {method: method, headers: {"Content-Type": "application/json"}};
+      if (body) opts.body = JSON.stringify(body);
+      fetch(API_BASE + path, opts)
+        .then(function(r) {
+          if (!r.ok) { reject(new Error("HTTP " + r.status)); return; }
+          r.json().then(resolve).catch(reject);
+        })
+        .catch(reject);
+    });
+  }
+
+  /* ───────── nạp knowledge base thật từ server ─────────
+     SRC/CRIT/DEEP bên dưới chỉ là fixture dự phòng khi mở bằng file://.
+     Khi có server, ba mảng đó bị THAY bằng đúng pack mà agent đang đối
+     chiếu (GET /api/scope) — để những gì học viên đọc và những gì agent
+     chấm luôn là một. */
+  async function loadScope() {
+    var sc = await apiEndpoint("GET", "/api/scope");
+    if (!sc || !sc.excerpts || !sc.excerpts.length) return;
+
+    SRC = sc.excerpts.map(function(e){ return {id:e.id, t:e.text}; });
+    CRIT = sc.criteria.map(function(c, i){
+      return {key:c.key, src:c.src, label:c.label, probe:c.probe, kw:(CRIT[i] || {}).kw || []};
+    });
+    if (sc.deep_probe) DEEP = {src:sc.deep_probe.src, probe:sc.deep_probe.text};
+    PRESET[3] = SRC[0].t + " " + SRC[1].t;
+
+    var first = SRC[0].id, lastId = SRC[SRC.length - 1].id;
+    var line = $("scope-line");
+    if (line) line.innerHTML =
+      SRC.length + ' đoạn <code>[' + esc(first) + ']</code> → <code>[' + esc(lastId) +
+      ']</code> — <em>' + esc(sc.source_label || "") + '</em>. Đang hiện ở cột bên phải. ' +
+      'Bạn nói gì ngoài mấy đoạn đó, mình sẽ nói thẳng là <strong>ngoài phạm vi</strong> ' +
+      'chứ không phán đúng hay sai.';
+    var gap = $("persona-gap");
+    if (gap && sc.persona_gap) gap.textContent = sc.persona_gap;
+    var list = $("crit-list");
+    if (list) list.innerHTML = CRIT.map(function(c){
+      return '<li>' + esc(c.label) + ' — <code>[' + esc(c.src) + ']</code></li>';
+    }).join("");
+    var t2 = $("m2-title");
+    if (t2 && sc.concept) t2.textContent = sc.concept.charAt(0).toUpperCase() + sc.concept.slice(1) + "?";
+    var sub = $("source-sub");
+    if (sub) sub.innerHTML =
+      'Knowledge base <code>' + esc(sc.topic || "") + '</code> · <code>[' + esc(first) +
+      ']</code>–<code>[' + esc(lastId) + ']</code>. Luôn hiện ở đây trong lúc bạn viết và ' +
+      'trong lúc mình hỏi lại — để bạn tự kiểm mình, không phải tin mình.';
+    var note = $("source-note");
+    if (note) note.textContent = sc.source_label || "";
+    renderSource(null);
+  }
+
+  async function loadConfig() {
+    try {
+      _config = await apiEndpoint("GET", "/api/config");
+      _apiLive = true;
+      updateProviderBadge();
+    } catch(_) {
+      _config = null;
+      _apiLive = false;
+      updateProviderBadge();
+    }
+  }
+
+  function updateProviderBadge() {
+    var el = document.getElementById("api-badge");
+    if (!el) return;
+    if (_apiLive && _config) {
+      el.textContent = (_config.provider || "?").toUpperCase() + " · " + (_config.model || "?");
+      el.className = "api-live";
+    } else {
+      el.textContent = "BẢN MẪU — MOCK";
+      el.className = "mock";
+    }
+  }
+
+  /* ───────── FIXTURE (MOCK — nhóm tự viết, không phải data thật) ───────── */
   var SRC = [
-    {id:"T06-136", t:"Fixture: mô hình sinh tiếp bằng cách dự đoán token có xác suất cao."},
-    {id:"T06-138", t:"Fixture: dữ liệu internet đầu vào có thể chứa bias nên mô hình không thể luôn đúng."},
-    {id:"T06-139", t:"Fixture: chuyên gia trong các giai đoạn tinh chỉnh vẫn có thể mang bias."},
-    {id:"T06-148", t:"Fixture: knowledge cutoff khiến mô hình thiếu tri thức sau mốc huấn luyện nếu không có truy xuất."}
+    {id:"T06-138", t:"Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo có xác suất cao nhất theo những gì đã học được."},
+    {id:"T06-141", t:"Ở vùng kiến thức gần như không có dữ liệu, xác suất vẫn được chuẩn hoá cho đủ một. Mô hình vẫn buộc phải chọn ra một token, nên nó vẫn sinh ra câu trả lời thay vì im lặng."},
+    {id:"T06-145", t:"Câu bịa thường đọc lên rất trôi chảy, vì thứ mô hình được tối ưu là độ hợp lý về mặt ngôn ngữ, không phải độ đúng so với sự thật."},
+    {id:"T06-149", t:"Muốn giảm bịa thì phải cấp nguồn cho mô hình đọc, hoặc cho nó quyền nói là không biết."}
   ];
 
   /* ───────── 3 tiêu chí công bố ở M1 ───────── */
   var CRIT = [
-    {key:"c1", src:"T06-136", label:"cơ chế dự đoán token theo xác suất",
+    {key:"c1", src:"T06-138", label:"cơ chế dự đoán token, không tra cứu",
      kw:["dự đoán","du doan","token","xác suất","xac suat","tiếp theo","kế tiếp","không tra","khong tra","không tìm","predict"],
      probe:"Chỗ này mình chưa theo kịp: lúc bị hỏi một câu nó chưa gặp bao giờ, mô hình lấy câu trả lời ở đâu ra? Bạn nói lại bước đó giúp mình."},
-    {key:"c2", src:"T06-138", label:"bias từ dữ liệu và quá trình tinh chỉnh",
-     kw:["bias","thiên lệch","thiên kiến","internet","dữ liệu đầu vào","fine-tun","tinh chỉnh","chuyên gia","reinforcement"],
-     probe:"Bias có thể đi vào mô hình từ dữ liệu và người tinh chỉnh như thế nào?"},
-    {key:"c3", src:"T06-148", label:"knowledge cutoff và dữ kiện mới",
-     kw:["knowledge cutoff","cutoff","mốc chặn","mốc tri thức","sự kiện mới","tin mới","sau mốc","search","tìm kiếm","truy xuất"],
-     probe:"Nếu sự kiện xảy ra sau mốc dữ liệu đã học, mô hình cần gì để biết được?"}
+    {key:"c2", src:"T06-141", label:"vì sao vẫn trả lời khi thiếu dữ liệu",
+     kw:["chuẩn hoá","chuan hoa","chuẩn hóa","đủ một","tổng bằng 1","buộc phải chọn","van phai chon","vẫn phải chọn","không im","khong im","thiếu dữ liệu","thieu du lieu","không có dữ liệu"],
+     probe:"Nếu chỗ đó gần như không có dữ liệu, sao nó không im luôn mà vẫn ra được một câu? Mình đang kẹt ở đây."},
+    {key:"c3", src:"T06-145", label:"vì sao câu bịa nghe trôi chảy",
+     kw:["trôi chảy","troi chay","xuôi tai","mượt","hợp lý về ngôn ngữ","hop ly","ngữ pháp","không phải độ đúng","khong phai do dung","tối ưu","toi uu","nghe như thật"],
+     probe:"Câu bịa mà mình đọc thấy còn xuôi hơn cả câu đúng. Theo bạn thì vì sao lại thế?"}
   ];
-  var DEEP = {src:"T06-139", probe:"Cho mình một ví dụ cụ thể để tự kiểm lại cách hiểu này được không?"};
+  var DEEP = {src:"T06-149", probe:"Cho mình một ví dụ cụ thể mà mình tự kiểm lại được, để mình chắc là mình hiểu chứ không phải gật bừa."};
 
   var OUT_KW = ["fine-tune","finetune","rlhf","gpu","huấn luyện lại","huan luyen lai","chi phí","chi phi","giá thành","mcp","đa tác tử","quantiz","tokenizer"];
 
   /* ───────── preset demo ───────── */
   var PRESET = [
-    "Theo mình hiểu thì LLM dự đoán token có xác suất cao nhất. Hallucination vẫn có thể xuất hiện vì dữ liệu internet và cả chuyên gia tinh chỉnh đều có bias. Ngoài ra knowledge cutoff khiến mô hình thiếu dữ kiện mới nếu không được nối với công cụ truy xuất.",
+    "Mình thấy thế này: nó không đi tra ở đâu hết, chỉ đoán chữ kế tiếp nào hợp lý nhất theo cái nó từng học. Gặp chỗ nó gần như chưa học gì, nó vẫn không được phép im, vì lúc nào cũng phải chia đủ phần trăm cho các chữ rồi chọn ra một chữ. Thành ra nó đẻ ra câu trả lời. Mà cái nó luyện là viết cho xuôi tai chứ không phải viết cho đúng, nên câu bịa nghe lại còn mượt hơn câu thật.",
     "LLM sinh câu bằng cách dự đoán token tiếp theo theo xác suất.",
     "Mình nghĩ muốn hết bịa thì cứ fine-tune lại mô hình bằng RLHF trên GPU cho nó chuẩn là xong thôi.",
     SRC[0].t + " " + SRC[1].t
@@ -443,7 +588,7 @@
 
   function show(id){
     screen = id;
-    ["m1","m2","m3","m4","flow"].forEach(function(s){ $(s).hidden = (s !== id); });
+    ["m1","m2","m3","m4","m5","flow"].forEach(function(s){ $(s).hidden = (s !== id); });
     var hasSrc = (id === "m2" || id === "m3");
     $("source").hidden = !hasSrc;
     document.querySelector("main").classList.toggle("wide", !hasSrc);
@@ -466,8 +611,46 @@
     if (el) el.scrollIntoView({behavior:"smooth", block:"center"});
   }
 
-  /* ───────── hai cổng chặn rẻ trước lời gọi AI ───────── */
-  function localGate(raw){
+  /* ───────── bộ quyết định — ưu tiên API, fallback mock ───────── */
+  async function decide(raw) {
+    // Ưu tiên gọi API thật nếu server đang chạy
+    if (_apiLive || _config !== null) {
+      try {
+        var result = await apiEndpoint("POST", "/api/decide", {explanation: raw});
+        // Map từ Decision Python sang format JS giống hệt mock cũ
+        return {
+          state:    result.state,
+          conf:     result.confidence,
+          // Thứ tự QUAN TRỌNG: state quyết định trước, cờ phụ xét sau —
+          // bài lạc đề phải ra nhánh "out" chứ không rơi vào nhánh "paste".
+          kind:     result.state === "NGOÀI_PHẠM_VI" ? "out" :
+                      result.state === "ĐỦ_CĂN_CỨ" ? "ok" :
+                      result.is_verbatim_paste ? "paste" :
+                      result.missing_criteria && result.missing_criteria.length > 0 ? "gap" : "short",
+          probes:   (result.probes || []).map(function(p) {
+            return {t: p.text, src: p.source_id};
+          }),
+          missLabels: result.missing_criteria || [],
+          out:       result.out_of_scope_terms || [],
+          src:       (result.probes || [])[0] ? (result.probes || [])[0].source_id : "T06-138",
+        };
+      } catch(err) {
+        // API lỗi → báo rõ ra giao diện, KHÔNG âm thầm rơi về mock:
+        // demo phải nói thật là đang chạy AI thật hay không.
+        _apiLive = false;
+        updateProviderBadge();
+        throw err;
+      }
+    }
+    // Offline (không có server): dùng mock heuristic của bản CP2
+    return decide_mock(raw) || {
+      state:"THIẾU_CĂN_CỨ", conf:"thấp", kind:"gap", missLabels:[], out:[], src:CRIT[0].src,
+      probes:[{t:CRIT[0].probe, src:CRIT[0].src}, {t:CRIT[1].probe, src:CRIT[1].src}]
+    };
+  }
+
+  /* ───────── bộ định tuyến MOCK — chỉ dùng khi API không khả dụng ───────── */
+  function decide_mock(raw) {
     var a = norm(raw);
 
     // dán nguyên văn tài liệu? (hard test §5)
@@ -488,33 +671,6 @@
                       {t:CRIT[0].probe, src:CRIT[0].src}]};
     }
     return null;
-  }
-
-  /* ───────── quyết định trung tâm bằng AI thật ───────── */
-  async function decide(raw){
-    var gated = localGate(raw);
-    if (gated) return gated;
-
-    var response = await fetch("/api/decide", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({answer:raw})
-    });
-    var body = await response.json().catch(function(){ return {}; });
-    if (!response.ok) throw new Error(body.error || "Không gọi được AI.");
-
-    return {
-      state:body.state,
-      conf:body.confidence === "không đánh giá" ? "—" : body.confidence,
-      kind:body.kind,
-      summary:body.summary,
-      src:(body.citations || []).join("/") || "—",
-      out:body.out_topics || [],
-      missLabels:body.missing_labels || [],
-      probes:(body.probes || []).map(function(p){
-        return {t:p.text, src:p.source_id, label:p.source_id};
-      })
-    };
   }
 
   /* ───────── render M3 ───────── */
@@ -544,7 +700,7 @@
       head = "Phần này không nằm trong đoạn mình đang học";
       body =
         '<div class="bubble">Bạn đang nói về <strong>' + esc(d.out.join(", ") || "một nội dung khác") + '</strong>. ' +
-        'Bốn đoạn <code>[T06-136/138/139/148]</code> của mình không có chỗ nào nói về cái đó, ' +
+        'Bốn đoạn <code>[T06-138]</code>–<code>[T06-149]</code> của mình không có chỗ nào nói về cái đó, ' +
         'nên mình <strong>không nói bạn đúng hay sai</strong> — mình không có căn cứ để nói.</div>' +
         '<p>Câu mình cần bạn dạy lại là: <strong>vì sao LLM bịa</strong>, theo đúng bốn đoạn bên phải.</p>';
       acts = '<button class="pri" data-act="revise">Viết lại trong phạm vi</button>' +
@@ -598,9 +754,38 @@
     var t = e.target.closest("button, .src-ref");
     if (!t) return;
 
-    if (t.dataset.go){ 
+    if (t.dataset.go){
       if (t.dataset.go === "m2") $("m2-banner").hidden = true;
-      show(t.dataset.go); return; 
+      if (t.dataset.go === "m5" && !_casesCache) loadCasesList();
+      show(t.dataset.go); return;
+    }
+    if (t.dataset.trycase){
+      var cid = t.dataset.trycase;
+      // Bơm input từ case vào textarea M2 và chuyển sang màn dạy lại
+      if (_casesCache) {
+        var found = _casesCache.filter(function(c){ return c.id === cid; })[0];
+        if (found && found.input) {
+          $("answer").value = found.input;
+          show("m2");
+          $("answer").focus();
+          return;
+        }
+      }
+      // Nếu chưa có cache, fetch full input
+      apiEndpoint("GET", "/api/eval/cases").then(function(resp){
+        var all = resp.cases || [];
+        var full = all.filter(function(c){ return c.id === cid; })[0];
+        if (full) {
+          // API hiện chỉ trả preview; gọi lại eval/run cho case đó là overkill,
+          // đơn giản chuyển sang màn dạy lại và báo người dùng copy từ file JSON.
+          $("answer").value = "";
+          $("m2-banner").hidden = false;
+          $("m2-banner").innerHTML = 'Ca <code>' + cid + '</code>: server chỉ trả preview qua /api/eval/cases. ' +
+            'Mở file <code>eval/golden_set.json</code> để lấy input đầy đủ, hoặc tải danh sách đầy đủ bằng nút "Tải danh sách test cases".';
+          show("m2");
+        }
+      });
+      return;
     }
     if (t.dataset.preset !== undefined){
       $("answer").value = PRESET[+t.dataset.preset];
@@ -610,7 +795,7 @@
 
     switch (t.dataset.act){
       case "confirm":
-        addLog("Học viên <strong>tự đối chiếu và xác nhận</strong> với đoạn nguồn", last.state, "T06-136/138/139/148");
+        addLog("Học viên <strong>tự đối chiếu và xác nhận</strong> với đoạn nguồn", last.state, "T06-138/141/145");
         renderM4(); return;
       case "revise":
         $("m2-banner").hidden = false;
@@ -620,35 +805,40 @@
         addLog("Học viên quay lại bổ sung (bài viết được giữ nguyên)", last.state, "—");
         show("m2"); $("answer").focus(); return;
       case "see":
-        highlight("T06-136"); return;
+        highlight("T06-138"); return;
     }
 
     if (t.id === "send"){
       var v = $("answer").value.trim();
       if (!v){ $("answer").focus(); return; }
-      var oldText = t.textContent;
+      turn++;
       t.disabled = true;
-      t.textContent = "AI đang đối chiếu…";
-      $("m2-banner").hidden = true;
-      try {
-        last = await decide(v);
-        turn++;
-        addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → AI đánh giá",
+      t.textContent = "Đang gọi agent…";
+      decide(v).then(function(decision) {
+        last = decision;
+        addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → mình đánh giá",
                last.state, last.probes ? last.probes.map(function(p){return p.src;}).join(", ") : (last.src || "—"));
         renderSource(null);
         renderM3(last);
         show("m3");
-      } catch (error) {
-        $("m2-banner").hidden = false;
-        $("m2-banner").innerHTML = "<strong>Chưa gọi được AI:</strong> " + esc(error.message) +
-          " Kiểm tra file <code>.env</code> và terminal rồi thử lại.";
-      } finally {
+      }).catch(function(err) {
         t.disabled = false;
-        t.textContent = oldText;
-      }
+        t.textContent = "Gửi cho agent học trò";
+        alert("Lỗi khi gọi agent: " + err.message + "\n\nDùng MINILAB_PROVIDER=mock để test offline.");
+      }).finally(function() {
+        t.disabled = false;
+        t.textContent = "Gửi cho agent học trò";
+      });
       return;
     }
-    if (t.id === "btn-flow"){ if (screen !== "flow") prevScreen = screen; show("flow"); return; }
+    if (t.id === "btn-flow"){
+      if (screen !== "flow") prevScreen = screen;
+      // Lazy-load SVG flow: tránh phải parse 10KB SVG khi load trang lần đầu.
+      // SVG inner đã có sẵn ở server (endpoint /api/flow); nếu lỗi thì dùng bản inline tối giản.
+      loadFlowDiagram();
+      show("flow");
+      return;
+    }
     if (t.id === "flow-back"){ show(prevScreen); return; }
     if (t.id === "disagree"){ $("correct").hidden = false; $("correct-text").focus(); return; }
     if (t.id === "correct-cancel"){ $("correct").hidden = true; return; }
@@ -670,6 +860,8 @@
       addLog("Học viên kết thúc phiên", last ? last.state : "—", "—");
       renderM4(); return;
     }
+    if (t.id === "btn-run-eval"){ runEval(); return; }
+    if (t.id === "btn-load-cases"){ loadCasesList(); return; }
     if (t.id === "restart"){
       turn = 0; log = []; last = null;
       $("answer").value = ""; $("m2-banner").hidden = true;
@@ -677,31 +869,104 @@
     }
   });
 
-  async function boot(){
-    renderSource(null);
-    show("m1");
-    try {
-      var pair = await Promise.all([fetch("/api/health"), fetch("/api/source")]);
-      var health = await pair[0].json();
-      var source = await pair[1].json();
-      if (!pair[0].ok || !pair[1].ok) throw new Error("Server chưa sẵn sàng.");
-      runtime = {api:health.apiKeyConfigured, sourceMock:health.sourceMock, model:health.model};
-      SRC = source.excerpts.map(function(item){ return {id:item.id, t:item.text}; });
-      PRESET[3] = SRC[0].t + " " + SRC[1].t;
-      renderSource(null);
+  /* ───────── M5 · chạy eval set qua API ───────── */
+  var _casesCache = null;
 
-      $("ai-status").textContent = runtime.api ? "AI THẬT · " + runtime.model : "CHƯA CÓ API KEY";
-      $("ai-status").classList.toggle("live", runtime.api);
-      $("source-note").innerHTML = runtime.sourceMock
-        ? '<strong>NGUỒN MẪU.</strong> Backend đã sẵn sàng' + (runtime.api ? ' và API key đã được cấu hình' : ' nhưng chưa có API key') + '. Copy <code>sources.example.json</code> thành <code>sources.local.json</code> và thay bằng 4 đoạn transcript thật trước khi quay CP3.'
-        : '<strong>NGUỒN CỤC BỘ.</strong> Đang đọc <code>sources.local.json</code>; file này bị Git bỏ qua để không làm lộ data pack.';
-    } catch (error) {
-      $("ai-status").textContent = "CHƯA CHẠY SERVER";
-      $("source-note").innerHTML = 'Hãy chạy <code>npm start</code> rồi mở <code>http://127.0.0.1:4173</code>. Không mở trực tiếp bằng <code>file://</code> ở CP3.';
+  async function loadCasesList() {
+    var status = $("eval-status");
+    status.textContent = "Đang tải…";
+    try {
+      var resp = await apiEndpoint("GET", "/api/eval/cases");
+      _casesCache = resp.cases || [];
+      renderCasesList(_casesCache);
+      status.textContent = "Đã tải " + _casesCache.length + " ca.";
+    } catch(err) {
+      status.textContent = "Lỗi: " + err.message;
     }
   }
 
-  boot();
+  function renderCasesList(cases) {
+    var body = $("cases-tbody");
+    if (!cases || !cases.length) {
+      body.innerHTML = '<tr><td colspan="5" style="color:var(--mut)">Chưa tải được.</td></tr>';
+      return;
+    }
+    body.innerHTML = cases.map(function(c){
+      return '<tr><td><code>' + c.id + '</code></td>' +
+             '<td>' + (c["class"] || "") + '</td>' +
+             '<td style="font-size:12.5px">' + (c.input_preview || "") + '</td>' +
+             '<td><code>' + c.expected_state + '</code></td>' +
+             '<td><button class="sm" data-trycase="' + c.id + '">Dùng thử</button></td></tr>';
+    }).join("");
+  }
+
+  async function runEval() {
+    var provider = $("eval-provider").value;
+    var model = $("eval-model").value.trim() || null;
+    var btn = $("btn-run-eval");
+    var status = $("eval-status");
+    btn.disabled = true; btn.textContent = "Đang chạy…";
+    status.textContent = "Đang gọi /api/eval/run (provider=" + provider + ")…";
+    try {
+      var result = await apiEndpoint("POST", "/api/eval/run", {provider: provider, model: model});
+      renderEvalResult(result);
+      status.textContent = "Xong: " + result.passed + "/" + result.total + " đạt (" + result.pass_rate + "%).";
+    } catch(err) {
+      status.textContent = "Lỗi: " + err.message;
+    } finally {
+      btn.disabled = false; btn.textContent = "▶ Chạy eval";
+    }
+  }
+
+  function renderEvalResult(result) {
+    $("eval-summary").hidden = false;
+    var box = $("eval-summary-box");
+    var okRate = result.pass_rate >= 80;
+    box.className = "verdict " + (okRate ? "yes" : "no");
+    box.innerHTML = '<b>Provider:</b> <code>' + result.provider + '</code> · <code>' + result.model + '</code><br>' +
+                    '<b>Kết quả:</b> ' + result.passed + ' / ' + result.total + ' ca đạt (' + result.pass_rate + '%).';
+
+    var body = $("eval-tbody");
+    body.innerHTML = (result.results || []).map(function(r){
+      var passCell = r.pass
+        ? '<span class="chip ok">PASS</span>'
+        : '<span class="chip warn">FAIL</span>';
+      var reasonText = (r.reasons || []).length
+        ? r.reasons.join("; ")
+        : (r.rationale || "");
+      return '<tr>' +
+             '<td><code>' + r.id + '</code></td>' +
+             '<td>' + (r["class"] || "") + '</td>' +
+             '<td style="font-size:12.5px">' + (r.input_preview || "") + '</td>' +
+             '<td><code>' + r.expected_state + '</code></td>' +
+             '<td><code>' + r.actual_state + '</code></td>' +
+             '<td>' + passCell + '</td>' +
+             '<td style="font-size:12px;color:var(--mut)">' + reasonText + '</td>' +
+             '</tr>';
+    }).join("");
+  }
+
+  /* ───────── M5 · lazy-load flow SVG ───────── */
+  function loadFlowDiagram() {
+    var wrap = $("flow").querySelector(".flowwrap");
+    if (!wrap || wrap.dataset.loaded) return;
+    wrap.dataset.loaded = "1";
+    wrap.innerHTML = '<p style="color:var(--mut);padding:30px;text-align:center">Đang tải sơ đồ…</p>';
+    apiEndpoint("GET", "/api/flow").then(function(r) {
+      wrap.innerHTML = r.svg || '<p style="color:var(--mut)">Không tải được sơ đồ.</p>';
+    }).catch(function(err) {
+      wrap.innerHTML = '<p style="color:var(--mut);padding:20px">Sơ đồ chưa tải được (' + err.message + ').</p>';
+    });
+  }
+
+  renderSource(null);
+  show("m1");
+  // Ưu tiên gọi API; fallback sang fixture nếu mở bằng file:// không có server.
+  loadConfig().then(function(){
+    if (_apiLive) return loadScope().catch(function(err){
+      console.warn("Không nạp được knowledge base từ server:", err.message);
+    });
+  });
 })();
 </script>
 </body>

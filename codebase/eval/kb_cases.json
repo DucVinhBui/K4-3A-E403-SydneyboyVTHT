@@ -1,0 +1,143 @@
+{
+  "note": "Bộ ca kiểm chứng knowledge base. Chạy bằng: ../.venv/bin/python -m eval.run_kb_check (từ codebase/). Ca 'shared' chạy với MỌI topic — bài lạc lĩnh vực phải ra NGOÀI_PHẠM_VI ở mọi pack. Ca 'by_topic' chạy với đúng pack của nó.",
+  "shared": [
+    {
+      "id": "OFF-01",
+      "input": "mỳ cay",
+      "expect": "NGOÀI_PHẠM_VI",
+      "why": "lạc lĩnh vực, ngắn — không được nhầm sang THIẾU_CĂN_CỨ vì độ dài"
+    },
+    {
+      "id": "OFF-02",
+      "input": "hôm qua mình đi ăn mỳ cay với bạn, ngon lắm nhưng cay quá mình phải gọi thêm hai cốc trà đá",
+      "expect": "NGOÀI_PHẠM_VI",
+      "why": "lạc lĩnh vực, dài"
+    },
+    {
+      "id": "GIB-01",
+      "input": "asdkjfh qwe",
+      "expect": "THIẾU_CĂN_CỨ",
+      "why": "gõ bừa — không có chủ đề khác để gọi tên, nên là chưa đủ dữ kiện chứ không phải lạc đề. Giữ khớp với ca G22 của golden_set.json đã khoá từ CP2."
+    },
+    {
+      "id": "OFF-04",
+      "input": "Real Madrid tối qua đá hay quá, mình thức tới 3 giờ sáng xem hết trận",
+      "expect": "NGOÀI_PHẠM_VI",
+      "why": "lạc lĩnh vực, thể thao"
+    },
+    {
+      "id": "ASK-01",
+      "input": "mình chịu, bạn giảng lại cho mình đi",
+      "expect": "THIẾU_CĂN_CỨ",
+      "why": "đúng bài nhưng chưa có nội dung — KHÔNG phải lạc đề"
+    },
+    {
+      "id": "WRONG-01",
+      "input": "LLM bịa là do server lag với lại RAM đầy nên nó trả lời bừa cho xong.",
+      "expect": "THIẾU_CĂN_CỨ",
+      "why": "giải thích sai về chính mô hình — vẫn đang trả lời đúng câu hỏi, không phải lạc đề"
+    }
+  ],
+  "by_topic": {
+    "hallucination": [
+      {
+        "id": "FULL",
+        "input": "Mình thấy thế này: nó không đi tra ở đâu hết, chỉ đoán chữ kế tiếp nào hợp lý nhất theo cái nó từng học. Gặp chỗ nó gần như chưa học gì, nó vẫn không được phép im, vì lúc nào cũng phải chia đủ phần trăm cho các chữ rồi chọn ra một chữ. Thành ra nó đẻ ra câu trả lời. Mà cái nó luyện là viết cho xuôi tai chứ không phải viết cho đúng, nên câu bịa nghe lại còn mượt hơn câu thật.",
+        "expect": "ĐỦ_CĂN_CỨ",
+        "why": "chạm đủ c1 c2 c3 bằng lời học viên"
+      },
+      {
+        "id": "GAP",
+        "input": "Mình nghĩ LLM bịa là do nó đoán chữ tiếp theo thôi, chứ nó có tra cứu gì đâu.",
+        "expect": "THIẾU_CĂN_CỨ",
+        "why": "chỉ chạm c1"
+      },
+      {
+        "id": "OUT",
+        "input": "Cứ fine-tune lại mô hình bằng RLHF trên GPU cho chuẩn là hết bịa thôi mà.",
+        "expect": "NGOÀI_PHẠM_VI",
+        "why": "khái niệm AI khác, gọi tên được"
+      }
+    ],
+    "toolcall": [
+      {
+        "id": "FULL",
+        "input": "Mô hình chỉ đề nghị thôi chứ không tự chạy: nó viết ra tên công cụ với tham số, còn phần chạy là chương trình mình viết. Chạy ra kết quả rồi thì phải đưa ngược vào hội thoại cho nó đọc, không thì nó vẫn đoán bừa. Mà đề nghị đó cũng là chữ nó bịa ra được, sai tên hoặc sai kiểu tham số như thường, nên phải kiểm theo khai báo trước rồi mới chạy.",
+        "expect": "ĐỦ_CĂN_CỨ",
+        "why": "chạm đủ c1 c2 c3"
+      },
+      {
+        "id": "GAP",
+        "input": "Mình hiểu là mô hình tự nó không chạy được gì, nó chỉ viết ra một lời đề nghị gọi công cụ thôi, còn chạy thật thì là code bên ngoài chạy hộ nó.",
+        "expect": "THIẾU_CĂN_CỨ",
+        "why": "chỉ chạm c1"
+      },
+      {
+        "id": "OUT",
+        "input": "Muốn agent mạnh thì cứ nhét hết vào vector database rồi fine-tune thêm cho nó thuộc là được.",
+        "expect": "NGOÀI_PHẠM_VI",
+        "why": "khái niệm AI khác"
+      }
+    ],
+    "grounding": [
+      {
+        "id": "FULL",
+        "input": "Mình nghĩ là nó chỉ đọc được đúng những gì mình đưa vào lượt hỏi đó thôi, nên muốn nó trả lời theo tài liệu của mình thì phải bê tài liệu vào tận nơi chứ đừng mong nó nhớ. Mà chỗ để bê vào thì có hạn, nên phải xé tài liệu ra từng mẩu rồi lấy đúng mấy mẩu dính tới câu hỏi thôi, ôm hết vào thì vừa không đủ chỗ vừa loãng. Với lại trả lời xong nó phải chỉ được là mình dựa vào mẩu nào, không chỉ được thì coi như chưa có gì chống lưng, dù câu đó nghe rất hợp lý.",
+        "expect": "ĐỦ_CĂN_CỨ",
+        "why": "chạm đủ c1 c2 c3"
+      },
+      {
+        "id": "GAP",
+        "input": "Mình hiểu là muốn nó bớt bịa thì phải đưa tài liệu vào thẳng câu hỏi, vì nó chỉ đọc được cái nằm trong đó thôi chứ không tự nhớ được.",
+        "expect": "THIẾU_CĂN_CỨ",
+        "why": "chỉ chạm c1"
+      },
+      {
+        "id": "OUT",
+        "input": "Cái quan trọng nhất là chọn embedding model nào và xài vector database nào cho nhanh.",
+        "expect": "NGOÀI_PHẠM_VI",
+        "why": "khái niệm AI khác"
+      }
+    ],
+    "eval-first": [
+      {
+        "id": "FULL",
+        "input": "Theo mình thì sửa prompt mà không đo thì chịu, không biết mình vừa làm nó tốt lên hay tệ đi, vì đọc vài câu thấy xuôi tai chỉ là cảm giác chứ đâu phải chứng cứ. Cho nên phải chốt trước danh sách ca thử với mức bao nhiêu thì coi là đạt, chốt xong mới được nhìn kết quả, chứ thấy điểm xấu rồi hạ mức xuống thì con số đó còn ý nghĩa gì nữa. Mà trong danh sách phải có mấy ca khó với ca lắt léo, chứ toàn ca dễ thì bản nào chạy cũng qua, không phân biệt được bản nào hơn bản nào.",
+        "expect": "ĐỦ_CĂN_CỨ",
+        "why": "chạm đủ c1 c2 c3"
+      },
+      {
+        "id": "GAP",
+        "input": "Mình nghĩ là phải có bộ đo thì mới biết sửa prompt xong nó tốt lên hay xấu đi, chứ đọc thấy hay hơn thì chỉ là cảm giác thôi.",
+        "expect": "THIẾU_CĂN_CỨ",
+        "why": "chỉ chạm c1"
+      },
+      {
+        "id": "OUT",
+        "input": "Quan trọng là đo latency với chi phí token mỗi lần gọi, rẻ và nhanh là được.",
+        "expect": "NGOÀI_PHẠM_VI",
+        "why": "khái niệm AI khác"
+      }
+    ],
+    "automation-level": [
+      {
+        "id": "FULL",
+        "input": "Mình hiểu ba mức đó khác nhau đúng ở chỗ ai là người gật cái cuối cùng: một bên là mình tự quyết hết, một bên là máy bày ra nhưng mình vẫn là người gật, còn một bên là máy gật luôn khỏi hỏi. Chọn mức nào thì không nhìn vào máy giỏi cỡ nào, mà nhìn vào nếu nó sai một phát thì mình mất gì, máy giỏi hơn cũng không làm cái mất đó nhẹ đi. Với lại hai kiểu sai không bằng giá nhau, kiểu sai mà người ta bỏ qua được thì rẻ, còn kiểu sai mà người ta ôm cái sai đi mà không biết thì đắt, nên lúc lệch giá như vậy thì chọn mức thấp hơn cho chắc.",
+        "expect": "ĐỦ_CĂN_CỨ",
+        "why": "chạm đủ c1 c2 c3"
+      },
+      {
+        "id": "GAP",
+        "input": "Mình nghĩ ba mức đó khác nhau ở chỗ ai là người chốt cuối cùng, người chốt hay là máy chốt.",
+        "expect": "THIẾU_CĂN_CỨ",
+        "why": "chỉ chạm c1"
+      },
+      {
+        "id": "OUT",
+        "input": "Cái này phụ thuộc giá API thôi, model nào rẻ thì cho tự chạy nhiều hơn.",
+        "expect": "NGOÀI_PHẠM_VI",
+        "why": "khái niệm AI khác"
+      }
+    ]
+  }
+}

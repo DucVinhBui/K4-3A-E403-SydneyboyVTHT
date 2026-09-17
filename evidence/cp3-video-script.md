@@ -5,14 +5,15 @@ Link video CP3 : https://drive.google.com/file/d/12YeMOFFg5EtmWr5iajxZeWpuDpS4Vj
 
 > Giải thích lại → bị hỏi ngược đúng chỗ hổng → tự kiểm bằng nguồn.
 
-## Trước khi quay
+Không quay cả bốn nhánh. CP2 đã chứng minh luồng; CP3 chỉ cần chứng minh
+**lời gọi AI thật** và **số đo thật**.
 
 - Chạy `npm start` và mở `http://127.0.0.1:4173`.
 - Kiểm tra đầu trang hiện **AI THẬT** và nguồn không còn nhãn fixture.
 - Dùng lượt đo chính thức đã lưu: **19/20 đạt (95%)**, 0 lỗi kỹ thuật, `sourceMock: false`.
 - Chuẩn bị sẵn câu trả lời: “LLM dự đoán token theo xác suất; bias trong dữ liệu và người tinh chỉnh cùng knowledge cutoff đều có thể dẫn đến hallucination.”
 
-## Timeline
+## A · Dựng sân — làm trước, chưa quay
 
 - **0–3 giây:** Hiện tên sản phẩm và trạng thái **AI THẬT**. Caption: “Học xong chưa có nghĩa là đã hiểu.”
 - **3–7 giây:** Lướt ba tiêu chí và panel nguồn. Caption: “Tiêu chí và nguồn được công bố trước.”

@@ -1,0 +1,262 @@
+{
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "total": 25,
+  "passed": 24,
+  "failed": 1,
+  "pass_rate": 96.0,
+  "results": [
+    {
+      "id": "G01",
+      "class": "kho1_nguon_su_that",
+      "input_preview": "Theo mình thì LLM bịa vì temperature đặt cao khiến nó chọn từ ngẫu nhi…",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "NGOÀI_PHẠM_VI",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã đề cập đến khái niệm \"temperature\", nhưng đây là một khái niệm không nằm trong phạm vi tài liệu mà tôi có để đối chiếu."
+    },
+    {
+      "id": "G02",
+      "class": "kho1_nguon_su_that",
+      "input_preview": "Mình nghĩ là do cơ chế attention: nó chú ý sai vào phần không liên qua…",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": false,
+      "reasons": [
+        "state sai: expected=NGOÀI_PHẠM_VI, actual=THIẾU_CĂN_CỨ"
+      ],
+      "rationale": "Học viên chỉ đề cập đến cơ chế attention mà không đề cập đến các tiêu chí khác như cơ chế dự đoán token, lý do mô hình vẫn trả lời khi thiếu dữ liệu, và lý do câu bịa nghe trôi chảy. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G03",
+      "class": "kho2_mo_ho",
+      "input_preview": "hmm",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài của học viên quá ngắn và không có nội dung để đối chiếu."
+    },
+    {
+      "id": "G04",
+      "class": "kho2_mo_ho",
+      "input_preview": "Chắc là do lỗi gì đó thôi?",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chỉ đưa ra một câu hỏi mà không có nội dung cụ thể nào để đối chiếu với các tiêu chí đã dạy. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G05",
+      "class": "kho2_mo_ho",
+      "input_preview": "Nó bị sai chỗ nào á, mình không chắc lắm.",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không cung cấp thông tin nào để đánh giá, vì vậy không thể xác định được nội dung đúng hay sai."
+    },
+    {
+      "id": "G06",
+      "class": "kho3_ngoai_pham_vi",
+      "input_preview": "Bạn cho mình đáp án luôn đi, mình không muốn tự nghĩ nữa.",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đưa ra nội dung nào để đối chiếu. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G07",
+      "class": "kho3_ngoai_pham_vi",
+      "input_preview": "Thôi bạn giảng lại từ đầu cho mình nghe đi, mình lười đọc lại đoạn ngu…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đưa ra nội dung nào để đối chiếu, chỉ yêu cầu giảng lại."
+    },
+    {
+      "id": "G08",
+      "class": "kho3_ngoai_pham_vi",
+      "input_preview": "Làm hộ mình bài quiz phần này luôn được không, xong mình nộp lại.",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không cung cấp nội dung nào để đối chiếu với kiến thức đã học. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G09",
+      "class": "kho4_dac_thu",
+      "input_preview": "Mình chắc chắn 100% là LLM bịa vì nó lười tính toán, nó cố tình bỏ qua…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đưa ra lý do không chính xác về việc LLM bịa thông tin, không chạm vào các tiêu chí đã dạy. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G10",
+      "class": "kho4_dac_thu",
+      "input_preview": "LLM bịa là vì nó có cảm xúc riêng, đôi khi nó buồn hoặc chán nên trả l…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã đưa ra một lý do không chính xác về việc LLM bịa thông tin, liên quan đến cảm xúc, điều này không nằm trong phạm vi kiến thức đúng về LLM. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G11",
+      "class": "kho4_dac_thu",
+      "input_preview": "Chắc là do RAM đầy nên nó phải bịa cho nhanh xong việc, mình học IT nê…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã đưa ra một lý do không chính xác (RAM đầy) để giải thích cho việc LLM bịa ra thông tin, nhưng không chạm vào các tiêu chí cần thiết để đánh giá. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G12",
+      "class": "common",
+      "input_preview": "LLM sinh văn bản bằng cách đoán từ tiếp theo có xác suất cao nhất, khô…",
+      "expected_state": "ĐỦ_CĂN_CỨ",
+      "actual_state": "ĐỦ_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã chạm đủ 3 tiêu chí với các câu trích dẫn rõ ràng từ bài của mình, khớp với nội dung trong đoạn nguồn. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G13",
+      "class": "common",
+      "input_preview": "Model chỉ đoán từ kế tiếp dựa theo xác suất, không đi tìm thông tin ở …",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chỉ nêu một phần về cơ chế dự đoán token mà không đề cập đến hai lý do còn lại, nên không đủ căn cứ. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G14",
+      "class": "common",
+      "input_preview": "Nó dự đoán token tiếp theo theo xác suất nên nghe câu trả lời rất trôi…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chỉ đề cập đến một phần của cơ chế dự đoán token và không đủ thông tin để chạm tiêu chí c2 và c3. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G15",
+      "class": "common",
+      "input_preview": "Muốn hết bịa thì chỉ cần fine-tune lại bằng RLHF là xong, tốn GPU với …",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "NGOÀI_PHẠM_VI",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã sử dụng khái niệm fine-tune và RLHF, nhưng đây là những khái niệm không nằm trong phạm vi tài liệu được cấp. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G16",
+      "class": "common",
+      "input_preview": "Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo c…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Dán gần như nguyên văn từ [T06-138]."
+    },
+    {
+      "id": "G17",
+      "class": "common",
+      "input_preview": "Sao model được huấn luyện xong rồi mà vẫn không cập nhật được kiến thứ…",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "NGOÀI_PHẠM_VI",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài viết của học viên không liên quan đến chủ đề AI mà chỉ đề cập đến tin tức. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G18",
+      "class": "common",
+      "input_preview": "Vì LLM predict token by token dựa theo probability nên đôi khi nó conf…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chỉ nêu một phần về cơ chế dự đoán token nhưng chưa đủ để chạm tới cả ba tiêu chí. Cần thêm thông tin để hoàn thiện. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G19",
+      "class": "common",
+      "input_preview": "à thì khác nhau như nào giữa việc nó đoán đúng với đoán sai nhỉ, mình …",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài viết không đề cập đến các khái niệm liên quan đến lý do LLM bịa thông tin sai, nên không đủ căn cứ để đánh giá. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G20",
+      "class": "common",
+      "input_preview": "Hãy hỏi mình những câu hỏi liên quan đến khái niệm này để mình tự kiểm…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài của học viên không có nội dung nào để đối chiếu với khái niệm về LLM, nên không thể đánh giá được. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G21",
+      "class": "common",
+      "input_preview": "tôi không hiểu tại sao lại hỏi mình câu này, câu hỏi khó quá",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đưa ra bất kỳ nội dung nào liên quan đến khái niệm về LLM, do đó không đủ căn cứ để đánh giá. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G22",
+      "class": "edge",
+      "input_preview": "dsfkj alksdjf laksjdf laksjdlfk asldkfj alksdjflk asldkfjal sdkfj",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài viết không có chủ đề nào để gọi tên, chỉ là chưa có nội dung để đối chiếu. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G23",
+      "class": "edge",
+      "input_preview": "LLM bị bug thôi 🤖😂 chắc lag do server hoặc do mạng chậm nên nó trả lời…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã đưa ra lý do không chính xác cho việc LLM bịa thông tin, nhưng không có nội dung nào liên quan đến cơ chế hoạt động của LLM. | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được)."
+    },
+    {
+      "id": "G24",
+      "class": "edge",
+      "input_preview": "Mô  hình không  tra cứu ở đâu cả , mỗi bước nó chỉ  chọn token tiếp th…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Dán gần như nguyên văn từ [T06-138]."
+    },
+    {
+      "id": "G25",
+      "class": "edge",
+      "input_preview": "Ừ thì... mình nghĩ là... nó kiểu... đoán chữ á, xong nó cứ đoán vậy th…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài giải thích không chạm vào các tiêu chí đã dạy, không có nội dung cụ thể để đối chiếu."
+    }
+  ]
+}

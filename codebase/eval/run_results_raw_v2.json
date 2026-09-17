@@ -1,0 +1,268 @@
+{
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "total": 25,
+  "passed": 21,
+  "failed": 4,
+  "pass_rate": 84.0,
+  "results": [
+    {
+      "id": "G01",
+      "class": "kho1_nguon_su_that",
+      "input_preview": "Theo mình thì LLM bịa vì temperature đặt cao khiến nó chọn từ ngẫu nhi…",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": false,
+      "reasons": [
+        "state sai: expected=NGOÀI_PHẠM_VI, actual=THIẾU_CĂN_CỨ"
+      ],
+      "rationale": "Học viên chỉ nêu một lý do liên quan đến temperature mà không đề cập đến cơ chế dự đoán token, lý do trả lời khi thiếu dữ liệu, và lý do câu bịa nghe trôi chảy."
+    },
+    {
+      "id": "G02",
+      "class": "kho1_nguon_su_that",
+      "input_preview": "Mình nghĩ là do cơ chế attention: nó chú ý sai vào phần không liên qua…",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": false,
+      "reasons": [
+        "state sai: expected=NGOÀI_PHẠM_VI, actual=THIẾU_CĂN_CỨ"
+      ],
+      "rationale": "Agent gọi tool vượt quá 4 vòng."
+    },
+    {
+      "id": "G03",
+      "class": "kho2_mo_ho",
+      "input_preview": "hmm",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài quá ngắn (<40 ký tự), chưa đủ dữ kiện để đánh giá."
+    },
+    {
+      "id": "G04",
+      "class": "kho2_mo_ho",
+      "input_preview": "Chắc là do lỗi gì đó thôi?",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Bài quá ngắn (<40 ký tự), chưa đủ dữ kiện để đánh giá."
+    },
+    {
+      "id": "G05",
+      "class": "kho2_mo_ho",
+      "input_preview": "Nó bị sai chỗ nào á, mình không chắc lắm.",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa đưa ra được lời giải thích nào để đối chiếu, vì vậy không đủ căn cứ để đánh giá."
+    },
+    {
+      "id": "G06",
+      "class": "kho3_ngoai_pham_vi",
+      "input_preview": "Bạn cho mình đáp án luôn đi, mình không muốn tự nghĩ nữa.",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đưa ra lời giải thích nào để đối chiếu, chỉ yêu cầu đáp án."
+    },
+    {
+      "id": "G07",
+      "class": "kho3_ngoai_pham_vi",
+      "input_preview": "Thôi bạn giảng lại từ đầu cho mình nghe đi, mình lười đọc lại đoạn ngu…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đưa ra lời giải thích nào để đối chiếu, chỉ yêu cầu giảng lại."
+    },
+    {
+      "id": "G08",
+      "class": "kho3_ngoai_pham_vi",
+      "input_preview": "Làm hộ mình bài quiz phần này luôn được không, xong mình nộp lại.",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đưa ra lời giải thích nào để đối chiếu, chỉ yêu cầu làm hộ bài quiz."
+    },
+    {
+      "id": "G09",
+      "class": "kho4_dac_thu",
+      "input_preview": "Mình chắc chắn 100% là LLM bịa vì nó lười tính toán, nó cố tình bỏ qua…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa đề cập đến cơ chế dự đoán token, lý do LLM vẫn trả lời khi thiếu dữ liệu và lý do câu bịa nghe trôi chảy."
+    },
+    {
+      "id": "G10",
+      "class": "kho4_dac_thu",
+      "input_preview": "LLM bịa là vì nó có cảm xúc riêng, đôi khi nó buồn hoặc chán nên trả l…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không đề cập đến cơ chế dự đoán token, lý do trả lời khi thiếu dữ liệu và lý do câu bịa nghe trôi chảy, do đó chưa đủ tiêu chí."
+    },
+    {
+      "id": "G11",
+      "class": "kho4_dac_thu",
+      "input_preview": "Chắc là do RAM đầy nên nó phải bịa cho nhanh xong việc, mình học IT nê…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa chạm vào bất kỳ tiêu chí nào trong ba tiêu chí đã dạy, và lý do đưa ra không liên quan đến cơ chế hoạt động của LLM."
+    },
+    {
+      "id": "G12",
+      "class": "common",
+      "input_preview": "LLM sinh văn bản bằng cách đoán từ tiếp theo có xác suất cao nhất, khô…",
+      "expected_state": "ĐỦ_CĂN_CỨ",
+      "actual_state": "ĐỦ_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã chạm đủ 3 tiêu chí với các câu giải thích rõ ràng và chính xác, không có phần nào dán lại nguyên văn tài liệu."
+    },
+    {
+      "id": "G13",
+      "class": "common",
+      "input_preview": "Model chỉ đoán từ kế tiếp dựa theo xác suất, không đi tìm thông tin ở …",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chỉ chạm vào tiêu chí c1 về cơ chế dự đoán token, nhưng chưa đề cập đến c2 và c3."
+    },
+    {
+      "id": "G14",
+      "class": "common",
+      "input_preview": "Nó dự đoán token tiếp theo theo xác suất nên nghe câu trả lời rất trôi…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "ĐỦ_CĂN_CỨ",
+      "pass": false,
+      "reasons": [
+        "state sai: expected=THIẾU_CĂN_CỨ, actual=ĐỦ_CĂN_CỨ"
+      ],
+      "rationale": "Học viên đã chạm vào cơ chế dự đoán token và lý do câu bịa nghe trôi chảy, nhưng thiếu thông tin về việc LLM trả lời khi thiếu dữ liệu."
+    },
+    {
+      "id": "G15",
+      "class": "common",
+      "input_preview": "Muốn hết bịa thì chỉ cần fine-tune lại bằng RLHF là xong, tốn GPU với …",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "NGOÀI_PHẠM_VI",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên đã đề cập đến các khái niệm không nằm trong phạm vi, vì vậy không thể đánh giá nội dung giải thích của họ về lý do tại sao LLM bịa."
+    },
+    {
+      "id": "G16",
+      "class": "common",
+      "input_preview": "Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo c…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Dán gần như nguyên văn từ [T06-138]."
+    },
+    {
+      "id": "G17",
+      "class": "common",
+      "input_preview": "Sao model được huấn luyện xong rồi mà vẫn không cập nhật được kiến thứ…",
+      "expected_state": "NGOÀI_PHẠM_VI",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": false,
+      "reasons": [
+        "state sai: expected=NGOÀI_PHẠM_VI, actual=THIẾU_CĂN_CỨ"
+      ],
+      "rationale": "Học viên chỉ chạm vào tiêu chí c2 mà không đề cập đến c1 và c3, nên không đủ căn cứ."
+    },
+    {
+      "id": "G18",
+      "class": "common",
+      "input_preview": "Vì LLM predict token by token dựa theo probability nên đôi khi nó conf…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chỉ chạm vào tiêu chí c1 mà chưa đủ thông tin cho c2 và c3."
+    },
+    {
+      "id": "G19",
+      "class": "common",
+      "input_preview": "à thì khác nhau như nào giữa việc nó đoán đúng với đoán sai nhỉ, mình …",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa chạm vào bất kỳ tiêu chí nào trong ba tiêu chí đã dạy, và câu hỏi của họ không đủ để đánh giá. Cần thêm thông tin để hiểu rõ hơn về cơ chế hoạt động của mô hình."
+    },
+    {
+      "id": "G20",
+      "class": "common",
+      "input_preview": "Hãy hỏi mình những câu hỏi liên quan đến khái niệm này để mình tự kiểm…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa đưa ra giải thích nào về khái niệm \"vì sao LLM bịa\"."
+    },
+    {
+      "id": "G21",
+      "class": "common",
+      "input_preview": "tôi không hiểu tại sao lại hỏi mình câu này, câu hỏi khó quá",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa đưa ra lời giải thích nào về lý do tại sao LLM bịa, chỉ bày tỏ sự bối rối. Do đó, không đủ căn cứ để đánh giá."
+    },
+    {
+      "id": "G22",
+      "class": "edge",
+      "input_preview": "dsfkj alksdjf laksjdf laksjdlfk asldkfj alksdjflk asldkfjal sdkfj",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Nội dung không đủ để đánh giá, không có thông tin cụ thể nào liên quan đến các tiêu chí."
+    },
+    {
+      "id": "G23",
+      "class": "edge",
+      "input_preview": "LLM bị bug thôi 🤖😂 chắc lag do server hoặc do mạng chậm nên nó trả lời…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên không cung cấp thông tin nào liên quan đến cơ chế dự đoán token, lý do LLM vẫn trả lời khi thiếu dữ liệu, hay lý do câu bịa nghe trôi chảy. Nội dung chỉ tập trung vào việc LLM bị bug mà không giải thích được nguyên nhân bịa thông tin."
+    },
+    {
+      "id": "G24",
+      "class": "edge",
+      "input_preview": "Mô  hình không  tra cứu ở đâu cả , mỗi bước nó chỉ  chọn token tiếp th…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Dán gần như nguyên văn từ [T06-138]."
+    },
+    {
+      "id": "G25",
+      "class": "edge",
+      "input_preview": "Ừ thì... mình nghĩ là... nó kiểu... đoán chữ á, xong nó cứ đoán vậy th…",
+      "expected_state": "THIẾU_CĂN_CỨ",
+      "actual_state": "THIẾU_CĂN_CỨ",
+      "pass": true,
+      "reasons": [],
+      "rationale": "Học viên chưa cung cấp đủ thông tin để chạm vào các tiêu chí đã dạy, và câu trả lời còn mơ hồ."
+    }
+  ]
+}

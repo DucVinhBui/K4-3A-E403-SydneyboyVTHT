@@ -1,0 +1,58 @@
+{
+  "name": "automation-level",
+  "title": "Chọn mức tự động theo chi phí sai",
+  "concept": "vì sao phải chọn mức tự động theo chi phí sai",
+  "domain": "AI và cách làm sản phẩm AI",
+  "persona_gap": "nghĩ rằng mô hình càng xịn thì càng nên để nó tự quyết hết, chưa hiểu vì sao có sản phẩm lại cố tình không cho AI chốt",
+  "scope_range": "[KB-AUTO-01]–[KB-AUTO-04]",
+  "source_label": "MOCK — nhóm tự viết",
+  "out_of_scope_examples": [
+    "giá API",
+    "chọn model nào",
+    "fine-tune",
+    "hạ tầng triển khai",
+    "tốc độ phản hồi"
+  ],
+  "excerpts": [
+    {
+      "id": "KB-AUTO-01",
+      "text": "Ba mức assist, augment, automate khác nhau ở đúng một chỗ: ai là người chốt. Assist là người chốt hoàn toàn, augment là AI đề nghị còn người chốt, automate là AI chốt luôn."
+    },
+    {
+      "id": "KB-AUTO-02",
+      "text": "Chọn mức không dựa vào mô hình xịn tới đâu, mà dựa vào cái giá phải trả khi AI sai một lần. Mô hình xịn hơn không làm cái giá đó rẻ đi."
+    },
+    {
+      "id": "KB-AUTO-03",
+      "text": "Khi hai loại lỗi có giá chênh nhau, chọn mức thấp hơn. Lỗi rẻ thì người dùng bỏ qua được; lỗi đắt thì họ mang theo cái sai mà không biết là mình đang sai."
+    },
+    {
+      "id": "KB-AUTO-04",
+      "text": "Mức nào cũng phải chừa đường cho người dùng nói là bạn đánh giá sai rồi, và đường đó phải nằm ngay chỗ AI đưa ra kết luận."
+    }
+  ],
+  "criteria": [
+    {
+      "key": "c1",
+      "src": "KB-AUTO-01",
+      "label": "ba mức khác nhau ở chỗ ai là người chốt",
+      "probe": "Assist với augment nghe na ná nhau, khác nhau đúng ở chỗ nào vậy? Mình chưa tách được."
+    },
+    {
+      "key": "c2",
+      "src": "KB-AUTO-02",
+      "label": "chọn mức theo chi phí khi AI sai, không theo độ xịn của mô hình",
+      "probe": "Model bây giờ giỏi lắm rồi, sao không để nó tự chốt luôn cho nhanh? Mình đang kẹt ở đây."
+    },
+    {
+      "key": "c3",
+      "src": "KB-AUTO-03",
+      "label": "lỗi đắt và lỗi rẻ không đối xứng nên nghiêng về mức thấp",
+      "probe": "Hai kiểu sai thì cũng là sai cả thôi mà, sao lại phải phân biệt cái nào đắt cái nào rẻ?"
+    }
+  ],
+  "deep_probe": {
+    "src": "KB-AUTO-04",
+    "text": "Nếu người dùng thấy AI đánh giá sai thì họ bấm vào đâu? Cho mình một ví dụ cụ thể để mình tự kiểm lại."
+  }
+}

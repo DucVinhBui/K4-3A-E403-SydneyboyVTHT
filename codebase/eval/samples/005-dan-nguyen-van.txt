@@ -1,0 +1,1 @@
+Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo có xác suất cao nhất theo những gì đã học được.
