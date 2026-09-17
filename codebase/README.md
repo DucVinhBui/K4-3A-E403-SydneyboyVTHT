@@ -1,3 +1,4 @@
+
 # Agent học trò — tích hợp LLM/tool/eval (CP2/CP3)
 
 Đúng spec.md §4–§6: agent học trò với tool-calling, test trên eval, state machine M1→M4 không có đường cụt.
@@ -142,6 +143,35 @@ phân tích chi tiết nguyên nhân từng case fail: [`eval/run_results.md`](e
 3. `003-ngoai-pham-vi.txt` — nói về fine-tune, RLHF → NGOÀI_PHẠM_VI
 4. `004-qua-ngan.txt` — quá ngắn (<40 ký tự) → THIẾU_CĂN_CỨ
 5. `005-dan-nguyen-van.txt` — dán nguyên văn [T06-138] → THIẾU_CĂN_CỨ + verbatim=True
+
+# codebase/ — Prototype CP3 dùng AI thật
+
+## Chạy thế nào
+
+Yêu cầu Node.js 18 trở lên; không cần cài package ngoài.
+
+```bash
+cp .env.example .env
+# Mở .env và điền OPENAI_API_KEY
+npm start
+```
+
+Nếu server đang chạy khi bạn thêm key, nhấn `Ctrl+C` rồi chạy lại `npm start`.
+
+Mở `http://127.0.0.1:4173`. Không mở `index.html` bằng `file://` khi demo CP3 vì trình duyệt cần gọi server cục bộ để giữ kín API key.
+
+API key chỉ được đọc ở `codebase/server.mjs`, không được gửi xuống trình duyệt. File `.env` đã nằm trong `.gitignore`.
+
+### Nguồn transcript nội bộ
+
+Prototype chạy được ngay với `sources.example.json`, nhưng giao diện sẽ ghi rõ **NGUỒN MẪU**. Trước khi quay CP3:
+
+```bash
+cp codebase/prototype/sources.example.json codebase/prototype/sources.local.json
+```
+
+Thay bốn trường `text` trong `sources.local.json` bằng nội dung thật của `[T06-138]`, `[T06-141]`, `[T06-145]`, `[T06-149]`. File này được Git bỏ qua và không được đẩy lên repo public.
+
 
 Bộ này **fail được và đó là chủ ý** — nếu mock provider đạt 100% thì không cần LLM thật. Mục tiêu: mock đạt 3-4/5, LLM thật (gpt-4o-mini, claude-haiku) đạt ≥4/5.
 

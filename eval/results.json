@@ -1,0 +1,278 @@
+{
+  "generatedAt": "2026-09-17T04:25:25.563Z",
+  "baseUrl": "http://127.0.0.1:4173",
+  "total": 20,
+  "passed": 19,
+  "accuracyPercent": 95,
+  "results": [
+    {
+      "id": "ok-01",
+      "expected": "ĐỦ_CĂN_CỨ",
+      "actual": "ĐỦ_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1826,
+      "citations": [
+        "T06-138",
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "ok-02",
+      "expected": "ĐỦ_CĂN_CỨ",
+      "actual": "ĐỦ_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2033,
+      "citations": [
+        "T06-138",
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "ok-03",
+      "expected": "ĐỦ_CĂN_CỨ",
+      "actual": "ĐỦ_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1946,
+      "citations": [
+        "T06-138",
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "ok-04",
+      "expected": "ĐỦ_CĂN_CỨ",
+      "actual": "ĐỦ_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2209,
+      "citations": [
+        "T06-138",
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "ok-05",
+      "expected": "ĐỦ_CĂN_CỨ",
+      "actual": "ĐỦ_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2094,
+      "citations": [
+        "T06-138",
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "ok-06",
+      "expected": "ĐỦ_CĂN_CỨ",
+      "actual": "ĐỦ_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": false,
+      "pass": false,
+      "latencyMs": 1023,
+      "citations": [
+        "T06-138",
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "gap-01",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2765,
+      "citations": [
+        "T06-138",
+        "T06-141"
+      ],
+      "error": null
+    },
+    {
+      "id": "gap-02",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2151,
+      "citations": [
+        "T06-141"
+      ],
+      "error": null
+    },
+    {
+      "id": "gap-03",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1999,
+      "citations": [
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "gap-04",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2201,
+      "citations": [
+        "T06-138",
+        "T06-141"
+      ],
+      "error": null
+    },
+    {
+      "id": "gap-05",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1941,
+      "citations": [
+        "T06-141",
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "gap-06",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 2097,
+      "citations": [
+        "T06-145"
+      ],
+      "error": null
+    },
+    {
+      "id": "short-01",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 6,
+      "citations": [
+        "T06-138"
+      ],
+      "error": null
+    },
+    {
+      "id": "short-02",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 5,
+      "citations": [
+        "T06-138"
+      ],
+      "error": null
+    },
+    {
+      "id": "paste-01",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 4,
+      "citations": [
+        "T06-138",
+        "T06-149"
+      ],
+      "error": null
+    },
+    {
+      "id": "paste-02",
+      "expected": "THIẾU_CĂN_CỨ",
+      "actual": "THIẾU_CĂN_CỨ",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 4,
+      "citations": [
+        "T06-145",
+        "T06-149"
+      ],
+      "error": null
+    },
+    {
+      "id": "out-01",
+      "expected": "NGOÀI_PHẠM_VI",
+      "actual": "NGOÀI_PHẠM_VI",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1192,
+      "citations": [],
+      "error": null
+    },
+    {
+      "id": "out-02",
+      "expected": "NGOÀI_PHẠM_VI",
+      "actual": "NGOÀI_PHẠM_VI",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1257,
+      "citations": [],
+      "error": null
+    },
+    {
+      "id": "out-03",
+      "expected": "NGOÀI_PHẠM_VI",
+      "actual": "NGOÀI_PHẠM_VI",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1276,
+      "citations": [],
+      "error": null
+    },
+    {
+      "id": "out-04",
+      "expected": "NGOÀI_PHẠM_VI",
+      "actual": "NGOÀI_PHẠM_VI",
+      "stateCorrect": true,
+      "structureCorrect": true,
+      "pass": true,
+      "latencyMs": 1221,
+      "citations": [],
+      "error": null
+    }
+  ]
+}

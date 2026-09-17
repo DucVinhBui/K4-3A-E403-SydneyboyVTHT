@@ -9,10 +9,14 @@ studio-pack/
 # Khoá API — lộ là mất tài khoản
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 secrets.json
 **/sources.local.json
+
+.agents
+.codex
 
 # Rác hệ thống
 .DS_Store

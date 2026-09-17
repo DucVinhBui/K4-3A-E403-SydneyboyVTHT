@@ -77,24 +77,3 @@ Căn cứ "ai trả lời" của chuẩn A dựa vào ô **Họ tên + Mã học
 > Câu 5 là nguồn **≥5 quote nguyên văn** cho `spec.md` §1 — chép đúng lời người ta viết, **kể cả sai chính tả**, không sửa, không tóm tắt.
 > Câu 6 là câu phản chứng, đừng bỏ: nó cho phép kết quả nói ngược lại giả định của nhóm.
 
----
-
-## Bảng log *(`evidence/survey-log.md`, mỗi người một dòng)*
-
-| # | Họ tên | Mã HV | C1 | **C2** | **C3** | C4 | **Xác nhận (a∧b)** | Quote từ C5 (nguyên văn) | C6 |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 |  |  |  |  |  |  |  |  |  |
-
-**Bốn dòng tổng kết cuối bảng:**
-1. n = ___ · số xác nhận = ___ · **tỉ lệ = ___%** · đạt/không đạt ngưỡng >50%
-2. Phương án nhiều nhất ở C2 và C4 — nói lên điều gì
-3. Nếu **không** đạt >50%: pattern nào thay thế, nhóm đổi gì ở §1
-4. 5 quote chọn đưa vào `spec.md` §1 + tên người nói
-
----
-
-## Phát thế nào cho kịp 20 người
-
-- Google Form, để **Câu 2 và Câu 3 ở giữa**, không để cuối — câu cuối hay bị bấm bừa.
-- Hỏi trực tiếp nếu kịp: đứng cạnh, đọc câu hỏi, chép nguyên văn. Quote tốt hơn hẳn vì lấy được cả chỗ người ta ngập ngừng.
-- Hai người chia hai dãy bàn, mỗi người 10 phiếu.
