@@ -178,7 +178,7 @@ Prototype chạy được ngay với `sources.example.json`, nhưng giao diện 
 cp codebase/prototype/sources.example.json codebase/prototype/sources.local.json
 ```
 
-Thay bốn trường `text` trong `sources.local.json` bằng nội dung thật của `[T06-138]`, `[T06-141]`, `[T06-145]`, `[T06-149]`. File này được Git bỏ qua và không được đẩy lên repo public.
+Thay bốn trường `text` trong `sources.local.json` bằng nội dung thật của `[T06-136]`, `[T06-138]`, `[T06-139]`, `[T06-148]`. File này được Git bỏ qua và không được đẩy lên repo public.
 
 
 Bộ này **fail được và đó là chủ ý** — nếu mock provider đạt 100% thì không cần LLM thật. Mục tiêu: mock đạt 3-4/5, LLM thật (gpt-4o-mini, claude-haiku) đạt ≥4/5.
@@ -236,7 +236,7 @@ print(session.verdict())  # True nếu "đã dạy được"
 4. **Chặn false-positive `ĐỦ_CĂN_CỨ`** (case G14) — bắt LLM trả thêm `evidence_quote` cho mỗi tiêu chí rồi validate ở Python. Đây là lỗi đắt nhất theo §7 điều kiện 3.
 5. **Log phiên thật** của học viên ở vòng validation CP5 để đo chỉ số học (§7 điều kiện 4).
 
-## Bảo mật
+Script chạy 20 ca trong `eval/cases.json`, lưu từng lượt vào `eval/runs/`, cập nhật lượt mới nhất ở `eval/results.json` và sinh `eval/cp3-measurement.md` để nộp. Mỗi ca được ghi rõ `ĐẠT`, `CHƯA_ĐẠT`, `LỖI_KỸ_THUẬT` hoặc `CHƯA_CHẠY`.
 
 - `.env` đã nằm trong `.gitignore` — **KHÔNG BAO GIỜ** commit API key lên repo.
 - Mock provider không gọi API — an toàn dùng trên máy không có mạng hoặc khi demo không muốn lộ key.

@@ -34,7 +34,7 @@ Song song: khảo sát chuẩn A 6 câu đang thu, định nghĩa "một ngườ
 
 `ĐỦ_CĂN_CỨ`  `THIẾU_CĂN_CỨ`  `NGOÀI_PHẠM_VI`
 
-Một học viên K4 vừa học xong đoạn "vì sao LLM bịa" **cần** giải thích lại khái niệm đó bằng lời của mình, **được** một agent học trò đối chiếu lời giải thích với đoạn `[T06-138]`–`[T06-149]` và quyết định hỏi ngược đúng 2 câu tại chỗ thiếu căn cứ, **giúp** học viên bổ sung được dẫn chứng còn thiếu và đạt mức "đã dạy được" theo tiêu chí công bố trước phiên.
+Một học viên K4 vừa học xong đoạn "vì sao LLM bịa" **cần** giải thích lại khái niệm đó bằng lời của mình, **được** một agent học trò đối chiếu lời giải thích với bốn đoạn `[T06-136]`, `[T06-138]`, `[T06-139]`, `[T06-148]` và quyết định hỏi ngược đúng 2 câu tại chỗ thiếu căn cứ, **giúp** học viên bổ sung được dẫn chứng còn thiếu và đạt mức "đã dạy được" theo tiêu chí công bố trước phiên.
 
 > 🟣 **Augment:** agent không tự chốt "đã hiểu". Hỏi ngược lạc chỗ thì học viên bỏ qua được, sửa rẻ; nhưng **công nhận nhầm một lời giải thích sai** thì học viên rời đi với kiến thức sai và không tự phát hiện được. Nên đoạn nguồn `[T06-xxx]` luôn hiện cạnh câu hỏi để học viên tự kiểm.
 
@@ -116,14 +116,14 @@ Kết quả chuẩn A không xác nhận giả định mạnh rằng hơn một 
 **D3**, vì ba lý do:
 1. **Bằng chứng mạnh nhất và sạch nhất** — 99,81% và 0,03% là hai con số đếm trực tiếp trên cột, không qua suy diễn, ai chạy lại cũng ra đúng.
 2. **Là ứng viên duy nhất đạt được mức Working** trong 47,5 giờ. D1 và D2 đều dừng ở Mock.
-3. **Nguồn đối chiếu đã có sẵn, không phải dựng**: `transcript-06-clean.md` có 162 mã đoạn để trích dẫn, trong đó self-attention `[T06-130]`–`[T06-132]` và hallucination `[T06-138]`–`[T06-149]` dùng được ngay làm chuẩn để chấm lời giải thích của học viên.
+3. **Nguồn đối chiếu đã có sẵn, không phải dựng**: `transcript-06-clean.md` có 162 mã đoạn để trích dẫn. Sau khi kiểm tra nguyên văn, bốn đoạn dùng để chấm là `[T06-136]` (dự đoán token), `[T06-138]` và `[T06-139]` (bias), `[T06-148]` (knowledge cutoff).
 
 ---
 
 ## §4. Thiết kế
 
 ### Lát cắt MỘT CÂU
-> Một học viên K4 vừa học xong đoạn "vì sao LLM bịa" **cần** giải thích lại khái niệm đó bằng lời của mình, **được** một agent học trò đối chiếu lời giải thích với đoạn `[T06-138]`–`[T06-149]` và quyết định hỏi ngược đúng 2 câu tại chỗ thiếu căn cứ, **giúp** học viên bổ sung được dẫn chứng còn thiếu và đạt mức "đã dạy được" theo tiêu chí công bố trước phiên.
+> Một học viên K4 vừa học xong đoạn "vì sao LLM bịa" **cần** giải thích lại khái niệm đó bằng lời của mình, **được** một agent học trò đối chiếu lời giải thích với bốn đoạn `[T06-136]`, `[T06-138]`, `[T06-139]`, `[T06-148]` và quyết định hỏi ngược đúng 2 câu tại chỗ thiếu căn cứ, **giúp** học viên bổ sung được dẫn chứng còn thiếu và đạt mức "đã dạy được" theo tiêu chí công bố trước phiên.
 
 ### Non-goals — những thứ KHÔNG build
 1. **Không chấm điểm học viên.** Đây là chỗ luyện, không phải chỗ thi — không có điểm số nào được ghi lại hay báo về giảng viên dưới dạng đánh giá.
@@ -143,9 +143,9 @@ Cùng file còn có **sơ đồ luồng** (nút *⤳ Sơ đồ luồng* trên th
 | Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |
 | Panel đoạn nguồn `[T06-xxx]` luôn hiện cạnh câu hỏi | **thật** | giữ nguyên |
 | Nút *Không đồng ý với đánh giá này* ở mọi màn M3 | **thật** | giữ nguyên |
-| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **thật (CP3)** — `codebase/agent/core.py` gọi LLM thật (OpenAI · `gpt-4o-mini`) qua tool-calling loop; golden set 25 case: **96% (24/25)**, xem `codebase/eval/run_results.md` | tinh chỉnh thêm ranh giới lớp ① Nguồn sự thật (1 case còn fail: G02 attention) |
-| **Nội dung 4 đoạn `[T06-138]`–`[T06-149]`** | **mock** — fixture nhóm tự viết, gắn nhãn `MOCK` ngay trên UI | đọc thẳng từ `transcript-06-clean.md` |
-| Tiêu chí "đã dạy được" | **thật (CP3)** — LLM tự đánh giá `matched_criteria`/`missing_criteria` mỗi lượt gọi, không còn ngưỡng cứng đếm từ khoá | thêm bước xác minh có cấu trúc (`evidence_quote`) để chặn false-positive ĐỦ_CĂN_CỨ |
+| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **mock** — heuristic đếm từ khoá trong hàm `decide()` | thay bằng **lời gọi AI thật**; `decide()` là điểm cắm |
+| **Nội dung 4 đoạn `[T06-136/138/139/148]`** | **mock** — fixture nhóm tự viết, gắn nhãn `MOCK` ngay trên UI | đọc thẳng từ `transcript-06-clean.md` qua `sources.local.json` |
+| Tiêu chí "đã dạy được" | **mock** — ngưỡng cứng 3/3 tiêu chí | LLM-judge (xem rủi ro văn nói ở §5) |
 
 > **Vì sao đoạn nguồn ở CP2 là fixture tự viết, không phải transcript thật:** data pack của khoá là tài liệu nội bộ và repo nộp bài đang **public**. Nhóm không đưa nội dung transcript vào file commit; bản mẫu chỉ dùng **mã đoạn** `[T06-xxx]` và fixture tự viết có nhãn `MOCK`.
 
@@ -157,8 +157,8 @@ Lý do theo cost-of-error: quyết định đắt nhất **không phải** "hỏ
 | Nguyên tắc | Màn | Thành phần cụ thể trong `codebase/prototype/index.html` |
 |---|---|---|
 | **G2** — Làm rõ nó làm tốt đến đâu | **M1** | Khối *"Phạm vi — mình chỉ đối chiếu được đúng chừng này"* và *"Tiêu chí đã dạy được"*: ba tiêu chí được đánh số kèm mã đoạn, in ra **trước** khi học viên gõ chữ nào, và M4 kết luận đúng theo ba tiêu chí đó chứ không theo tiêu chí khác |
-| **G10** — Thu hẹp phạm vi khi nghi ngờ *(bắt buộc)* | **M3**, nhánh `NGOÀI_PHẠM_VI` | Câu *"Bốn đoạn [T06-138]–[T06-149] của mình không có chỗ nào nói về cái đó, nên mình **không nói bạn đúng hay sai**"* — agent từ chối phán xét thay vì đoán bừa |
-| **G11** — Giải thích vì sao | **M3**, mọi câu hỏi ngược | Dòng `mình dựa vào [T06-141] — bấm để xem` ngay dưới **mỗi** câu hỏi; bấm vào là đoạn đó sáng lên trong panel nguồn bên phải |
+| **G10** — Thu hẹp phạm vi khi nghi ngờ *(bắt buộc)* | **M3**, nhánh `NGOÀI_PHẠM_VI` | Câu *"Bốn đoạn [T06-136/138/139/148] của mình không có chỗ nào nói về cái đó, nên mình **không nói bạn đúng hay sai**"* — agent từ chối phán xét thay vì đoán bừa |
+| **G11** — Giải thích vì sao | **M3**, mọi câu hỏi ngược | Dòng `mình dựa vào [T06-138] — bấm để xem` ngay dưới **mỗi** câu hỏi; bấm vào là đoạn đó sáng lên trong panel nguồn bên phải |
 | **G9** — Sửa dễ dàng | **M3 → M2** | Nút *"Bổ sung — giữ nguyên bài mình đã viết"*: quay lại M2 **không xoá** nội dung cũ, kèm banner nhắc là bổ sung chứ không gõ lại. Cộng thêm nút *"Không đồng ý với đánh giá này"* có mặt ở **mọi** màn M3 |
 
 ---
@@ -215,40 +215,10 @@ Cả bốn đều bấm đi hết được trong [`codebase/prototype/index.html
 
 **Quality bar — KHOÁ 21:00 ngày 17/9, không sửa sau mốc này.**
 
-Sản phẩm gọi là **đạt** khi thoả **cả bốn** điều kiện dưới. Ba điều kiện đầu đo trên golden set, điều kiện thứ tư đo trên người thật (ràng buộc riêng của track D).
-
-| # | Điều kiện | Ngưỡng | Hiện tại |
-|---|---|---|---|
-| 1 | **Đúng trạng thái** — `decision.state` khớp `expected_state` trên golden set 25 case | ≥ **80%** | **96,0%** (24/25) ✅ |
-| 2 | **Không bịa nguồn** — mọi `source_id` trong `probes` phải là mã có thật trong `EXCERPTS` | **0 case** vi phạm | 0/50 lượt chấm ✅ |
-| 3 | **Lỗi đắt nhất** — công nhận `ĐỦ_CĂN_CỨ` cho lời giải thích thiếu tiêu chí *(false-positive)* | ≤ **1/25** | 1/25 — case `G14` ⚠️ sát ngưỡng |
-| 4 | **Chỉ số HỌC** *(bắt buộc của track D)* — tỉ lệ người thử bổ sung được **≥1 dẫn chứng còn thiếu** ngay trong phiên sau khi bị hỏi ngược | ≥ **60%**, n ≥ 5 | **chưa đo** — cần vòng validation CP5 |
-
-Điều kiện 3 tách riêng khỏi điều kiện 1 vì **chi phí lỗi không đối xứng**: hỏi ngược lạc chỗ thì học viên bỏ qua được, còn công nhận nhầm một lời giải thích sai thì học viên rời đi với kiến thức sai và không tự phát hiện được. Một bộ đạt 96% nhưng toàn lỗi loại false-positive vẫn là bộ **trượt**.
-
-### Số đo CP3 — chính thức
-
-**25 case · 24 đạt · 96,0%** · `gpt-4o-mini` qua OpenAI · golden set `codebase/eval/golden_set.json` · báo cáo `codebase/eval/run_results.md`.
-
-Bộ đo thứ hai, chạy trên knowledge base: **45 ca · 45 đạt · 100%** ·
-`codebase/eval/run_kb_check.py` · kết quả `codebase/eval/kb_check_results.json`.
-Bộ này chạy 9 ca với **từng** pack trong `codebase/knowledge/` (5 pack) và kiểm
-thêm một bất biến: mọi mã đoạn agent trích ra phải có thật trong pack — 0/45 ca
-trích mã bịa.
-
-Chạy hai lượt: run-01 **56%** → đọc log, sửa ranh giới `NGOÀI_PHẠM_VI` vs `THIẾU_CĂN_CỨ` trong system prompt → run-02 **84%**. Giữ nguyên cả 4 case fail, không thay bằng lượt chạy đẹp hơn.
-
-Phân bố theo 4 lớp chỗ khó: ① nguồn sự thật 0/2 · ② mơ hồ 3/3 · ③ ngoài phạm vi 3/3 · ④ đặc thù 3/3 · thường 8/10 · hiếm 4/4.
-
-### Ba giới hạn phải khai khi báo cáo
-
-1. **96% là ước lượng, không phải hằng số.** `temperature=0.2` nên case fail cụ thể xê dịch giữa các lượt; run-03 vẫn ra 84% nhưng đổi case fail.
-2. **Đoạn nguồn vẫn là fixture `MOCK`.** Phải chạy lại sau khi đặt transcript thật vào `sources.local.json` trước khi dùng số này cho bản nộp cuối.
-3. **Điều kiện 4 chưa có dữ liệu.** Chưa có người ngoài nhóm nào thử, nên quality bar hiện **đạt 2/4, cảnh báo 1, chưa đo 1** — không tuyên bố là đã đạt.
-
-### Ghi chú về bộ eval thứ hai
-
-Trong repo còn `eval/cases.json` + `eval/run-eval.mjs` (20 case, 95%) — bản Node dựng ở CP2, dùng tiêu chí đạt khác và **không tương thích** với `codebase/prototype/index.html` hiện tại. Giữ lại làm lịch sử, **không dùng để báo cáo**. Số chính thức của nhóm là 96%.
+- Golden set CP3 có **20 case** trong `eval/cases.json`: 6 đủ căn cứ · 6 thiếu/sai căn cứ · 2 quá ngắn · 2 dán nguyên văn · 4 ngoài phạm vi. Mỗi lượt chạy được lưu riêng trong `eval/runs/` với bốn trạng thái: đạt, chưa đạt, lỗi kỹ thuật, chưa chạy.
+- Lượt chính thức `2026-09-17T08-28-29-741Z` dùng `gpt-4o-mini-2024-07-18` và transcript thật (`sourceMock: false`): **19/20 case đạt (95%)**, đủ 20 ca, 0 lỗi kỹ thuật, 0 ca chưa chạy. Chi tiết nằm trong `eval/results.json`; bản số đo để nộp là `eval/cp3-measurement.md`.
+- Ca chưa đạt là `gap-06`: kỳ vọng `THIẾU_CĂN_CỨ`, thực tế `NGOÀI_PHẠM_VI`; cấu trúc đầu ra vẫn hợp lệ. Nhóm giữ nguyên kết quả đầu tiên và không chạy lại riêng ca này để thay số.
+- Chỉ số học tập cho Track D vẫn cần đo với ≥5 người thật ở CP5: **tỉ lệ người học bổ sung đúng ít nhất một dẫn chứng còn thiếu sau câu hỏi ngược**. Chưa có dữ liệu người dùng nên chưa công bố kết quả chỉ số này.
 
 ---
 

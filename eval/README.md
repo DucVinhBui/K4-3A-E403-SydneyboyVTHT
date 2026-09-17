@@ -1,10 +1,24 @@
-# ⚠️ Thư mục này là LỊCH SỬ CP2 — không dùng để báo cáo
+# Bằng chứng kiểm thử CP3
 
-`cases.json` (20 case) + `run-eval.mjs` + `results.json` (95%) là bộ eval Node dựng ở CP2.
-Nó dùng tiêu chí đạt khác và chạy với `codebase/server.mjs`, mà `codebase/prototype/index.html`
-hiện tại **không còn tương thích** (server đó thiếu 3 trong 5 endpoint bản mẫu cần).
+## Các file
 
-**Bộ chính thức của nhóm nằm ở [`../codebase/eval/`](../codebase/eval/):**
-25 case · 21 đạt · **84,0%** · báo cáo đầy đủ trong [`../codebase/eval/run_results.md`](../codebase/eval/run_results.md).
+- `cases.json`: golden set cố định gồm 20 ca. Hai ca sao chép nguồn dùng `mode: "paste"` để lấy nội dung trực tiếp từ `sources.local.json`, tránh commit transcript nội bộ.
+- `run-eval.mjs`: chạy golden set và phân loại từng ca thành `ĐẠT`, `CHƯA_ĐẠT`, `LỖI_KỸ_THUẬT` hoặc `CHƯA_CHẠY`.
+- `runs/<run-id>.json`: bản ghi bất biến của từng lượt chạy; lượt mới không ghi đè lượt cũ.
+- `results.json`: bản sao của lượt chạy gần nhất để giao diện và người chấm tìm nhanh.
+- `cp3-measurement.md`: số đo ngắn, có thể dùng làm bằng chứng nộp CP3 khi trường “Đủ điều kiện” là **Có**.
 
-Giữ thư mục này lại để đối chiếu lịch sử, không xoá. Xem `spec.md` §7 và §9 để biết vì sao chọn bộ 84%.
+## Chạy
+
+```bash
+npm start
+npm run eval
+```
+
+Muốn kiểm tra cơ chế ghi log mà không gọi API hoặc gửi transcript:
+
+```bash
+npm run eval:dry
+```
+
+Một lượt chỉ đủ điều kiện nộp khi chạy đủ 20 ca, không có lỗi kỹ thuật và backend báo `sourceMock: false`. Ca trả về sai trạng thái hoặc sai cấu trúc vẫn được tính là đã chạy nhưng `CHƯA_ĐẠT`; không chạy lại riêng ca sai để thay kết quả.
