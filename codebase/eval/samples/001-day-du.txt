@@ -1,0 +1,1 @@
+Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo có xác suất cao nhất. Ở vùng thiếu dữ liệu, xác suất vẫn được chuẩn hoá, nên nó buộc phải chọn một token — vì vậy nó vẫn sinh ra câu trả lời thay vì im lặng. Câu bịa thường đọc rất trôi chảy vì mô hình được tối ưu về độ hợp lý ngôn ngữ, không phải độ đúng sự thật.

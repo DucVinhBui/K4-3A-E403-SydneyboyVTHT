@@ -1,0 +1,1 @@
+Để giảm hallucination thì mình phải fine-tune lại model với dataset chất lượng cao hơn, hoặc dùng RLHF để alignment. Chi phí huấn luyện lại khá đắt, nhưng đó là cách duy nhất.

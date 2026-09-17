@@ -83,6 +83,8 @@
   label.opt{display:block;margin:5px 0;font-size:14px}
   .flowwrap{overflow-x:auto;margin:14px -6px 0;padding:0 6px}
   .flowwrap svg{display:block;min-width:820px;width:100%;height:auto}
+  .api-live{font-size:11px;font-weight:700;letter-spacing:.06em;background:#e8f5e9;color:#1b5e20;
+    border:1px solid #a5d6a7;border-radius:5px;padding:3px 8px}
   .fbox{fill:#fff;stroke:var(--line);stroke-width:1.4}
   .fbox.inp{fill:var(--acc-bg);stroke:#9dbaf8;stroke-width:1.8}
   .fbox.ai{fill:var(--out-bg);stroke:var(--out);stroke-width:3}
@@ -116,9 +118,10 @@
     <span class="step" data-s="m2">2 · Dạy lại</span>
     <span class="step" data-s="m3">3 · Agent hỏi ngược</span>
     <span class="step" data-s="m4">4 · Kết phiên</span>
+    <span class="step" data-s="m5">5 · Test eval set</span>
   </div>
   <button class="sm" id="btn-flow">⤳ Sơ đồ luồng</button>
-  <span class="mock" id="ai-status">ĐANG KIỂM TRA AI…</span>
+  <span class="mock" id="api-badge">Đang kiểm tra…</span>
 </header>
 
 <main>
@@ -157,6 +160,7 @@
 
     <div class="row">
       <button class="pri" data-go="m2">Bắt đầu dạy lại →</button>
+      <button data-go="m5">Chạy test eval set →</button>
     </div>
   </section>
 
@@ -230,6 +234,7 @@
     <div class="row">
       <button class="pri" data-go="m2">Dạy lại lần nữa</button>
       <button id="restart">Bắt đầu phiên mới</button>
+      <button data-go="m5">→ Mở test eval set</button>
     </div>
   </section>
 
@@ -379,6 +384,63 @@
     </div>
   </section>
 
+
+  <!-- ══════════ M5 · TEST EVAL SET ══════════ -->
+  <section class="card" id="m5" hidden>
+    <h1>Chạy test bộ eval (Golden set)</h1>
+    <p class="lead">Chạy <strong>toàn bộ golden set</strong> qua API. Cùng endpoint <code>POST /api/eval/run</code>
+      mà bạn dùng khi gõ PowerShell, nhưng bấm nút ở đây cho nhanh.</p>
+
+    <fieldset>
+      <legend>Thiết lập lượt chạy</legend>
+      <label class="opt">Provider:
+        <select id="eval-provider">
+          <option value="mock">mock — heuristic offline</option>
+          <option value="openrouter" selected>openrouter — gọi AI thật</option>
+          <option value="openai">openai</option>
+          <option value="anthropic">anthropic</option>
+        </select>
+      </label>
+      <label class="opt">Model (để trống để lấy mặc định của provider):
+        <input id="eval-model" type="text" placeholder="openai/gpt-4o-mini, claude-3-5-haiku, …"
+               style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit">
+      </label>
+      <div class="row" style="margin-top:10px">
+        <button class="pri" id="btn-run-eval">▶ Chạy eval</button>
+        <button class="sm" id="btn-load-cases">↻ Tải danh sách test cases</button>
+        <span id="eval-status" style="font-size:13px;color:var(--mut);align-self:center"></span>
+      </div>
+    </fieldset>
+
+    <div id="eval-summary" hidden>
+      <div class="verdict" id="eval-summary-box"></div>
+      <table>
+        <thead><tr>
+          <th style="width:60px">ID</th>
+          <th style="width:140px">Lớp</th>
+          <th>Input (preview)</th>
+          <th style="width:110px">Expected</th>
+          <th style="width:110px">Actual</th>
+          <th style="width:60px">Pass?</th>
+          <th>Reasons</th>
+        </tr></thead>
+        <tbody id="eval-tbody"></tbody>
+      </table>
+      <h2>Golden set đầy đủ</h2>
+      <p class="lead" style="font-size:13px">Bấm vào từng ca để bơm input vào màn học và thử trực tiếp.</p>
+      <table>
+        <thead><tr>
+          <th style="width:60px">ID</th>
+          <th style="width:120px">Lớp</th>
+          <th>Input</th>
+          <th style="width:110px">Expected</th>
+          <th style="width:60px"></th>
+        </tr></thead>
+        <tbody id="cases-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══════════ CỘT NGUỒN — LUÔN HIỆN Ở M2/M3 ══════════ -->
@@ -396,7 +458,49 @@
 (function(){
   "use strict";
 
-  /* ───────── fallback công khai; server thay bằng sources.local.json nếu có ───────── */
+  /* ───────── API config ───────── */
+  var API_BASE = "";          // "" = same origin (server serves HTML)
+  var _config = null;         // fetched from GET /api/config
+  var _apiLive = false;       // true once /api/config returns 2xx
+
+  function apiEndpoint(method, path, body) {
+    return new Promise(function(resolve, reject) {
+      var opts = {method: method, headers: {"Content-Type": "application/json"}};
+      if (body) opts.body = JSON.stringify(body);
+      fetch(API_BASE + path, opts)
+        .then(function(r) {
+          if (!r.ok) { reject(new Error("HTTP " + r.status)); return; }
+          r.json().then(resolve).catch(reject);
+        })
+        .catch(reject);
+    });
+  }
+
+  async function loadConfig() {
+    try {
+      _config = await apiEndpoint("GET", "/api/config");
+      _apiLive = true;
+      updateProviderBadge();
+    } catch(_) {
+      _config = null;
+      _apiLive = false;
+      updateProviderBadge();
+    }
+  }
+
+  function updateProviderBadge() {
+    var el = document.getElementById("api-badge");
+    if (!el) return;
+    if (_apiLive && _config) {
+      el.textContent = (_config.provider || "?").toUpperCase() + " · " + (_config.model || "?");
+      el.className = "api-live";
+    } else {
+      el.textContent = "BẢN MẪU — MOCK";
+      el.className = "mock";
+    }
+  }
+
+  /* ───────── FIXTURE (MOCK — nhóm tự viết, không phải data thật) ───────── */
   var SRC = [
     {id:"T06-136", t:"Fixture: mô hình sinh tiếp bằng cách dự đoán token có xác suất cao."},
     {id:"T06-138", t:"Fixture: dữ liệu internet đầu vào có thể chứa bias nên mô hình không thể luôn đúng."},
@@ -443,7 +547,7 @@
 
   function show(id){
     screen = id;
-    ["m1","m2","m3","m4","flow"].forEach(function(s){ $(s).hidden = (s !== id); });
+    ["m1","m2","m3","m4","m5","flow"].forEach(function(s){ $(s).hidden = (s !== id); });
     var hasSrc = (id === "m2" || id === "m3");
     $("source").hidden = !hasSrc;
     document.querySelector("main").classList.toggle("wide", !hasSrc);
@@ -466,8 +570,39 @@
     if (el) el.scrollIntoView({behavior:"smooth", block:"center"});
   }
 
-  /* ───────── hai cổng chặn rẻ trước lời gọi AI ───────── */
-  function localGate(raw){
+  /* ───────── bộ quyết định — ưu tiên API, fallback mock ───────── */
+  async function decide(raw) {
+    // Ưu tiên gọi API thật nếu server đang chạy
+    if (_apiLive || _config !== null) {
+      try {
+        var result = await apiEndpoint("POST", "/api/decide", {explanation: raw});
+        // Map từ Decision Python sang format JS giống hệt mock cũ
+        return {
+          state:    result.state,
+          conf:     result.confidence,
+          kind:     result.is_verbatim_paste ? "paste" :
+                      result.missing_criteria && result.missing_criteria.length > 0 ? "gap" :
+                      result.state === "NGOÀI_PHẠM_VI" ? "out" :
+                      result.state === "ĐỦ_CĂN_CỨ" ? "ok" : "short",
+          probes:   (result.probes || []).map(function(p) {
+            return {t: p.text, src: p.source_id};
+          }),
+          missLabels: result.missing_criteria || [],
+          out:       result.out_of_scope_terms || [],
+          src:       (result.probes || [])[0] ? (result.probes || [])[0].source_id : "T06-138",
+        };
+      } catch(err) {
+        // API lỗi → fallback sang mock (không crash giao diện)
+        _apiLive = false;
+        updateProviderBadge();
+      }
+    }
+    // Fallback: dùng mock heuristic (bản CP2)
+    return decide_mock(raw);
+  }
+
+  /* ───────── bộ định tuyến MOCK — chỉ dùng khi API không khả dụng ───────── */
+  function decide_mock(raw) {
     var a = norm(raw);
 
     // dán nguyên văn tài liệu? (hard test §5)
@@ -598,9 +733,38 @@
     var t = e.target.closest("button, .src-ref");
     if (!t) return;
 
-    if (t.dataset.go){ 
+    if (t.dataset.go){
       if (t.dataset.go === "m2") $("m2-banner").hidden = true;
-      show(t.dataset.go); return; 
+      if (t.dataset.go === "m5" && !_casesCache) loadCasesList();
+      show(t.dataset.go); return;
+    }
+    if (t.dataset.trycase){
+      var cid = t.dataset.trycase;
+      // Bơm input từ case vào textarea M2 và chuyển sang màn dạy lại
+      if (_casesCache) {
+        var found = _casesCache.filter(function(c){ return c.id === cid; })[0];
+        if (found && found.input) {
+          $("answer").value = found.input;
+          show("m2");
+          $("answer").focus();
+          return;
+        }
+      }
+      // Nếu chưa có cache, fetch full input
+      apiEndpoint("GET", "/api/eval/cases").then(function(resp){
+        var all = resp.cases || [];
+        var full = all.filter(function(c){ return c.id === cid; })[0];
+        if (full) {
+          // API hiện chỉ trả preview; gọi lại eval/run cho case đó là overkill,
+          // đơn giản chuyển sang màn dạy lại và báo người dùng copy từ file JSON.
+          $("answer").value = "";
+          $("m2-banner").hidden = false;
+          $("m2-banner").innerHTML = 'Ca <code>' + cid + '</code>: server chỉ trả preview qua /api/eval/cases. ' +
+            'Mở file <code>eval/golden_set.json</code> để lấy input đầy đủ, hoặc tải danh sách đầy đủ bằng nút "Tải danh sách test cases".';
+          show("m2");
+        }
+      });
+      return;
     }
     if (t.dataset.preset !== undefined){
       $("answer").value = PRESET[+t.dataset.preset];
@@ -626,29 +790,34 @@
     if (t.id === "send"){
       var v = $("answer").value.trim();
       if (!v){ $("answer").focus(); return; }
-      var oldText = t.textContent;
+      turn++;
       t.disabled = true;
-      t.textContent = "AI đang đối chiếu…";
-      $("m2-banner").hidden = true;
-      try {
-        last = await decide(v);
-        turn++;
-        addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → AI đánh giá",
+      t.textContent = "Đang gọi agent…";
+      decide(v).then(function(decision) {
+        last = decision;
+        addLog("Học viên gửi lời giải thích (" + v.length + " ký tự) → mình đánh giá",
                last.state, last.probes ? last.probes.map(function(p){return p.src;}).join(", ") : (last.src || "—"));
         renderSource(null);
         renderM3(last);
         show("m3");
-      } catch (error) {
-        $("m2-banner").hidden = false;
-        $("m2-banner").innerHTML = "<strong>Chưa gọi được AI:</strong> " + esc(error.message) +
-          " Kiểm tra file <code>.env</code> và terminal rồi thử lại.";
-      } finally {
+      }).catch(function(err) {
         t.disabled = false;
-        t.textContent = oldText;
-      }
+        t.textContent = "Gửi cho agent học trò";
+        alert("Lỗi khi gọi agent: " + err.message + "\n\nDùng MINILAB_PROVIDER=mock để test offline.");
+      }).finally(function() {
+        t.disabled = false;
+        t.textContent = "Gửi cho agent học trò";
+      });
       return;
     }
-    if (t.id === "btn-flow"){ if (screen !== "flow") prevScreen = screen; show("flow"); return; }
+    if (t.id === "btn-flow"){
+      if (screen !== "flow") prevScreen = screen;
+      // Lazy-load SVG flow: tránh phải parse 10KB SVG khi load trang lần đầu.
+      // SVG inner đã có sẵn ở server (endpoint /api/flow); nếu lỗi thì dùng bản inline tối giản.
+      loadFlowDiagram();
+      show("flow");
+      return;
+    }
     if (t.id === "flow-back"){ show(prevScreen); return; }
     if (t.id === "disagree"){ $("correct").hidden = false; $("correct-text").focus(); return; }
     if (t.id === "correct-cancel"){ $("correct").hidden = true; return; }
@@ -670,6 +839,8 @@
       addLog("Học viên kết thúc phiên", last ? last.state : "—", "—");
       renderM4(); return;
     }
+    if (t.id === "btn-run-eval"){ runEval(); return; }
+    if (t.id === "btn-load-cases"){ loadCasesList(); return; }
     if (t.id === "restart"){
       turn = 0; log = []; last = null;
       $("answer").value = ""; $("m2-banner").hidden = true;
@@ -677,31 +848,99 @@
     }
   });
 
-  async function boot(){
-    renderSource(null);
-    show("m1");
-    try {
-      var pair = await Promise.all([fetch("/api/health"), fetch("/api/source")]);
-      var health = await pair[0].json();
-      var source = await pair[1].json();
-      if (!pair[0].ok || !pair[1].ok) throw new Error("Server chưa sẵn sàng.");
-      runtime = {api:health.apiKeyConfigured, sourceMock:health.sourceMock, model:health.model};
-      SRC = source.excerpts.map(function(item){ return {id:item.id, t:item.text}; });
-      PRESET[3] = SRC[0].t + " " + SRC[1].t;
-      renderSource(null);
+  /* ───────── M5 · chạy eval set qua API ───────── */
+  var _casesCache = null;
 
-      $("ai-status").textContent = runtime.api ? "AI THẬT · " + runtime.model : "CHƯA CÓ API KEY";
-      $("ai-status").classList.toggle("live", runtime.api);
-      $("source-note").innerHTML = runtime.sourceMock
-        ? '<strong>NGUỒN MẪU.</strong> Backend đã sẵn sàng' + (runtime.api ? ' và API key đã được cấu hình' : ' nhưng chưa có API key') + '. Copy <code>sources.example.json</code> thành <code>sources.local.json</code> và thay bằng 4 đoạn transcript thật trước khi quay CP3.'
-        : '<strong>NGUỒN CỤC BỘ.</strong> Đang đọc <code>sources.local.json</code>; file này bị Git bỏ qua để không làm lộ data pack.';
-    } catch (error) {
-      $("ai-status").textContent = "CHƯA CHẠY SERVER";
-      $("source-note").innerHTML = 'Hãy chạy <code>npm start</code> rồi mở <code>http://127.0.0.1:4173</code>. Không mở trực tiếp bằng <code>file://</code> ở CP3.';
+  async function loadCasesList() {
+    var status = $("eval-status");
+    status.textContent = "Đang tải…";
+    try {
+      var resp = await apiEndpoint("GET", "/api/eval/cases");
+      _casesCache = resp.cases || [];
+      renderCasesList(_casesCache);
+      status.textContent = "Đã tải " + _casesCache.length + " ca.";
+    } catch(err) {
+      status.textContent = "Lỗi: " + err.message;
     }
   }
 
-  boot();
+  function renderCasesList(cases) {
+    var body = $("cases-tbody");
+    if (!cases || !cases.length) {
+      body.innerHTML = '<tr><td colspan="5" style="color:var(--mut)">Chưa tải được.</td></tr>';
+      return;
+    }
+    body.innerHTML = cases.map(function(c){
+      return '<tr><td><code>' + c.id + '</code></td>' +
+             '<td>' + (c["class"] || "") + '</td>' +
+             '<td style="font-size:12.5px">' + (c.input_preview || "") + '</td>' +
+             '<td><code>' + c.expected_state + '</code></td>' +
+             '<td><button class="sm" data-trycase="' + c.id + '">Dùng thử</button></td></tr>';
+    }).join("");
+  }
+
+  async function runEval() {
+    var provider = $("eval-provider").value;
+    var model = $("eval-model").value.trim() || null;
+    var btn = $("btn-run-eval");
+    var status = $("eval-status");
+    btn.disabled = true; btn.textContent = "Đang chạy…";
+    status.textContent = "Đang gọi /api/eval/run (provider=" + provider + ")…";
+    try {
+      var result = await apiEndpoint("POST", "/api/eval/run", {provider: provider, model: model});
+      renderEvalResult(result);
+      status.textContent = "Xong: " + result.passed + "/" + result.total + " đạt (" + result.pass_rate + "%).";
+    } catch(err) {
+      status.textContent = "Lỗi: " + err.message;
+    } finally {
+      btn.disabled = false; btn.textContent = "▶ Chạy eval";
+    }
+  }
+
+  function renderEvalResult(result) {
+    $("eval-summary").hidden = false;
+    var box = $("eval-summary-box");
+    var okRate = result.pass_rate >= 80;
+    box.className = "verdict " + (okRate ? "yes" : "no");
+    box.innerHTML = '<b>Provider:</b> <code>' + result.provider + '</code> · <code>' + result.model + '</code><br>' +
+                    '<b>Kết quả:</b> ' + result.passed + ' / ' + result.total + ' ca đạt (' + result.pass_rate + '%).';
+
+    var body = $("eval-tbody");
+    body.innerHTML = (result.results || []).map(function(r){
+      var passCell = r.pass
+        ? '<span class="chip ok">PASS</span>'
+        : '<span class="chip warn">FAIL</span>';
+      var reasonText = (r.reasons || []).length
+        ? r.reasons.join("; ")
+        : (r.rationale || "");
+      return '<tr>' +
+             '<td><code>' + r.id + '</code></td>' +
+             '<td>' + (r["class"] || "") + '</td>' +
+             '<td style="font-size:12.5px">' + (r.input_preview || "") + '</td>' +
+             '<td><code>' + r.expected_state + '</code></td>' +
+             '<td><code>' + r.actual_state + '</code></td>' +
+             '<td>' + passCell + '</td>' +
+             '<td style="font-size:12px;color:var(--mut)">' + reasonText + '</td>' +
+             '</tr>';
+    }).join("");
+  }
+
+  /* ───────── M5 · lazy-load flow SVG ───────── */
+  function loadFlowDiagram() {
+    var wrap = $("flow").querySelector(".flowwrap");
+    if (!wrap || wrap.dataset.loaded) return;
+    wrap.dataset.loaded = "1";
+    wrap.innerHTML = '<p style="color:var(--mut);padding:30px;text-align:center">Đang tải sơ đồ…</p>';
+    apiEndpoint("GET", "/api/flow").then(function(r) {
+      wrap.innerHTML = r.svg || '<p style="color:var(--mut)">Không tải được sơ đồ.</p>';
+    }).catch(function(err) {
+      wrap.innerHTML = '<p style="color:var(--mut);padding:20px">Sơ đồ chưa tải được (' + err.message + ').</p>';
+    });
+  }
+
+  renderSource(null);
+  show("m1");
+  loadConfig();  // Ưu tiên gọi API; fallback sang mock nếu server không chạy.
 })();
 </script>
 </body>
