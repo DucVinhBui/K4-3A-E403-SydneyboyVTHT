@@ -1,0 +1,58 @@
+{
+  "name": "eval-first",
+  "title": "Vì sao phải có bộ đo trước khi chỉnh prompt",
+  "concept": "vì sao phải có bộ đo trước khi chỉnh prompt",
+  "domain": "AI và cách làm sản phẩm AI",
+  "persona_gap": "đang sửa prompt theo cảm giác, thấy câu trả lời 'nghe hay hơn' là tưởng đã tốt lên, chưa hiểu vì sao phải đo",
+  "scope_range": "[KB-EVAL-01]–[KB-EVAL-04]",
+  "source_label": "MOCK — nhóm tự viết",
+  "out_of_scope_examples": [
+    "A/B test người dùng",
+    "chi phí token",
+    "latency",
+    "fine-tune",
+    "chọn model nào rẻ hơn"
+  ],
+  "excerpts": [
+    {
+      "id": "KB-EVAL-01",
+      "text": "Sửa prompt mà không có bộ đo thì không biết mình vừa làm tốt lên hay xấu đi. Đọc vài câu thấy hay hơn là cảm giác, không phải bằng chứng."
+    },
+    {
+      "id": "KB-EVAL-02",
+      "text": "Bộ ca đo và ngưỡng đạt phải khoá trước khi nhìn kết quả. Thấy kết quả xấu rồi mới sửa tiêu chí thì con số sau đó không còn nghĩa gì."
+    },
+    {
+      "id": "KB-EVAL-03",
+      "text": "Bộ đo phải có ca khó và ca biên, không chỉ ca đẹp. Ca đẹp thì bản nào cũng qua, nên nó không phân biệt được bản tốt với bản dở."
+    },
+    {
+      "id": "KB-EVAL-04",
+      "text": "Một con số tổng che mất chỗ hỏng. Phải mở ra xem ca nào trượt và trượt theo kiểu gì thì mới biết sửa cái gì."
+    }
+  ],
+  "criteria": [
+    {
+      "key": "c1",
+      "src": "KB-EVAL-01",
+      "label": "không đo thì không biết tốt lên hay xấu đi",
+      "probe": "Mình đọc thấy câu trả lời mới hay hơn hẳn rồi mà, vậy còn thiếu gì nữa? Chỗ này mình chưa theo kịp."
+    },
+    {
+      "key": "c2",
+      "src": "KB-EVAL-02",
+      "label": "phải khoá bộ ca và ngưỡng trước khi nhìn kết quả",
+      "probe": "Nếu chạy ra thấp quá thì hạ ngưỡng xuống một chút cho hợp lý, có gì sai đâu nhỉ?"
+    },
+    {
+      "key": "c3",
+      "src": "KB-EVAL-03",
+      "label": "phải có ca khó và ca biên, không chỉ ca đẹp",
+      "probe": "Bộ đo của mình ca nào cũng qua hết, vậy là tốt đúng không? Mình đang kẹt ở đây."
+    }
+  ],
+  "deep_probe": {
+    "src": "KB-EVAL-04",
+    "text": "Giả sử điểm tổng là 84%, mình nên nhìn tiếp vào đâu? Cho mình một ví dụ để mình tự kiểm lại chứ không gật bừa."
+  }
+}

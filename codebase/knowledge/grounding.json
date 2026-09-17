@@ -1,0 +1,59 @@
+{
+  "name": "grounding",
+  "title": "Vì sao phải cấp nguồn cho mô hình đọc",
+  "concept": "vì sao phải cấp nguồn cho mô hình đọc",
+  "domain": "AI và cách làm sản phẩm AI",
+  "persona_gap": "nghe nói cứ nối mô hình với tài liệu là hết bịa, nhưng chưa hiểu vì sao nối vào lại ăn thua và nối thế nào mới ăn thua",
+  "scope_range": "[KB-RAG-01]–[KB-RAG-04]",
+  "source_label": "MOCK — nhóm tự viết",
+  "out_of_scope_examples": [
+    "embedding model nào tốt",
+    "vector database",
+    "fine-tune",
+    "giá token",
+    "GPU",
+    "cosine similarity"
+  ],
+  "excerpts": [
+    {
+      "id": "KB-RAG-01",
+      "text": "Mô hình chỉ đọc được những gì nằm trong prompt của lượt đó. Muốn nó trả lời theo sự thật của mình thì phải đưa sự thật đó vào prompt, chứ không trông chờ nó nhớ."
+    },
+    {
+      "id": "KB-RAG-02",
+      "text": "Chỗ nhét vào có giới hạn, nên phải cắt tài liệu thành đoạn nhỏ và chỉ lấy đúng vài đoạn liên quan. Nhét cả tập tài liệu vào vừa không đủ chỗ vừa làm loãng."
+    },
+    {
+      "id": "KB-RAG-03",
+      "text": "Câu trả lời phải chỉ ra được nó dựa vào đoạn nào. Không chỉ ra được đoạn nào thì coi như chưa có căn cứ, dù câu đó nghe rất hợp lý."
+    },
+    {
+      "id": "KB-RAG-04",
+      "text": "Cấp nguồn không miễn nhiễm. Nguồn sai hoặc nguồn cũ thì câu trả lời vẫn sai, chỉ là lần này sai có địa chỉ để truy."
+    }
+  ],
+  "criteria": [
+    {
+      "key": "c1",
+      "src": "KB-RAG-01",
+      "label": "mô hình chỉ đọc được thứ nằm trong prompt",
+      "probe": "Mình vẫn chưa rõ: đưa tài liệu vào thì đưa vào đâu, và vì sao không để mô hình tự nhớ cho gọn?"
+    },
+    {
+      "key": "c2",
+      "src": "KB-RAG-02",
+      "label": "phải cắt nhỏ và chọn đúng đoạn liên quan",
+      "probe": "Sao không nhét thẳng cả quyển tài liệu vào cho chắc ăn? Nhét hết thì hỏng ở chỗ nào?"
+    },
+    {
+      "key": "c3",
+      "src": "KB-RAG-03",
+      "label": "trả lời phải trích được đoạn làm căn cứ",
+      "probe": "Làm sao mình biết câu trả lời là dựa vào tài liệu chứ không phải nó lại đoán tiếp?"
+    }
+  ],
+  "deep_probe": {
+    "src": "KB-RAG-04",
+    "text": "Cấp nguồn rồi thì còn sai được nữa không? Cho mình một trường hợp vẫn sai, để mình chắc là mình hiểu chứ không phải gật bừa."
+  }
+}

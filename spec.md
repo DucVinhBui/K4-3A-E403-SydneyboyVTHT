@@ -143,7 +143,7 @@ Cùng file còn có **sơ đồ luồng** (nút *⤳ Sơ đồ luồng* trên th
 | Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |
 | Panel đoạn nguồn `[T06-xxx]` luôn hiện cạnh câu hỏi | **thật** | giữ nguyên |
 | Nút *Không đồng ý với đánh giá này* ở mọi màn M3 | **thật** | giữ nguyên |
-| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **thật (CP3)** — `codebase/agent/core.py` gọi LLM thật (OpenRouter · `openai/gpt-4o-mini`) qua tool-calling loop; số liệu golden set 25 case: 84% (21/25), xem `codebase/eval/run_results.md` | tinh chỉnh thêm ranh giới lớp ① Nguồn sự thật (2 case còn fail) |
+| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **thật (CP3)** — `codebase/agent/core.py` gọi LLM thật (OpenAI · `gpt-4o-mini`) qua tool-calling loop; golden set 25 case: **96% (24/25)**, xem `codebase/eval/run_results.md` | tinh chỉnh thêm ranh giới lớp ① Nguồn sự thật (1 case còn fail: G02 attention) |
 | **Nội dung 4 đoạn `[T06-138]`–`[T06-149]`** | **mock** — fixture nhóm tự viết, gắn nhãn `MOCK` ngay trên UI | đọc thẳng từ `transcript-06-clean.md` |
 | Tiêu chí "đã dạy được" | **thật (CP3)** — LLM tự đánh giá `matched_criteria`/`missing_criteria` mỗi lượt gọi, không còn ngưỡng cứng đếm từ khoá | thêm bước xác minh có cấu trúc (`evidence_quote`) để chặn false-positive ĐỦ_CĂN_CỨ |
 
@@ -219,16 +219,22 @@ Sản phẩm gọi là **đạt** khi thoả **cả bốn** điều kiện dư�
 
 | # | Điều kiện | Ngưỡng | Hiện tại |
 |---|---|---|---|
-| 1 | **Đúng trạng thái** — `decision.state` khớp `expected_state` trên golden set 25 case | ≥ **80%** | **84,0%** (21/25) ✅ |
+| 1 | **Đúng trạng thái** — `decision.state` khớp `expected_state` trên golden set 25 case | ≥ **80%** | **96,0%** (24/25) ✅ |
 | 2 | **Không bịa nguồn** — mọi `source_id` trong `probes` phải là mã có thật trong `EXCERPTS` | **0 case** vi phạm | 0/50 lượt chấm ✅ |
 | 3 | **Lỗi đắt nhất** — công nhận `ĐỦ_CĂN_CỨ` cho lời giải thích thiếu tiêu chí *(false-positive)* | ≤ **1/25** | 1/25 — case `G14` ⚠️ sát ngưỡng |
 | 4 | **Chỉ số HỌC** *(bắt buộc của track D)* — tỉ lệ người thử bổ sung được **≥1 dẫn chứng còn thiếu** ngay trong phiên sau khi bị hỏi ngược | ≥ **60%**, n ≥ 5 | **chưa đo** — cần vòng validation CP5 |
 
-Điều kiện 3 tách riêng khỏi điều kiện 1 vì **chi phí lỗi không đối xứng**: hỏi ngược lạc chỗ thì học viên bỏ qua được, còn công nhận nhầm một lời giải thích sai thì học viên rời đi với kiến thức sai và không tự phát hiện được. Một bộ đạt 84% nhưng toàn lỗi loại false-positive vẫn là bộ **trượt**.
+Điều kiện 3 tách riêng khỏi điều kiện 1 vì **chi phí lỗi không đối xứng**: hỏi ngược lạc chỗ thì học viên bỏ qua được, còn công nhận nhầm một lời giải thích sai thì học viên rời đi với kiến thức sai và không tự phát hiện được. Một bộ đạt 96% nhưng toàn lỗi loại false-positive vẫn là bộ **trượt**.
 
 ### Số đo CP3 — chính thức
 
-**25 case · 21 đạt · 84,0%** · `gpt-4o-mini` qua OpenRouter · golden set `codebase/eval/golden_set.json` · báo cáo `codebase/eval/run_results.md`.
+**25 case · 24 đạt · 96,0%** · `gpt-4o-mini` qua OpenAI · golden set `codebase/eval/golden_set.json` · báo cáo `codebase/eval/run_results.md`.
+
+Bộ đo thứ hai, chạy trên knowledge base: **45 ca · 45 đạt · 100%** ·
+`codebase/eval/run_kb_check.py` · kết quả `codebase/eval/kb_check_results.json`.
+Bộ này chạy 9 ca với **từng** pack trong `codebase/knowledge/` (5 pack) và kiểm
+thêm một bất biến: mọi mã đoạn agent trích ra phải có thật trong pack — 0/45 ca
+trích mã bịa.
 
 Chạy hai lượt: run-01 **56%** → đọc log, sửa ranh giới `NGOÀI_PHẠM_VI` vs `THIẾU_CĂN_CỨ` trong system prompt → run-02 **84%**. Giữ nguyên cả 4 case fail, không thay bằng lượt chạy đẹp hơn.
 
@@ -236,13 +242,13 @@ Phân bố theo 4 lớp chỗ khó: ① nguồn sự thật 0/2 · ② mơ hồ 
 
 ### Ba giới hạn phải khai khi báo cáo
 
-1. **84% là ước lượng, không phải hằng số.** `temperature=0.2` nên case fail cụ thể xê dịch giữa các lượt; run-03 vẫn ra 84% nhưng đổi case fail.
+1. **96% là ước lượng, không phải hằng số.** `temperature=0.2` nên case fail cụ thể xê dịch giữa các lượt; run-03 vẫn ra 84% nhưng đổi case fail.
 2. **Đoạn nguồn vẫn là fixture `MOCK`.** Phải chạy lại sau khi đặt transcript thật vào `sources.local.json` trước khi dùng số này cho bản nộp cuối.
 3. **Điều kiện 4 chưa có dữ liệu.** Chưa có người ngoài nhóm nào thử, nên quality bar hiện **đạt 2/4, cảnh báo 1, chưa đo 1** — không tuyên bố là đã đạt.
 
 ### Ghi chú về bộ eval thứ hai
 
-Trong repo còn `eval/cases.json` + `eval/run-eval.mjs` (20 case, 95%) — bản Node dựng ở CP2, dùng tiêu chí đạt khác và **không tương thích** với `codebase/prototype/index.html` hiện tại. Giữ lại làm lịch sử, **không dùng để báo cáo**. Số chính thức của nhóm là 84%.
+Trong repo còn `eval/cases.json` + `eval/run-eval.mjs` (20 case, 95%) — bản Node dựng ở CP2, dùng tiêu chí đạt khác và **không tương thích** với `codebase/prototype/index.html` hiện tại. Giữ lại làm lịch sử, **không dùng để báo cáo**. Số chính thức của nhóm là 96%.
 
 ---
 
@@ -276,3 +282,7 @@ Trong repo còn `eval/cases.json` + `eval/run-eval.mjs` (20 case, 95%) — bản
 | 17/9 · CP3 | Cắm lời gọi LLM thật (OpenRouter · `openai/gpt-4o-mini`) vào `StateCheckAgent.decide()`, thêm cơ chế ghi vết `logs/llm_calls.jsonl` (prompt đầy đủ + response thô mỗi lượt gọi); xây `eval/golden_set.json` 25 case theo taxonomy 4 lớp; chạy 2 lượt (run-01 → sửa prompt → run-02), pass rate 56%→84% | Mốc CP3 bắt buộc ≥1 lời gọi AI thật ở mắt xích quyết định trung tâm + số đo thật. Sửa `NGOÀI_PHẠM_VI` vs `THIẾU_CĂN_CỨ` trong system prompt sau khi đọc log run-01 phát hiện model gộp hai điều kiện lại thành một |
 | 17/9 · CP3 | **Khảo sát chuẩn A KHÔNG ĐẠT ngưỡng đã khoá: 2/20 = 10%, cần > 50%.** Giữ nguyên định nghĩa `a ∧ b`, không sửa sau khi xem dữ liệu. Thu hẹp phát biểu ở §1: không tuyên bố pain point đã được đa số xác nhận, giữ lát cắt D3 dựa trên bằng chứng hành vi chuẩn B | Ngưỡng và định nghĩa "một người xác nhận" đã công bố trước khi phát form. Sửa định nghĩa lúc này là gian lận phương pháp. Dữ liệu vẫn cho hai tín hiệu hẹp hơn (11/20 ở C2, 18/20 ở C3) nhưng không đủ để thoả điều kiện kép |
 | 17/9 · CP3 | Chốt **một** bộ eval chính thức: 25 case Python (84%). Bộ Node 20 case (95%) lùi thành lịch sử CP2 | Hai bộ cho hai con số khác nhau trong cùng `spec.md` (§4 ghi 84%, §7 ghi 95%). Bộ Python có taxonomy đủ 4 lớp chỗ khó, có log thô từng lời gọi LLM, và là bộ duy nhất `index.html` hiện tại chạy được |
+| 17/9 · CP3 | Đưa nguồn đối chiếu ra thư mục `codebase/knowledge/` (5 pack: hallucination, toolcall, grounding, eval-first, automation-level), chọn bằng `MINILAB_TOPIC`; bản mẫu nạp pack đang chạy qua `GET /api/scope` | Nguồn đối chiếu trước đó bị chép cứng ở hai chỗ (`agent/sources.py` và mảng `SRC` trong `index.html`) và đã một lần lệch nhau. Giờ chỉ còn một nguồn, và đổi khái niệm không phải sửa code |
+| 17/9 · CP3 | Bỏ cổng chặn cứng "bài <40 ký tự → THIẾU_CĂN_CỨ" trong `core.py`; thay bằng cổng lĩnh vực trong prompt + `_guard()` kiểm sau | Bài lạc đề ngắn ("mỳ cay") bị cổng độ dài chặn trước khi LLM kịp nhìn, nên luôn ra THIẾU_CĂN_CỨ thay vì NGOÀI_PHẠM_VI. Đếm ký tự không phân biệt được "chưa đủ nội dung" với "nói chuyện khác" |
+| 17/9 · CP3 | Bắt LLM trích `matched_evidence` (nguyên văn chữ học viên) cho từng tiêu chí, Python dò lại trong bài trước khi cho `ĐỦ_CĂN_CỨ` | Lớp lỗi G14: LLM khai khớp đủ 3 tiêu chí trong khi bài chỉ nói 1 ý. Đây là lỗi đắt nhất theo chính §4 (false-positive), nên phải chặn deterministic chứ không tin lời LLM |
+| 17/9 · CP3 | Chạy lại golden set sau các thay đổi trên: **84% → 96% (24/25)**; thêm bộ đo thứ hai `run_kb_check` 45 ca (100%) | Code đã đổi thì số cũ không còn mô tả đúng hệ thống. Ngưỡng đạt §7 vẫn khoá nguyên ở ≥80%, chỉ giá trị đo được cập nhật |

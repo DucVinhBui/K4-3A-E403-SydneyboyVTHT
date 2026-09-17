@@ -3,7 +3,7 @@ phải nhét cả 4 đoạn vào prompt và tin LLM tự nhớ đúng).
 
 Hai tool cho LLM gọi:
 - `list_scope()`      — liệt kê mã + tóm tắt 4 đoạn đang trong phạm vi
-- `get_excerpt(id)`    — lấy nguyên văn một đoạn theo mã [T06-xxx]
+- `get_excerpt(id)`    — lấy nguyên văn một đoạn theo mã [Txx-NNN]
 
 Việc bắt agent phải *gọi tool* để trích dẫn, thay vì cho sẵn full text trong
 system prompt, là để bài test/eval phát hiện được lúc agent bịa mã nguồn
@@ -37,7 +37,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "function": {
             "name": "get_excerpt",
             "description": (
-                "Lấy nguyên văn một đoạn nguồn theo mã, ví dụ 'T06-138'. Dùng để trích dẫn "
+                f"Lấy nguyên văn một đoạn nguồn theo mã, ví dụ '{EXCERPTS[0].id}'. Dùng để trích dẫn "
                 "đúng chữ khi hỏi ngược hoặc khi giải thích vì sao một ý nằm ngoài phạm vi. "
                 "Không tự bịa nội dung đoạn — luôn gọi tool này trước khi dẫn mã."
             ),
@@ -46,7 +46,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
                 "properties": {
                     "excerpt_id": {
                         "type": "string",
-                        "description": "Mã đoạn, ví dụ 'T06-138' hoặc 'T06-141'.",
+                        "description": f"Mã đoạn, ví dụ '{EXCERPTS[0].id}' hoặc '{EXCERPTS[1].id}'.",
                     }
                 },
                 "required": ["excerpt_id"],

@@ -1,0 +1,60 @@
+{
+  "name": "toolcall",
+  "title": "Vì sao phải cho LLM gọi công cụ",
+  "concept": "vì sao phải cho LLM gọi công cụ",
+  "domain": "AI và cách làm sản phẩm AI",
+  "persona_gap": "thấy người ta nói agent tự tra được dữ liệu, nhưng chưa hiểu mô hình thật ra làm được gì và ai mới là bên chạy công cụ",
+  "scope_range": "[KB-TOOL-01]–[KB-TOOL-04]",
+  "source_label": "MOCK — nhóm tự viết dựa trên chính vòng lặp tool-calling trong codebase/agent/core.py",
+  "out_of_scope_examples": [
+    "fine-tune",
+    "vector database",
+    "GPU",
+    "giá token",
+    "đa tác tử",
+    "MCP",
+    "streaming"
+  ],
+  "excerpts": [
+    {
+      "id": "KB-TOOL-01",
+      "text": "Mô hình không tự chạy được gì cả. Cái nó sinh ra chỉ là một lời gọi gồm tên công cụ và các tham số; việc thực sự chạy công cụ là do chương trình bên ngoài làm."
+    },
+    {
+      "id": "KB-TOOL-02",
+      "text": "Kết quả công cụ phải được nối ngược trở lại vào hội thoại rồi gọi mô hình lần nữa. Nếu không đưa kết quả về, mô hình vẫn chỉ đoán như cũ."
+    },
+    {
+      "id": "KB-TOOL-03",
+      "text": "Lời gọi công cụ vẫn là văn bản do mô hình sinh ra, nên nó sai tên công cụ hoặc sai kiểu tham số được. Phải kiểm tham số theo schema trước khi chạy, đừng chạy mù."
+    },
+    {
+      "id": "KB-TOOL-04",
+      "text": "Công cụ nào chỉ đọc thì cho chạy thẳng. Công cụ nào có tác dụng phụ thì phải hỏi người dùng trước khi chạy."
+    }
+  ],
+  "criteria": [
+    {
+      "key": "c1",
+      "src": "KB-TOOL-01",
+      "label": "mô hình chỉ sinh lời gọi, không tự thực thi",
+      "probe": "Lúc mô hình 'dùng công cụ', chính xác thì bản thân nó làm được gì và ai mới là bên chạy thật? Bạn tách hộ mình hai việc đó."
+    },
+    {
+      "key": "c2",
+      "src": "KB-TOOL-02",
+      "label": "phải đưa kết quả công cụ ngược vào hội thoại",
+      "probe": "Chạy công cụ xong rồi thì kết quả đi đâu? Sao không dừng luôn ở đó mà phải gọi mô hình thêm lần nữa?"
+    },
+    {
+      "key": "c3",
+      "src": "KB-TOOL-03",
+      "label": "lời gọi vẫn có thể sai nên phải kiểm trước khi chạy",
+      "probe": "Nếu lời gọi cũng do mô hình sinh ra, thì nó sai được không? Sai thì mình chặn ở đâu?"
+    }
+  ],
+  "deep_probe": {
+    "src": "KB-TOOL-04",
+    "text": "Cho mình một ví dụ công cụ mà bạn sẽ KHÔNG cho chạy thẳng, và nói vì sao — để mình chắc là mình hiểu chứ không phải gật bừa."
+  }
+}

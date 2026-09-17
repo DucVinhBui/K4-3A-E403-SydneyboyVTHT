@@ -25,3 +25,6 @@ node_modules/
 
 # Log ghi vết lời gọi LLM (runtime, có thể dài + không cần commit)
 codebase/logs/
+
+# venv cục bộ (Python sạch cho openai SDK)
+.venv/

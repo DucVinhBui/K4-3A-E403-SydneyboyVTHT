@@ -33,7 +33,7 @@ cd codebase && python3 -m api.server --port 8765
 
 - [ ] Thanh trạng thái góc phải hiện **`OPENROUTER · OPENAI/GPT-4O-MINI`** — **không phải** `BẢN MẪU — MOCK`. Còn chữ MOCK là khoá chưa vào, quay là hỏng.
 - [ ] Bấm thử một câu, thấy agent trả về có mã `[T06-xxx]` thật.
-- [ ] Khung hình cuối điền đúng **25 case · 21 đạt · 84%** (số chính thức, xem `codebase/eval/run_results.md`).
+- [ ] Khung hình cuối điền đúng **25 case · 24 đạt · 96%** (số chính thức, xem `codebase/eval/run_results.md`).
 
 ---
 
@@ -47,7 +47,7 @@ cd codebase && python3 -m api.server --port 8765
 | 12–20 | AI trả `THIẾU_CĂN_CỨ` + đúng hai câu hỏi ngược có mã nguồn | |
 | 20–24 | Bấm mã nguồn → đoạn đối chiếu sáng lên | "Không đưa đáp án — chỉ hỏi đúng chỗ hổng." |
 | 24–27 | Bấm **Bổ sung — giữ nguyên bài mình đã viết**, cho thấy câu cũ còn nguyên | |
-| 27–30 | Hiện số thật: **"25 trường hợp · 21 đạt · 84%"** | |
+| 27–30 | Hiện số thật: **"25 trường hợp · 24 đạt · 96%"** | |
 
 **Câu chuẩn bị sẵn để dán** (cố tình thiếu ý c2 và c3 để agent hỏi ngược):
 
@@ -59,6 +59,7 @@ Không quay cả bốn nhánh. CP2 đã chứng minh luồng; CP3 cần chứng 
 
 ## Số nộp kèm form CP3
 
-> Chạy **25** trường hợp qua `gpt-4o-mini` (OpenRouter), **21** đạt — **84,0%**.
-> Đã chạy 2 lượt: run-01 56% → sửa system prompt → run-02 84%. Giữ nguyên cả 4 case fail, không chọn lượt đẹp hơn.
+> Chạy **25** trường hợp qua `gpt-4o-mini` (OpenAI), **24** đạt — **96,0%**.
+> Thêm bộ đo thứ hai trên knowledge base: **45 ca · 45 đạt · 100%**.
+> Đã chạy 4 lượt: 56% → 84% → 64% (một lần sửa đi sai, bộ đo bắt được) → 96%. Giữ nguyên case fail, không chọn lượt đẹp hơn.
 > Chi tiết từng case: `codebase/eval/run_results.md`.

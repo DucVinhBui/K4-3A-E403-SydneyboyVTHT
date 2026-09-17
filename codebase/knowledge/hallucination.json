@@ -1,0 +1,61 @@
+{
+  "name": "hallucination",
+  "title": "Vì sao LLM bịa",
+  "concept": "vì sao LLM bịa",
+  "domain": "AI và cách làm sản phẩm AI",
+  "persona_gap": "biết LLM sinh được văn bản nhưng chưa hiểu vì sao nó lại bịa ra thông tin sai",
+  "scope_range": "[T06-138]–[T06-149]",
+  "source_label": "MOCK — nhóm tự viết lại ý, không phải nguyên văn transcript",
+  "out_of_scope_examples": [
+    "fine-tune",
+    "RLHF",
+    "GPU",
+    "chi phí huấn luyện",
+    "temperature",
+    "attention",
+    "knowledge cutoff",
+    "tokenizer"
+  ],
+  "excerpts": [
+    {
+      "id": "T06-138",
+      "text": "Mô hình không tra cứu ở đâu cả. Mỗi bước nó chỉ chọn token tiếp theo có xác suất cao nhất theo những gì đã học được."
+    },
+    {
+      "id": "T06-141",
+      "text": "Ở vùng kiến thức gần như không có dữ liệu, xác suất vẫn được chuẩn hoá cho đủ một. Mô hình vẫn buộc phải chọn ra một token, nên nó vẫn sinh ra câu trả lời thay vì im lặng."
+    },
+    {
+      "id": "T06-145",
+      "text": "Câu bịa thường đọc lên rất trôi chảy, vì thứ mô hình được tối ưu là độ hợp lý về mặt ngôn ngữ, không phải độ đúng so với sự thật."
+    },
+    {
+      "id": "T06-149",
+      "text": "Muốn giảm bịa thì phải cấp nguồn cho mô hình đọc, hoặc cho nó quyền nói là không biết."
+    }
+  ],
+  "criteria": [
+    {
+      "key": "c1",
+      "src": "T06-138",
+      "label": "cơ chế dự đoán token, không tra cứu",
+      "probe": "Chỗ này mình chưa theo kịp: lúc bị hỏi một câu nó chưa gặp bao giờ, mô hình lấy câu trả lời ở đâu ra? Bạn nói lại bước đó giúp mình."
+    },
+    {
+      "key": "c2",
+      "src": "T06-141",
+      "label": "vì sao vẫn trả lời khi thiếu dữ liệu",
+      "probe": "Nếu chỗ đó gần như không có dữ liệu, sao nó không im luôn mà vẫn ra được một câu? Mình đang kẹt ở đây."
+    },
+    {
+      "key": "c3",
+      "src": "T06-145",
+      "label": "vì sao câu bịa nghe trôi chảy",
+      "probe": "Câu bịa mà mình đọc thấy còn xuôi hơn cả câu đúng. Theo bạn thì vì sao lại thế?"
+    }
+  ],
+  "deep_probe": {
+    "src": "T06-149",
+    "text": "Cho mình một ví dụ cụ thể mà mình tự kiểm lại được, để mình chắc là mình hiểu chứ không phải gật bừa."
+  }
+}

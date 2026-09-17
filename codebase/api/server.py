@@ -255,6 +255,29 @@ class AgentHandler(BaseHTTPRequestHandler):
             _send_json(self, 200, _get_config())
             return
 
+        if path == "/api/scope":
+            # Knowledge base đang nạp — để bản mẫu hiển thị ĐÚNG pack mà agent
+            # thật sự đối chiếu, thay vì fixture chép cứng trong index.html.
+            from agent.sources import TOPIC, TOPICS
+
+            _send_json(self, 200, {
+                "topic": TOPIC.name,
+                "title": TOPIC.title,
+                "concept": TOPIC.concept,
+                "domain": TOPIC.domain,
+                "persona_gap": TOPIC.persona_gap,
+                "scope_range": TOPIC.scope_range,
+                "source_label": TOPIC.source_label,
+                "available_topics": sorted(TOPICS),
+                "excerpts": [{"id": e.id, "text": e.text} for e in TOPIC.excerpts],
+                "criteria": [
+                    {"key": c.key, "src": c.src, "label": c.label, "probe": c.probe}
+                    for c in TOPIC.criteria
+                ],
+                "deep_probe": {"src": TOPIC.deep_probe_src, "text": TOPIC.deep_probe_text},
+            })
+            return
+
         if path == "/api/eval/cases":
             cases = _load_golden_cases()
             # Strip full input, chỉ giữ preview để list không quá nặng

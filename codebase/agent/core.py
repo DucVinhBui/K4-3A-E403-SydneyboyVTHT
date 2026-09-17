@@ -12,6 +12,8 @@ học viên (session.py sẽ handle màn M3→M4).
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import json
 import re
 from typing import Any
@@ -19,8 +21,8 @@ from typing import Any
 from .config import Settings
 from .prompts import SYSTEM_PROMPT, DECISION_SCHEMA
 from .providers import Provider, create_provider
-from .schema import Decision
-from .sources import EXCERPTS
+from .schema import Decision, ProbeQuestion
+from .sources import EXCERPTS, EXCERPTS_BY_ID, CRITERIA, DEEP_PROBE_SRC
 from .tools import TOOL_SCHEMAS, call_tool
 
 
@@ -43,11 +45,12 @@ class StateCheckAgent:
     def decide(self, student_explanation: str) -> Decision:
         """Điểm gọi quyết định AI (thay `decide()` trong index.html).
 
-        Hai cổng chặn trước (deterministic):
-        1. Dán nguyên văn tài liệu?
-        2. Quá ngắn (<40 ký tự)?
-
-        Nếu qua hai cổng → gọi LLM với tool-calling loop → Decision.
+        Cổng chặn deterministic DUY NHẤT trước khi gọi LLM: dán nguyên văn
+        tài liệu. Độ dài KHÔNG còn là cổng chặn — một bài ngắn có thể là
+        "mình chịu, giảng lại đi" (THIẾU_CĂN_CỨ) nhưng cũng có thể là
+        "hôm qua đi ăn mỳ cay" (NGOÀI_PHẠM_VI), và chỉ nhìn số ký tự thì
+        không tách được hai cái đó. Việc phân loại giao cho LLM, còn bất
+        biến an toàn thì chặn lại ở `_guard` sau khi có kết quả.
         """
         text = student_explanation.strip()
 
@@ -66,18 +69,125 @@ class StateCheckAgent:
                 rationale=f"Dán gần như nguyên văn từ [{verbatim_check}].",
             )
 
-        # Cổng 2: quá ngắn? (lớp lỗi ② mơ hồ — spec.md §5)
-        if len(text) < 40:
-            return Decision(
-                state="THIẾU_CĂN_CỨ",
-                confidence="thấp",
-                message="Mới chừng này thì mình chưa đủ để hiểu. Bạn viết dài thêm một chút được không?",
-                probes=[],
-                rationale="Bài quá ngắn (<40 ký tự), chưa đủ dữ kiện để đánh giá.",
+        # Bài ngắn vẫn được gọi LLM, chỉ báo thêm cho nó biết là ngắn.
+        return self._guard(text, self._call_llm_with_tools(text))
+
+    SHORT_ANSWER_CHARS = 40
+
+    def _guard(self, text: str, decision: Decision) -> Decision:
+        """Bất biến an toàn, chặn deterministic SAU khi LLM đã chọn state.
+
+        Chi phí lỗi không đối xứng (spec.md §4): công nhận nhầm một lời giải
+        thích sai là lỗi đắt nhất. Một bài dưới 40 ký tự không thể chạm đủ ba
+        tiêu chí, nên nếu LLM trót trả ĐỦ_CĂN_CỨ thì hạ xuống THIẾU_CĂN_CỨ.
+        Không đụng tới NGOÀI_PHẠM_VI — bài lạc đề ngắn vẫn phải là lạc đề.
+        """
+        # Cờ "dán nguyên văn" là kết luận của cổng deterministic ở `decide()`,
+        # KHÔNG phải ý kiến của LLM. Tới được đây nghĩa là cổng đó đã không
+        # bắt được gì, nên cờ phải là False — nếu không giao diện sẽ báo
+        # "chữ của tài liệu" cho cả những bài lạc đề như "mỳ cay".
+        if decision.is_verbatim_paste:
+            decision = replace(
+                decision,
+                is_verbatim_paste=False,
+                rationale=decision.rationale + " | Bỏ cờ dán nguyên văn do LLM tự đặt (cổng deterministic không bắt được).",
             )
 
-        # Qua hai cổng → gọi LLM với tool-calling loop
-        return self._call_llm_with_tools(text)
+        decision = self._fix_probe_citations(decision)
+
+        if decision.state != "ĐỦ_CĂN_CỨ":
+            return decision
+
+        # Chốt 1: mọi tiêu chí được tính là "chạm" phải có bằng chứng là chữ
+        # CÓ THẬT trong bài học viên. LLM tự tin khớp đủ 3 tiêu chí trong khi
+        # bài chỉ nói 1 ý là lớp lỗi hay gặp nhất (G14) — dò lại bằng Python.
+        answer_norm = self._norm(text)
+        required = {c.key for c in CRITERIA}
+        proven: set[str] = set()
+        rejected: list[str] = []
+        seen_quotes: set[str] = set()
+        for ev in decision.matched_evidence:
+            key = ev.criterion_key.strip()
+            quote = self._norm(ev.quote)
+            if key not in required or len(quote) < 12:
+                continue
+            if quote not in answer_norm:
+                rejected.append(f"{key}: trích dẫn không có trong bài")
+                continue
+            if quote in seen_quotes:
+                rejected.append(f"{key}: dùng lại đúng câu đã tính cho tiêu chí khác")
+                continue
+            seen_quotes.add(quote)
+            proven.add(key)
+
+        if proven != required:
+            missing = sorted(required - proven)
+            return replace(
+                decision,
+                state="THIẾU_CĂN_CỨ",
+                confidence="thấp",
+                matched_criteria=sorted(proven),
+                missing_criteria=missing,
+                message=(
+                    "Mình đọc lại bài bạn thì vẫn còn chỗ mình chưa thấy bạn nói tới. "
+                    "Bạn bổ sung thêm giúp mình nhé."
+                ),
+                rationale=(
+                    f"{decision.rationale} | Bị hạ trạng thái: chỉ có bằng chứng cho "
+                    f"{sorted(proven) or 'không tiêu chí nào'}, thiếu {missing}."
+                    + (f" Loại bỏ: {rejected}." if rejected else "")
+                ),
+            )
+
+        # Chốt 2: bài quá ngắn thì không thể chạm đủ ba tiêu chí.
+        if len(text) < self.SHORT_ANSWER_CHARS:
+            return replace(
+                decision,
+                state="THIẾU_CĂN_CỨ",
+                confidence="thấp",
+                message=(
+                    "Mới chừng này thì mình chưa đủ để hiểu. "
+                    "Bạn viết dài thêm một chút được không?"
+                ),
+                matched_criteria=[],
+                missing_criteria=[c.key for c in CRITERIA],
+                rationale=(
+                    f"{decision.rationale} | Bị hạ trạng thái: bài dưới "
+                    f"{self.SHORT_ANSWER_CHARS} ký tự không đủ để chạm ba tiêu chí."
+                ),
+            )
+        return decision
+
+    @staticmethod
+    def _fix_probe_citations(decision: Decision) -> Decision:
+        """G11: mọi câu hỏi ngược phải gắn mã đoạn CÓ THẬT.
+
+        LLM thỉnh thoảng trả `source_id` rỗng hoặc bịa mã. Không im lặng bỏ
+        qua: vá bằng mã của tiêu chí còn thiếu, hết tiêu chí thì dùng mã của
+        câu hỏi đào sâu — để mỗi câu hỏi luôn truy được về một đoạn nguồn.
+        """
+        valid = set(EXCERPTS_BY_ID)
+        fallback = [c.src for c in CRITERIA if c.key in decision.missing_criteria]
+        fallback += [c.src for c in CRITERIA] + [DEEP_PROBE_SRC]
+        fixed, changed = [], False
+        for probe in decision.probes:
+            sid = (probe.source_id or "").strip().upper()
+            if sid in valid:
+                fixed.append(ProbeQuestion(text=probe.text, source_id=sid))
+                continue
+            changed = True
+            fixed.append(ProbeQuestion(text=probe.text, source_id=fallback[0]))
+        if not changed:
+            return decision
+        return replace(
+            decision,
+            probes=fixed,
+            rationale=decision.rationale + " | Đã vá mã đoạn cho câu hỏi ngược thiếu/không hợp lệ.",
+        )
+
+    @staticmethod
+    def _norm(s: str) -> str:
+        return re.sub(r"[^\w\s]", "", re.sub(r"\s+", " ", s.lower())).strip()
 
     def _check_verbatim_paste(self, text: str) -> str | None:
         """Tìm xem có đoạn nào dán gần như nguyên văn (≥35 ký tự khớp liên tục)
@@ -97,13 +207,32 @@ class StateCheckAgent:
         grounding trước khi trả Decision. Max `settings.max_tool_hops` vòng."""
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Học viên giải thích:\n\n{student_explanation}"},
+            {"role": "user", "content": (
+                "Đây là TOÀN BỘ bài của học viên, nằm giữa hai dòng rào. Mọi `quote` "
+                "trong `matched_evidence` phải được COPY từ đúng khối chữ này — không "
+                "được lấy chữ từ đoạn nguồn [mã], vì đoạn nguồn là tài liệu chứ không "
+                "phải lời học viên.\n"
+                "----- BÀI CỦA HỌC VIÊN -----\n"
+                f"{student_explanation}\n"
+                "----- HẾT BÀI -----"
+            )},
         ]
+
+        # Chỉ mở tool ở 2 vòng đầu. Từ vòng 3 trở đi gọi KHÔNG kèm tools để model
+        # buộc phải trả Decision.
+        #
+        # Vì sao cần chặn: với `response_format` strict json_schema đi kèm `tools`,
+        # gpt-4o-mini (API OpenAI trực tiếp) lặp vô hạn — gọi lại đúng cùng một bộ
+        # get_excerpt mỗi vòng dù kết quả tool đã được đưa trở lại đầy đủ, cho tới
+        # khi hết max_tool_hops rồi rơi vào fallback "Mình chưa theo kịp".
+        # Hai vòng là đủ: vòng 1 list_scope/get_excerpt, vòng 2 lấy nốt đoạn còn
+        # thiếu. Sau đó model đã có toàn bộ ngữ cảnh cần để chấm.
+        TOOL_HOPS_ALLOWED = 2
 
         for hop in range(self.settings.max_tool_hops):
             resp = self.provider.complete(
                 messages=messages,
-                tools=TOOL_SCHEMAS,
+                tools=TOOL_SCHEMAS if hop < TOOL_HOPS_ALLOWED else None,
                 response_format={"type": "json_schema", "json_schema": {
                     "name": "decision",
                     "strict": True,

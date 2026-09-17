@@ -80,3 +80,66 @@ Chạy thêm một lượt run-03 (tăng `MINILAB_MAX_TOOL_HOPS` từ 4 lên 6, 
   1. **False-positive ĐỦ_CĂN_CỨ (G14)** — nguy hiểm nhất, cần chuyển từ "nhắc trong prompt" sang cơ chế có cấu trúc: ví dụ bắt buộc field `matched_criteria` phải kèm theo field mới `evidence_quote` (câu trích dẫn của học viên) cho mỗi tiêu chí, rồi validate ở code Python rằng quote đó thực sự xuất hiện trong input trước khi tin `matched_criteria`.
   2. **Ranh giới lớp ① "nguồn sự thật"** (G01, G02) — cần thêm ví dụ few-shot ngay trong prompt (một cặp input/output mẫu cho đúng loại "đúng kỹ thuật nhưng ngoài 4 đoạn") vì chỉ mô tả bằng lời chưa đủ phân biệt.
   3. **Tăng `MINILAB_MAX_TOOL_HOPS`** từ 4 lên 6-8 để tránh agent bị cắt ngang giữa lúc đang gọi tool xác minh (nguyên nhân của G02).
+
+---
+
+## 8. Run-04 (17/9) — sau khi đưa nguồn ra `knowledge/` và sửa ranh giới lạc đề
+
+**24/25 = 96,0%** · `gpt-4o-mini` qua **OpenAI trực tiếp** (không qua OpenRouter) ·
+kết quả thô: [`run_results_raw_v6.json`](run_results_raw_v6.json).
+
+Ba thay đổi trong code giữa run-03 và run-04:
+
+1. **Bỏ cổng chặn cứng `len(text) < 40` trong `core.py`.** Cổng này trả
+   `THIẾU_CĂN_CỨ` trước khi LLM kịp nhìn bài, nên mọi bài lạc đề ngắn ("mỳ cay")
+   đều bị xếp nhầm. Thay bằng cổng lĩnh vực trong system prompt, cộng `_guard()`
+   hạ trạng thái *sau khi* đã có kết quả.
+2. **`matched_evidence` + kiểm bằng Python.** LLM phải trích nguyên văn câu của
+   học viên cho từng tiêu chí; `_guard()` dò lại câu đó trong bài, không thấy
+   thì tiêu chí bị loại và `ĐỦ_CĂN_CỨ` bị hạ xuống `THIẾU_CĂN_CỨ`. Đây là chốt
+   deterministic cho lớp lỗi G14 (false-positive) nêu ở mục 6.
+3. **Cờ `is_verbatim_paste` chỉ do cổng deterministic đặt**, không nhận giá trị
+   LLM tự khai — trước đó LLM đặt cờ này cho cả bài "mỳ cay", làm giao diện hiện
+   nhầm nhánh "dán nguyên văn tài liệu".
+
+### Một lần đi sai và cách phát hiện
+
+Bản prompt đầu tiên của cổng lĩnh vực **bắt quá tay**: nó ném cả những bài đang
+giải thích *sai* về chính mô hình ("do server lag", "do RAM đầy", "nó có cảm
+xúc") sang `NGOÀI_PHẠM_VI`. Golden set tụt xuống **64% (16/25)** —
+[`run_results_raw_v5.json`](run_results_raw_v5.json) — với 7 case trượt cùng một
+kiểu. Đây đúng là công dụng của bộ đo khoá trước: nếu chỉ thử tay vài câu lạc đề
+thì thay đổi này trông như một cải tiến.
+
+Sửa lại ranh giới cho đúng ba tầng:
+
+| học viên viết gì | trạng thái | vì sao |
+|---|---|---|
+| chủ đề khác hẳn, gọi tên được (mỳ cay, bóng đá) | `NGOÀI_PHẠM_VI` | agent không có căn cứ, không phán đúng/sai |
+| khái niệm AI có thật nhưng ngoài 4 đoạn (temperature, attention, RLHF) | `NGOÀI_PHẠM_VI` | có thật trong ngành, ngoài phạm vi được cấp |
+| gõ bừa, không đọc ra chủ đề nào | `THIẾU_CĂN_CỨ` | không có chủ đề khác để gọi tên |
+| sai bét nhưng vẫn đang trả lời đúng câu hỏi (bug, lag, RAM, cảm xúc) | `THIẾU_CĂN_CỨ` | vẫn đang ở đúng bài, chỉ hiểu sai |
+| xin đáp án, xin làm hộ, nói không biết | `THIẾU_CĂN_CỨ` | ở đúng bài, chưa có nội dung |
+
+### Case còn trượt
+
+- **G02** (`Mình nghĩ là do cơ chế attention…`) — cần `NGOÀI_PHẠM_VI`, agent trả
+  `THIẾU_CĂN_CỨ`. Vẫn là lớp ① nguồn sự thật, đúng chỗ đã cảnh báo từ run-02:
+  attention là khái niệm có thật, nghe *gần* với "cơ chế sinh token" nên agent cố
+  gán một phần liên quan thay vì từ chối thẳng. G01 (temperature) đã tự sửa được
+  sau khi liệt kê tên khái niệm vào prompt; G02 thì chưa.
+
+### Bộ đo thứ hai — knowledge base
+
+`../.venv/bin/python -m eval.run_kb_check` → **45/45 = 100%**, kết quả
+[`kb_check_results.json`](kb_check_results.json).
+
+9 ca chạy với **từng** pack trong `codebase/knowledge/` (5 pack), gồm 6 ca dùng
+chung cho mọi pack (4 ca lạc đề/gõ bừa/sai-nhưng-đúng-bài + 1 ca xin đáp án) và
+3 ca riêng từng khái niệm (đủ ý / thiếu ý / khái niệm khác). Ngoài state, bộ này
+kiểm thêm một bất biến mà golden set không kiểm: **mọi mã đoạn agent trích ra
+phải có thật trong pack** — 0/45 ca trích mã bịa.
+
+**Số chính thức để báo cáo từ run-04: 96,0% (24/25)** trên golden set, cộng
+100% (45/45) trên bộ knowledge base. Vẫn giữ nguyên case fail, không chọn lượt
+chạy đẹp hơn.
