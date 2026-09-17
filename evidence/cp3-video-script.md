@@ -1,4 +1,5 @@
 # Kịch bản video CP3 — 30 giây
+Link video CP3 : https://drive.google.com/file/d/12YeMOFFg5EtmWr5iajxZeWpuDpS4VjNo/view?usp=drive_link
 
 ## Thông điệp
 
@@ -8,8 +9,8 @@
 
 - Chạy `npm start` và mở `http://127.0.0.1:4173`.
 - Kiểm tra đầu trang hiện **AI THẬT** và nguồn không còn nhãn fixture.
-- Chạy `npm run eval`; thay `X/20` trong khung hình cuối bằng kết quả thật.
-- Chuẩn bị sẵn câu trả lời: “LLM bịa vì nó dự đoán token tiếp theo chứ không tra cứu sự thật.”
+- Dùng lượt đo chính thức đã lưu: **19/20 đạt (95%)**, 0 lỗi kỹ thuật, `sourceMock: false`.
+- Chuẩn bị sẵn câu trả lời: “LLM dự đoán token theo xác suất; bias trong dữ liệu và người tinh chỉnh cùng knowledge cutoff đều có thể dẫn đến hallucination.”
 
 ## Timeline
 
@@ -19,7 +20,6 @@
 - **12–20 giây:** AI trả `THIẾU_CĂN_CỨ` và đúng hai câu hỏi có mã nguồn.
 - **20–24 giây:** Bấm mã nguồn để làm sáng đoạn đối chiếu. Caption: “Không đưa đáp án — chỉ hỏi đúng chỗ hổng.”
 - **24–27 giây:** Bấm **Bổ sung — giữ nguyên bài mình đã viết**; cho thấy câu cũ vẫn còn.
-- **27–30 giây:** Hiện kết quả thật: “20 trường hợp · X trường hợp đạt · Y%”.
+- **27–30 giây:** Hiện kết quả thật: “20 trường hợp · 19 đạt · 1 chưa đạt · 95% · 0 lỗi kỹ thuật”.
 
 Không quay cả bốn nhánh. CP2 đã chứng minh luồng; CP3 cần chứng minh lời gọi AI thật và số đo thật.
-

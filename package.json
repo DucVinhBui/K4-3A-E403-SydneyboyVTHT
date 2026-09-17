@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node codebase/server.mjs",
     "check": "node --check codebase/server.mjs && node --check eval/run-eval.mjs",
-    "eval": "node eval/run-eval.mjs"
+    "eval": "node eval/run-eval.mjs",
+    "eval:dry": "CP3_DRY_RUN=1 node eval/run-eval.mjs"
   }
 }
-

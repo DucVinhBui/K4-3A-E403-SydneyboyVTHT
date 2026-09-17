@@ -22,6 +22,7 @@
 | CP1 | [`spec.md`](spec.md) | Canvas 4 ô + §1–§9 |
 | CP1 | [`evidence/`](evidence/) | Nhật ký mining + bộ câu hỏi khảo sát chuẩn A + QR |
 | **CP2** | **[`codebase/prototype/index.html`](codebase/prototype/index.html)** | **Bản mẫu tương tác — tải về double-click là chạy, không cần mạng.** Hướng dẫn bấm 4 nhánh: [`codebase/README.md`](codebase/README.md) |
+| **CP3 · Số đo** | **[`eval/cp3-measurement.md`](eval/cp3-measurement.md)** | **20 ca · 19 đạt · 1 chưa đạt · 95% · 0 lỗi kỹ thuật**, dùng transcript thật (`sourceMock: false`) |
 | — | [`teammates.md`](teammates.md) | Phân công chi tiết + danh sách người thử |
 
 - Thời lượng: **47,5 giờ** từ phát đề đến thuyết trình (ca 3A) — LAB 5 (phát đề + build) · LEC 6 (tiếp tục build theo ca) · LAB 6 (vòng thi)

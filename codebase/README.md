@@ -24,7 +24,7 @@ Prototype chạy được ngay với `sources.example.json`, nhưng giao diện 
 cp codebase/prototype/sources.example.json codebase/prototype/sources.local.json
 ```
 
-Thay bốn trường `text` trong `sources.local.json` bằng nội dung thật của `[T06-138]`, `[T06-141]`, `[T06-145]`, `[T06-149]`. File này được Git bỏ qua và không được đẩy lên repo public.
+Thay bốn trường `text` trong `sources.local.json` bằng nội dung thật của `[T06-136]`, `[T06-138]`, `[T06-139]`, `[T06-148]`. File này được Git bỏ qua và không được đẩy lên repo public.
 
 ## Bốn màn
 
@@ -74,7 +74,7 @@ Giữ server đang chạy, mở terminal thứ hai:
 npm run eval
 ```
 
-Script chạy 20 ca trong `eval/cases.json`, in `đúng/tổng` và lưu chi tiết vào `eval/results.json`. Chỉ quay con số thật được tạo sau lần chạy này.
+Script chạy 20 ca trong `eval/cases.json`, lưu từng lượt vào `eval/runs/`, cập nhật lượt mới nhất ở `eval/results.json` và sinh `eval/cp3-measurement.md` để nộp. Mỗi ca được ghi rõ `ĐẠT`, `CHƯA_ĐẠT`, `LỖI_KỸ_THUẬT` hoặc `CHƯA_CHẠY`.
 
 ## Sửa ở đâu
 
