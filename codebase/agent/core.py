@@ -22,7 +22,7 @@ from .config import Settings
 from .prompts import SYSTEM_PROMPT, DECISION_SCHEMA
 from .providers import Provider, create_provider
 from .schema import Decision, ProbeQuestion
-from .sources import EXCERPTS, EXCERPTS_BY_ID, CRITERIA, DEEP_PROBE_SRC
+from .sources import EXCERPTS, EXCERPTS_BY_ID, CRITERIA, DEEP_PROBE_SRC, DEEP_PROBE_TEXT
 from .tools import TOOL_SCHEMAS, call_tool
 
 
@@ -57,7 +57,7 @@ class StateCheckAgent:
         # Cổng 1: dán nguyên văn tài liệu? (hard test spec.md §5 §6)
         verbatim_check = self._check_verbatim_paste(text)
         if verbatim_check:
-            return Decision(
+            return self._ensure_probes(Decision(
                 state="THIẾU_CĂN_CỨ",
                 confidence="thấp",
                 message=(
@@ -67,12 +67,53 @@ class StateCheckAgent:
                 is_verbatim_paste=True,
                 probes=[],
                 rationale=f"Dán gần như nguyên văn từ [{verbatim_check}].",
-            )
+            ))
 
         # Bài ngắn vẫn được gọi LLM, chỉ báo thêm cho nó biết là ngắn.
-        return self._guard(text, self._call_llm_with_tools(text))
+        return self._ensure_probes(self._guard(text, self._call_llm_with_tools(text)))
 
     SHORT_ANSWER_CHARS = 40
+    PROBE_COUNT = 2
+
+    @staticmethod
+    def _ensure_probes(decision: Decision) -> Decision:
+        """`THIẾU_CĂN_CỨ` phải hỏi ngược ĐÚNG 2 câu (spec.md §6, nhánh
+        low-confidence). LLM thỉnh thoảng trả mảng `probes` rỗng, và khi đó
+        màn M3 hiện dòng "Mình hỏi lại đúng hai câu:" rồi để trống.
+
+        Thiếu thì lấp bằng câu hỏi soạn sẵn của tiêu chí còn thiếu trong
+        knowledge base, hết tiêu chí thì dùng câu hỏi đào sâu. Thừa thì cắt.
+        `NGOÀI_PHẠM_VI` không hỏi ngược — nhánh đó nói thẳng là ngoài phạm vi.
+        """
+        if decision.state != "THIẾU_CĂN_CỨ":
+            return decision
+        probes = list(decision.probes)
+        if len(probes) == StateCheckAgent.PROBE_COUNT:
+            return decision
+
+        if len(probes) > StateCheckAgent.PROBE_COUNT:
+            return replace(
+                decision,
+                probes=probes[:StateCheckAgent.PROBE_COUNT],
+                rationale=decision.rationale + " | Cắt bớt câu hỏi ngược cho đúng 2 câu.",
+            )
+
+        missing = decision.missing_criteria or [c.key for c in CRITERIA]
+        pool = [c for c in CRITERIA if c.key in missing] + list(CRITERIA)
+        used = {p.text for p in probes}
+        for c in pool:
+            if len(probes) >= StateCheckAgent.PROBE_COUNT:
+                break
+            if c.probe not in used:
+                probes.append(ProbeQuestion(text=c.probe, source_id=c.src))
+                used.add(c.probe)
+        if len(probes) < StateCheckAgent.PROBE_COUNT and DEEP_PROBE_TEXT not in used:
+            probes.append(ProbeQuestion(text=DEEP_PROBE_TEXT, source_id=DEEP_PROBE_SRC))
+        return replace(
+            decision,
+            probes=probes[:StateCheckAgent.PROBE_COUNT],
+            rationale=decision.rationale + " | Lấp câu hỏi ngược từ knowledge base cho đủ 2 câu.",
+        )
 
     def _guard(self, text: str, decision: Decision) -> Decision:
         """Bất biến an toàn, chặn deterministic SAU khi LLM đã chọn state.
