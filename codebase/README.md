@@ -1,59 +1,208 @@
-# codebase/ — Bản mẫu tương tác CP2
+# Agent học trò — tích hợp LLM/tool/eval (CP2/CP3)
 
-## Mở thế nào
+Đúng spec.md §4–§6: agent học trò với tool-calling, test trên eval, state machine M1→M4 không có đường cụt.
 
-Tải repo về → double-click **`codebase/prototype/index.html`**.
+## Cấu trúc
 
-Một file HTML duy nhất, tự chứa hoàn toàn: không framework, không CDN, không cài gì, **không cần mạng**. Mở bằng `file://` chạy được.
+```
+codebase/
+├── agent/
+│   ├── config.py       # Runtime settings (provider, model, API key)
+│   ├── sources.py      # MOCK fixture: 4 đoạn nguồn [T06-138]–[T06-149]
+│   ├── tools.py        # Tool-calling: list_scope(), get_excerpt(id)
+│   ├── prompts.py      # System prompt + JSON schema cho agent
+│   ├── schema.py       # Decision, ProbeQuestion (output)
+│   ├── providers.py    # Provider interface: mock/openai/anthropic
+│   ├── core.py         # StateCheckAgent — lõi quyết định (thay decide() JS)
+│   ├── session.py      # TeachingSession — state machine M1→M4
+│   ├── cli.py          # CLI test nhanh
+│   └── __init__.py
+├── eval/
+│   ├── samples/        # 5 test case tối thiểu (spec §5)
+│   │   ├── 001-day-du.txt
+│   │   ├── 002-thieu-2-tieu-chi.txt
+│   │   ├── 003-ngoai-pham-vi.txt
+│   │   ├── 004-qua-ngan.txt
+│   │   └── 005-dan-nguyen-van.txt
+│   ├── runner.py       # Eval runner
+│   └── __init__.py
+├── .env.example        # Template config — copy thành .env
+└── README.md           # (file này)
+```
 
-## Bốn màn
+## Setup
 
-| Màn | Là gì |
-|---|---|
-| **M1 · Mở phiên** | Công bố trước phạm vi, tiêu chí "đã dạy được" và câu "đây không phải bài thi" — trước khi học viên gõ chữ nào |
-| **M2 · Dạy lại** | Ô viết lời giải thích. Cột phải: 4 đoạn nguồn `[T06-xxx]` **luôn hiện** |
-| **M3 · Agent hỏi ngược** | Chip trạng thái + mức tự tin + nội dung theo nhánh. Mỗi câu hỏi ngược gắn mã đoạn nó dựa vào |
-| **M4 · Kết phiên** | Log phiên + kết luận theo đúng tiêu chí đã công bố ở M1 |
+1. **Môi trường Python ≥3.10** (cần `dataclass`, `|` union type hint).
 
-## Xem hệ thống đang làm gì
+2. **Không bắt buộc cài dependency** nếu chỉ test với mock provider:
+   ```bash
+   # Mock provider — chạy ngay không cần API key
+   python -m agent.cli "Mô hình bịa vì không có nguồn đọc..."
+   ```
 
-Nút **⤳ Sơ đồ luồng** ở góc phải thanh tiêu đề mở sơ đồ toàn bộ một vòng dạy lại: học viên nhập gì, hai cổng chặn trước, **điểm gọi quyết định AI** (`decide()`, viền tím đậm), ba nhánh đi ra, chặng correction và vòng lặp về M2. Bấm *← Quay lại bản mẫu* để về đúng màn đang dở.
+3. **Với provider thật** (openai/anthropic/openrouter):
+   ```bash
+   pip install openai      # đủ cho openai VÀ openrouter (cùng SDK, đổi base_url)
+   pip install anthropic   # chỉ cần nếu dùng anthropic
+   ```
 
-Sơ đồ này cũng là hình thức nộp thứ hai mà mốc CP2 chấp nhận (flowchart), nằm luôn trong file bản mẫu nên không phải mở thêm gì.
+4. **Config API key**:
+   ```bash
+   cp .env.example .env
+   # Mở .env và điền OPENAI_API_KEY / ANTHROPIC_API_KEY / OPENROUTER_API_KEY
+   ```
 
-## Bấm nút nào ra nhánh nào
+   Hoặc export trực tiếp:
+   ```bash
+   export MINILAB_PROVIDER=openai
+   export OPENAI_API_KEY=sk-...
+   ```
 
-Dùng **Bảng điều khiển demo** ở cuối màn M2 (4 nút preset) để demo 5 phút đi hết 4 nhánh mà không phụ thuộc gõ tay:
+   **OpenRouter** (dùng SDK `openai`, chỉ đổi `base_url` sang `https://openrouter.ai/api/v1`):
+   ```bash
+   export MINILAB_PROVIDER=openrouter
+   export MINILAB_MODEL=openai/gpt-4o-mini   # hoặc bất kỳ model OpenRouter hỗ trợ
+   export OPENROUTER_API_KEY=sk-or-v1-...
+   ```
 
-| Bấm | Nhánh | Trạng thái | Agent làm gì |
-|---|---|---|---|
-| ① Trả lời đủ ý | **happy path** | `ĐỦ_CĂN_CỨ` | Công nhận *tạm*, không tự chốt — đẩy học viên tự đối chiếu với đoạn nguồn |
-| ② Trả lời thiếu ý | **low-confidence** | `THIẾU_CĂN_CỨ` | Hỏi ngược đúng 2 câu vào 2 tiêu chí còn hổng, không đưa đáp án |
-| ③ Nói sang chuyện khác | **failure / no-grounding** | `NGOÀI_PHẠM_VI` | Nói thẳng là ngoài phạm vi, **không** phán đúng/sai |
-| ④ Dán nguyên văn tài liệu | low-confidence *(hard test)* | `THIẾU_CĂN_CỨ` | Phát hiện dán lại tài liệu, đòi nói bằng lời mình |
-| **Không đồng ý với đánh giá này** *(có ở mọi màn M3)* | **correction** | học viên chọn lại | Ghi phản hồi vào log; đánh giá của agent bị vô hiệu |
+## CLI — test nhanh
 
-Gõ tự do cũng chạy — quyết định đi qua một bộ định tuyến heuristic.
+```bash
+# Mock provider (offline, không tốn API credit)
+python -m agent.cli "LLM bịa vì..."
 
-## Phần nào mock, phần nào thật
+# Đọc từ file
+python -m agent.cli --file eval/samples/001-day-du.txt
 
-| | CP2 (bản này) | CP3 làm gì tiếp |
-|---|---|---|
-| Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |
-| Panel đoạn nguồn luôn hiện, nút correction | **thật** | giữ nguyên |
-| **Quyết định chọn trạng thái** | **mock** — heuristic đếm từ khoá trong `decide()` | thay bằng lời gọi AI thật |
-| **Nội dung 4 đoạn `[T06-xxx]`** | **mock** — fixture nhóm tự viết | đọc thẳng từ `transcript-06-clean.md` |
-| Tiêu chí "đã dạy được" | **mock** — ngưỡng cứng 3/3 tiêu chí | LLM-judge (transcript là văn nói, so chuỗi sẽ vỡ — xem `spec.md` §5) |
+# Dùng OpenAI
+python -m agent.cli --provider openai --model gpt-4o-mini "Mô hình không tra cứu..."
 
-> ⚠️ **Vì sao đoạn nguồn là fixture tự viết:** data pack của khoá là tài liệu nội bộ và repo này đang public, nên không đưa nội dung transcript thật vào đây. Mọi fixture đều gắn nhãn `MOCK` ngay trên giao diện.
+# Dùng Anthropic
+python -m agent.cli --provider anthropic --model claude-3-5-haiku-latest "..."
 
-## Sửa ở đâu
+# Dùng OpenRouter (LLM thật dùng để chạy golden set CP3)
+python -m agent.cli --provider openrouter --model openai/gpt-4o-mini "Mô hình không tra cứu..."
 
-Toàn bộ trong `prototype/index.html`:
+# Output JSON (để pipe vào tool khác)
+python -m agent.cli --json "..."
+```
 
-| Muốn đổi | Sửa chỗ nào |
-|---|---|
-| Nội dung 4 đoạn nguồn | mảng `SRC` |
-| 3 tiêu chí "đã dạy được" + câu hỏi ngược | mảng `CRIT` |
-| Câu trả lời mẫu cho demo | mảng `PRESET` |
-| **Logic quyết định** | hàm `decide()` — đây là chỗ CP3 cắm lời gọi AI vào |
+**Output** in ra:
+- STATE: ĐỦ_CĂN_CỨ / THIẾU_CĂN_CỨ / NGOÀI_PHẠM_VI
+- CONFIDENCE: cao / trung bình / thấp / không đánh giá
+- MESSAGE: câu agent nói với học viên
+- PROBES: câu hỏi ngược (nếu có), gắn `source_id`
+- RATIONALE: lý do agent chọn state này (cho eval)
+
+## Ghi vết (logging) — prompt đầu vào + phản hồi thô
+
+Mọi lời gọi LLM thật (openai/anthropic/openrouter — **không** áp dụng cho mock)
+được ghi một dòng JSON vào [`logs/llm_calls.jsonl`](logs/llm_calls.jsonl):
+`provider`, `model`, `latency_ms`, `request.messages` (toàn bộ prompt, kể cả
+system prompt + lịch sử tool-calling), `raw_response` (nguyên văn response
+object từ API, qua `model_dump()`), `parsed` (content/tool_calls đã parse),
+và `error` nếu request lỗi. File này phục vụ xác minh kỹ thuật — đối chiếu
+đúng những gì đã gửi lên mô hình và mô hình trả về, không suy diễn.
+
+`logs/` không commit lên git (rác runtime, xem `.gitignore`).
+
+## Eval — chạy bộ test
+
+**Bộ 5 case tối thiểu** (`eval/samples/`, dùng `eval/runner.py`):
+```bash
+# Mock provider (baseline heuristic)
+python -m eval.runner
+
+# OpenAI
+python -m eval.runner --provider openai --model gpt-4o-mini
+
+# Anthropic
+python -m eval.runner --provider anthropic
+
+# Output JSON
+python -m eval.runner --provider openai --json > results.json
+```
+
+**Golden set 25 case theo taxonomy 4 lớp chỗ khó** (`eval/golden_set.json`,
+dùng `eval/run_golden.py` — đây là bộ dùng để báo cáo số liệu CP3):
+```bash
+# Mock provider — chạy nhanh để kiểm tra logic offline
+python -m eval.run_golden --provider mock
+
+# LLM thật qua OpenRouter — ghi kết quả UTF-8 ra file (tránh lỗi encode PowerShell)
+python -m eval.run_golden --provider openrouter --model openai/gpt-4o-mini --out eval/run_results_raw.json
+```
+
+Kết quả đã chạy (2 lượt run-01 → sửa prompt → run-02, pass rate 56%→84%) và
+phân tích chi tiết nguyên nhân từng case fail: [`eval/run_results.md`](eval/run_results.md).
+
+**5 test case tối thiểu** (spec.md §5 "Beatable baseline"):
+1. `001-day-du.txt` — đủ cả 3 tiêu chí → ĐỦ_CĂN_CỨ
+2. `002-thieu-2-tieu-chi.txt` — thiếu c2, c3 → THIẾU_CĂN_CỨ
+3. `003-ngoai-pham-vi.txt` — nói về fine-tune, RLHF → NGOÀI_PHẠM_VI
+4. `004-qua-ngan.txt` — quá ngắn (<40 ký tự) → THIẾU_CĂN_CỨ
+5. `005-dan-nguyen-van.txt` — dán nguyên văn [T06-138] → THIẾU_CĂN_CỨ + verbatim=True
+
+Bộ này **fail được và đó là chủ ý** — nếu mock provider đạt 100% thì không cần LLM thật. Mục tiêu: mock đạt 3-4/5, LLM thật (gpt-4o-mini, claude-haiku) đạt ≥4/5.
+
+## Dùng từ code
+
+```python
+from agent import StateCheckAgent, Settings
+
+settings = Settings(provider="mock")
+agent = StateCheckAgent.from_settings(settings)
+
+decision = agent.decide("Mô hình không tra cứu, chỉ dự đoán token...")
+print(decision.state)        # ĐỦ_CĂN_CỨ / THIẾU_CĂN_CỨ / NGOÀI_PHẠM_VI
+print(decision.message)      # Câu agent nói
+for p in decision.probes:
+    print(f"[{p.source_id}] {p.text}")
+```
+
+**State machine M1→M4** (full session):
+```python
+from agent import TeachingSession, StateCheckAgent
+
+agent = StateCheckAgent.from_settings()
+session = TeachingSession(agent=agent)
+
+session.start()  # M1 → M2
+decision = session.submit_explanation("LLM bịa vì...")  # M2 → M3
+
+if decision.state == "ĐỦ_CĂN_CỨ":
+    session.confirm()  # M3 → M4, học viên tự chốt
+elif decision.state == "THIẾU_CĂN_CỨ":
+    session.revise()   # M3 → M2, bổ sung
+else:
+    session.end_session()  # M3 → M4, kết thúc
+
+print(session.verdict())  # True nếu "đã dạy được"
+```
+
+## So với prototype HTML
+
+| Prototype JS (`index.html`)          | Agent Python (`agent/`)                     |
+|--------------------------------------|---------------------------------------------|
+| `decide()` heuristic đếm từ khoá     | `StateCheckAgent.decide()` gọi LLM + tool   |
+| `SRC`, `CRIT` hard-coded trong JS    | `sources.py` MOCK fixture                   |
+| Không có tool-calling                | `tools.py`: `list_scope()`, `get_excerpt()` |
+| State machine M1-M4 inline           | `session.py`: `TeachingSession` class       |
+| Không có eval                        | `eval/runner.py` + 5 samples                |
+
+## Bước tiếp (CP3 thật)
+
+1. **Đổi `sources.py`** để đọc từ `transcript-06-clean.md` (data pack, không commit lên repo public).
+2. **Thêm test case** từ 5 lên 15-20 — bao phủ lớp lỗi ③ agent bỏ sót một tiêu chí (spec §5).
+3. **Tích hợp UI** — đổi prototype HTML để gọi agent backend qua API thay cho `decide()` JS.
+4. **Log real session** — ghi phiên thật của học viên, tính recall/precision giữa agent và human label (spec §6).
+
+## Bảo mật
+
+- `.env` đã nằm trong `.gitignore` — **KHÔNG BAO GIỜ** commit API key lên repo.
+- Mock provider không gọi API — an toàn dùng trên máy không có mạng hoặc khi demo không muốn lộ key.
+- Data pack (transcript thật) KHÔNG đưa vào repo public (xem `.gitignore` gốc + README §Bảo mật dữ liệu).
+
+## License
+
+Đúng license của repo gốc `K4-3A-E403-SydneyboyVTHT`. Agent code này là phần CP2/CP3 nội bộ của nhóm.

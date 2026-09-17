@@ -1,0 +1,42 @@
+# ────────────────────────────────────────────────────────────────────────────
+# requirements.txt — runtime dependencies cho agent quyết định trung tâm.
+# Cài:  pip install -r requirements.txt   (trong .venv của dự án)
+# ────────────────────────────────────────────────────────────────────────────
+
+# Mọi provider thật (openai / openrouter) đều dùng OpenAI Python SDK — OpenRouter
+# chỉ khác base_url. Yêu cầu >=1.40 vì agent dùng:
+#   - response_format={"type": "json_schema", ...} (strict JSON schema)
+#   - tool_calls streaming-style multi-turn loop (xem agent/core.py)
+openai>=1.40
+
+# Lưu ý cố ý:
+# - KHÔNG thêm python-dotenv: agent/config.py tự parse .env (xem _load_dotenv_if_present).
+# - KHÔNG thêm anthropic SDK: provider anthropic hiện là stub-only và đã được
+#   VALID_PROVIDERS công nhận, nhưng không có code path thật. Sẽ thêm
+#   `anthropic>=0.30` khi provider được nối.
+# - KHÔNG khoá phiên bản chính xác để `pip install -U` an toàn; CI/dev pin
+#   trong requirements-dev.txt (tách riêng khi cần).
+
+# ────────────────────────────────────────────────────────────────────────────
+# Chạy API server (serve giao diện HTML + endpoints /api/*):
+#
+#     cd codebase
+#     python -m api.server                        # port mặc định 8080
+#     python -m api.server --port 8765
+#     python -m api.server --host 0.0.0.0         # expose ra mạng local
+#
+#   Sau đó mở http://127.0.0.1:8080/ trong trình duyệt.
+#
+# Test API (terminal khác, khi server đang chạy):
+#
+#     python -m eval.api_test
+#     python -m eval.api_test --base http://127.0.0.1:8080
+#     python -m eval.api_test --provider openrouter --model openai/gpt-4o-mini
+#     python -m eval.api_test --decide-only        # chỉ test /api/decide, bỏ qua eval run
+#
+# Chạy eval trực tiếp bằng CLI (không cần server):
+#
+#     python -m eval.run_golden --provider mock
+#     python -m eval.run_golden --provider openrouter --model openai/gpt-4o-mini --json
+#     python -m eval.runner --provider mock
+# ────────────────────────────────────────────────────────────────────────────

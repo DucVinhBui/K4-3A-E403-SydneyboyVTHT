@@ -18,3 +18,6 @@ secrets.json
 .DS_Store
 __pycache__/
 node_modules/
+
+# Log ghi vết lời gọi LLM (runtime, có thể dài + không cần commit)
+codebase/logs/

@@ -141,9 +141,9 @@ Cùng file còn có **sơ đồ luồng** (nút *⤳ Sơ đồ luồng* trên th
 | Luồng 4 màn, điều hướng, log phiên | **thật** | giữ nguyên |
 | Panel đoạn nguồn `[T06-xxx]` luôn hiện cạnh câu hỏi | **thật** | giữ nguyên |
 | Nút *Không đồng ý với đánh giá này* ở mọi màn M3 | **thật** | giữ nguyên |
-| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **mock** — heuristic đếm từ khoá trong hàm `decide()` | thay bằng **lời gọi AI thật**; `decide()` là điểm cắm |
+| **Quyết định chọn trạng thái** (`ĐỦ_CĂN_CỨ` / `THIẾU_CĂN_CỨ` / `NGOÀI_PHẠM_VI`) | **thật (CP3)** — `codebase/agent/core.py` gọi LLM thật (OpenRouter · `openai/gpt-4o-mini`) qua tool-calling loop; số liệu golden set 25 case: 84% (21/25), xem `codebase/eval/run_results.md` | tinh chỉnh thêm ranh giới lớp ① Nguồn sự thật (2 case còn fail) |
 | **Nội dung 4 đoạn `[T06-138]`–`[T06-149]`** | **mock** — fixture nhóm tự viết, gắn nhãn `MOCK` ngay trên UI | đọc thẳng từ `transcript-06-clean.md` |
-| Tiêu chí "đã dạy được" | **mock** — ngưỡng cứng 3/3 tiêu chí | LLM-judge (xem rủi ro văn nói ở §5) |
+| Tiêu chí "đã dạy được" | **thật (CP3)** — LLM tự đánh giá `matched_criteria`/`missing_criteria` mỗi lượt gọi, không còn ngưỡng cứng đếm từ khoá | thêm bước xác minh có cấu trúc (`evidence_quote`) để chặn false-positive ĐỦ_CĂN_CỨ |
 
 > **Vì sao đoạn nguồn ở CP2 là fixture tự viết, không phải transcript thật:** data pack của khoá là tài liệu nội bộ và repo nộp bài đang **public**. Nhóm không đưa nội dung transcript vào file commit; bản mẫu chỉ dùng **mã đoạn** `[T06-xxx]` và fixture tự viết có nhãn `MOCK`.
 
@@ -246,3 +246,4 @@ Cả bốn đều bấm đi hết được trong [`codebase/prototype/index.html
 | 16/9 · CP1 | Chốt Canvas 4 ô, chọn đề D3, loại D1 và D2 | Bảng impact §2 — D3 là ứng viên duy nhất đạt mức Working trong 47,5h và có nguồn đối chiếu sẵn |
 | 16/9 · CP1 | Sửa con số "0 lượt chủ động kiểm tra hiểu" thành **1 lượt (0,03%)** | Đọc nguyên văn cả 6 lượt `ask_probing_question` của K4: 2 lượt do học viên tự xin, 3 lượt là gỡ lỗi kỹ thuật. Con số ban đầu không đúng với dữ liệu |
 | 16/9 · CP2 | Dựng bản mẫu tương tác HTML 4 nhánh trong `codebase/`; điền §6, viết lại §4b thành bảng có vị trí cụ thể | Mốc CP2 yêu cầu bản mẫu chạy thông + §4/§6 cập nhật. Đoạn nguồn dùng fixture tự viết vì repo nộp đang public và data pack là tài liệu nội bộ |
+| 17/9 · CP3 | Cắm lời gọi LLM thật (OpenRouter · `openai/gpt-4o-mini`) vào `StateCheckAgent.decide()`, thêm cơ chế ghi vết `logs/llm_calls.jsonl` (prompt đầy đủ + response thô mỗi lượt gọi); xây `eval/golden_set.json` 25 case theo taxonomy 4 lớp; chạy 2 lượt (run-01 → sửa prompt → run-02), pass rate 56%→84% | Mốc CP3 bắt buộc ≥1 lời gọi AI thật ở mắt xích quyết định trung tâm + số đo thật. Sửa `NGOÀI_PHẠM_VI` vs `THIẾU_CĂN_CỨ` trong system prompt sau khi đọc log run-01 phát hiện model gộp hai điều kiện lại thành một |
