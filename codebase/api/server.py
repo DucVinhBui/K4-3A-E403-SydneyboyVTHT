@@ -64,22 +64,23 @@ def _send_json(handler: BaseHTTPRequestHandler, status: int, data: Any) -> None:
 
 
 def _send_html(handler: BaseHTTPRequestHandler, status: int, html: bytes) -> None:
-    """Gửi HTML dạng chunked transfer để tránh Chrome hủy kết nối (WinError 10053)
-    khi user navigate đi trước khi nhận đủ file ~50KB. Chunked cho phép server
-    bắt được BrokenPipeError sớm thay vì dump cả file rồi mới biết client đã đi."""
+    """Gửi HTML kèm Content-Length, ghi theo từng khối để bắt sớm BrokenPipeError
+    khi Chrome navigate đi trước lúc nhận đủ file ~50KB (WinError 10053).
+
+    KHÔNG dùng Transfer-Encoding: chunked ở đây. BaseHTTPRequestHandler mặc định
+    trả HTTP/1.0, mà HTTP/1.0 không có chunked — Chrome bỏ qua khung chunk và in
+    thẳng số chunk-size ra đầu trang (thấy chuỗi "2000" = 0x2000 nằm trước thẻ
+    <meta charset>). Content-Length vừa đúng chuẩn HTTP/1.0 vừa giữ được việc
+    ghi theo khối."""
     handler.send_response(status)
     handler.send_header("Content-Type", "text/html; charset=utf-8")
-    handler.send_header("Transfer-Encoding", "chunked")
+    handler.send_header("Content-Length", str(len(html)))
     handler.end_headers()
     CHUNK = 8192
     try:
         for i in range(0, len(html), CHUNK):
-            chunk = html[i:i + CHUNK]
-            handler.wfile.write(f"{len(chunk):x}\r\n".encode("ascii"))
-            handler.wfile.write(chunk)
-            handler.wfile.write(b"\r\n")
+            handler.wfile.write(html[i:i + CHUNK])
             handler.wfile.flush()
-        handler.wfile.write(b"0\r\n\r\n")
     except (BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
         # Client đã đi (Chrome reload, navigate, đóng tab) — không sao, bỏ qua.
         pass
