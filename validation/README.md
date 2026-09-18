@@ -1,7 +1,9 @@
-# Nhật ký cho người ngoài dùng thử — khối R6
+# Cách chạy vòng thử với người ngoài nhóm — khối R6
 
-**Trạng thái:** ⛔ **chưa chạy** — 0 người, 0 phiên, 0 quote. Khung này dựng sẵn để điền tại chỗ.
+**Bảng nhật ký nằm ở [`user_testing_log.md`](user_testing_log.md)** — đó là file được chấm.
+File này chỉ là hướng dẫn chạy một phiên thử.
 
+**Trạng thái:** ⛔ **chưa chạy** — 0 người, 0 phiên, 0 trích dẫn.
 Khai đầy đủ ở [`spec.md` §10](../spec.md) mục 1. Không có thư mục này thì trần điểm của nhóm là **92**.
 
 ---
@@ -44,38 +46,8 @@ Kiểm badge trên thanh tiêu đề đã chuyển **xanh có chấm tròn** r�
 
 ---
 
-## Bảng nhật ký
+## Điền vào đâu
 
-Cần **5 người ngoài nhóm**, trong đó **2 người đã khai từ CP1** (`teammates.md` → Willing users).
-
-| # | Ai thử | Đã khai CP1? | Task được giao | Kẹt ở đâu | Quote nguyên văn | Sau khi bị hỏi ngược có bổ sung được dẫn chứng? | Quyết định của nhóm |
-|---|---|---|---|---|---|---|---|
-| 1 |  |  |  |  |  |  |  |
-| 2 |  |  |  |  |  |  |  |
-| 3 |  |  |  |  |  |  |  |
-| 4 |  |  |  |  |  |  |  |
-| 5 |  |  |  |  |  |  |  |
-
-**Cột “có bổ sung được dẫn chứng?”** chỉ điền `có` / `không`. Đếm xong ghi kết quả xuống đây:
-
-> **Điều kiện 4 — chỉ số HỌC:** ___ / 5 người = ___%  · ngưỡng ≥ 60%, n ≥ 5 → **đạt / không đạt**
-
----
-
-## Bốn dòng tổng kết — bắt buộc
-
-1. **Chủ đề lặp nhiều nhất:**
-2. **Sẽ sửa gì trước demo:**
-3. **Giữ nguyên gì và vì sao:**
-4. **Gì để dành sau:**
-
----
-
-## Ít nhất một thay đổi
-
-Rubric đòi **tối thiểu 1 thay đổi** rút ra từ vòng này, ghi vào **§9 Changelog** của `spec.md`.
-Nếu quyết định **giữ nguyên** thì vẫn phải ghi, kèm lý do — im lặng mới bị trừ.
-
-| Thay đổi | Rút ra từ quote nào | Đã ghi vào §9 chưa |
-|---|---|---|
-|  |  |  |
+Mọi thứ thu được điền thẳng vào [`user_testing_log.md`](user_testing_log.md):
+bảng 5 cột bắt buộc (Người thử · Nhiệm vụ giao · Điểm tắc nghẽn · Trích dẫn nguyên văn · Quyết định xử lý của nhóm),
+bốn dòng tổng kết, và bảng thay đổi rút ra từ vòng này.
