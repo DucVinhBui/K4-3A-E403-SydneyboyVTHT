@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Agent học trò — SydneyboyVTHT — CP5</title>
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     Slide 6 trang · 16:9 · in ra PDF bằng Chrome headless.
+     Cấu trúc bám đúng 02-guide.md §5.1:
+       1 bối cảnh + bằng chứng A/B · 2 lát cắt + kiến trúc ·
+       3 bốn lớp chỗ khó + cách giải trong trải nghiệm ·
+       4 bảng đo đối chiếu Quality Bar khoá tại CP4 ·
+       5 bài học từ thất bại + phản hồi người dùng (R6) ·
+       6 kế hoạch mở rộng + đóng góp từng thành viên.
+     Dựng lại:  bash slides/build.sh
+     Mọi số liệu truy về spec.md §1 §2 §4 §5 §7 §9 §10 — không số nào
+     chỉ có ở đây mà không có trong spec.
+     ───────────────────────────────────────────────────────────── */
+
+  @page { size: 13.333in 7.5in; margin: 0; }
+
+  :root{
+    --ink:#16181d;  --mut:#5e6472;  --line:#dcdfe6;  --bg:#fff;  --soft:#f4f5f8;
+    --ok:#0d7a4f;   --ok-bg:#e8f6ef;   --ok-ln:#a8d9c2;
+    --warn:#9a6100; --warn-bg:#fdf1de; --warn-ln:#e8c894;
+    --out:#6b46a8;  --out-bg:#f1ebfa;  --out-ln:#c9b5e8;
+    --acc:#1f5fbf;  --acc-bg:#e8f0fc;  --acc-ln:#aecaf0;
+    --red:#b3261e;  --red-bg:#fdeceb;  --red-ln:#f0b7b3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{
+    font-family:"SF Pro Display","SF Pro Text",-apple-system,BlinkMacSystemFont,
+                "Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--ink);background:#8c9099;font-variant-numeric:tabular-nums;
+    -webkit-font-smoothing:antialiased;
+  }
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+
+  .slide{
+    width:13.333in;height:7.5in;background:var(--bg);
+    padding:.48in .68in .44in;display:flex;flex-direction:column;
+    position:relative;page-break-after:always;break-after:page;overflow:hidden;
+  }
+  .slide:last-child{page-break-after:auto;break-after:auto}
+  @media screen{.slide{margin:0 auto 26px;box-shadow:0 8px 30px rgba(0,0,0,.35)}}
+
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+          color:var(--mut);margin-bottom:8px}
+  h1{font-size:37px;font-weight:800;letter-spacing:-.021em;line-height:1.12}
+  h1 .thin{font-weight:400;color:var(--mut)}
+  .rule{height:3px;background:var(--ink);width:54px;margin:13px 0 18px;border-radius:2px}
+  .body{flex:1;min-height:0}
+
+  footer{
+    position:absolute;left:.68in;right:.68in;bottom:.28in;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;color:var(--mut);letter-spacing:.03em;
+    border-top:1px solid var(--line);padding-top:7px;
+  }
+  footer b{color:var(--ink);font-weight:700}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
+  .stat{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--soft)}
+  .stat .n{font-size:50px;font-weight:800;letter-spacing:-.035em;line-height:1}
+  .stat .n small{font-size:23px;font-weight:700;letter-spacing:-.01em}
+  .stat .l{font-size:14px;color:var(--mut);margin-top:8px;line-height:1.38}
+  .stat.hero .n{color:var(--acc)}
+
+  table{border-collapse:collapse;width:100%;font-size:14.5px}
+  th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+     color:var(--mut);border-bottom:1.5px solid var(--ink);padding:0 11px 7px;vertical-align:bottom}
+  td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.4}
+  tr:last-child td{border-bottom:0}
+  td.num{font-weight:700;white-space:nowrap}
+  .thr{color:var(--mut);white-space:nowrap}
+  .pass{color:var(--ok);font-weight:700;white-space:nowrap}
+  .pend{color:var(--warn);font-weight:700;white-space:nowrap}
+
+  .chip{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.05em;
+        padding:3px 9px;border-radius:99px;border:1px solid;white-space:nowrap}
+  .chip.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-ln)}
+  .chip.warn{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-ln)}
+  .chip.out{color:var(--out);background:var(--out-bg);border-color:var(--out-ln)}
+  .chip.acc{color:var(--acc);background:var(--acc-bg);border-color:var(--acc-ln)}
+
+  .callout{border-left:4px solid var(--ink);background:var(--soft);padding:13px 17px;
+           font-size:15px;line-height:1.46;border-radius:0 8px 8px 0}
+  .callout.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+  .callout.acc{border-left-color:var(--acc);background:var(--acc-bg)}
+  .callout.red{border-left-color:var(--red);background:var(--red-bg)}
+  .callout.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+  .callout b{font-weight:800}
+
+  .quote{font-size:19px;line-height:1.44;font-weight:500;
+         border-left:4px solid var(--acc);padding:4px 0 4px 19px}
+  .quote b{font-weight:800}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .colhead{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+           color:var(--mut);margin-bottom:9px;padding-bottom:6px;border-bottom:1.5px solid var(--ink)}
+
+  ul{list-style:none}
+  li{font-size:15px;line-height:1.45;padding-left:19px;position:relative;margin-bottom:9px}
+  li::before{content:"";position:absolute;left:3px;top:.6em;width:6px;height:6px;
+             border-radius:50%;background:var(--mut)}
+  li b{font-weight:700}
+  li.no::before{background:var(--red)}
+  li.yes::before{background:var(--ok)}
+
+  /* ── kiến trúc ─────────────────────────────────────────── */
+  .arch{display:flex;align-items:stretch;gap:9px;margin-top:2px}
+  .node{border:1.5px solid var(--line);border-radius:10px;padding:12px 13px;
+        background:#fff;flex:1;display:flex;flex-direction:column;min-width:0}
+  .node .nh{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+            color:var(--mut);margin-bottom:6px}
+  .node .nt{font-size:14.5px;font-weight:800;line-height:1.25;margin-bottom:6px}
+  .node .nd{font-size:12.5px;line-height:1.42;color:var(--mut);flex:1}
+  .node.gate{border-color:var(--red-ln);background:var(--red-bg)}
+  .node.llm{border-color:var(--acc-ln);background:var(--acc-bg)}
+  .node.check{border-color:var(--ok-ln);background:var(--ok-bg)}
+  .arrow{display:flex;align-items:center;font-size:21px;color:var(--mut);font-weight:300}
+
+  /* ── thang chạy ────────────────────────────────────────── */
+  .runs{display:flex;align-items:flex-end;gap:9px;height:112px}
+  .run{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+  .run .bar{width:100%;border-radius:5px 5px 0 0;background:var(--acc-ln)}
+  .run.bad .bar{background:var(--red-ln)}
+  .run.now .bar{background:var(--ok)}
+  .run .v{font-size:13.5px;font-weight:800;margin-bottom:5px}
+  .run .k{font-size:11px;color:var(--mut);margin-top:6px;text-align:center;line-height:1.3}
+  .run.now .v{color:var(--ok)}
+  .run.bad .v{color:var(--red)}
+
+  /* ── bài học ───────────────────────────────────────────── */
+  .lesson{border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin-bottom:11px}
+  .lesson .lt{font-size:14.5px;font-weight:800;line-height:1.3;margin-bottom:5px}
+  .lesson .lb{font-size:13px;line-height:1.44;color:var(--mut)}
+  .lesson .lb b{color:var(--ink);font-weight:700}
+  .lesson.red{border-left:4px solid var(--red)}
+  .lesson.warn{border-left:4px solid var(--warn)}
+  .lesson.acc{border-left:4px solid var(--acc)}
+
+  /* Trang 5 là trang đặc nhất — nén lại cho vừa đúng một khung 16:9 */
+  #s5 .lesson{padding:10px 14px;margin-bottom:8px}
+  #s5 .lesson .lt{font-size:14px;margin-bottom:4px}
+  #s5 .lesson .lb{font-size:12.5px;line-height:1.4}
+  #s5 li{margin-bottom:6px}
+  #s5 .callout{padding:11px 15px}
+</style>
+</head>
+<body>
+
+<!-- ══════ 1 · BỐI CẢNH, BÀI TOÁN, BẰNG CHỨNG (CHUẨN A/B) ══════ -->
+<section class="slide">
+  <div class="kicker">Mini Hackathon AI · Batch 04 · Track D — đề D3 “Học bằng cách dạy”</div>
+  <h1>Học viên rời bài học với cảm giác đã hiểu —<br><span class="thin">và không có gì kiểm chứng lời giải thích của chính mình.</span></h1>
+  <div class="rule"></div>
+
+  <div class="body">
+    <div class="quote" style="margin-bottom:20px">
+      Việc cần làm: <b>xác nhận mình đã thật sự hiểu một khái niệm vừa học, trước khi đi tiếp.</b>
+    </div>
+
+    <div class="stats">
+      <div class="stat hero">
+        <div class="n">99,81<small>%</small></div>
+        <div class="l">lượt hỏi–đáp khoá K4 <b>không ghi nhận mức hiểu nào</b></div>
+      </div>
+      <div class="stat hero">
+        <div class="n">0,03<small>%</small></div>
+        <div class="l"><b>1 lượt duy nhất</b> trong 3.097 lượt có ai đó chủ động hỏi ngược để kiểm tra</div>
+      </div>
+      <div class="stat">
+        <div class="n">6,4<small>×</small></div>
+        <div class="l">độ dài trả lời so với câu hỏi — học viên nhận về khối giảng 1.019 ký tự rồi đi tiếp</div>
+      </div>
+    </div>
+
+    <div class="cols" style="gap:20px">
+      <div>
+        <div class="callout ok" style="height:100%;font-size:14.5px">
+          <b>Chuẩn B — mining, đạt.</b> n = 3.097 lượt của K4, đếm trực tiếp trên cột, ai chạy lại cũng ra đúng.
+          Năm ví dụ nguyên văn kèm <code>turn_id</code> trong <code>evidence/mining-log.md</code>.
+          <b>Lát cắt D3 đứng trên bộ bằng chứng này.</b>
+        </div>
+      </div>
+      <div>
+        <div class="callout warn" style="height:100%;font-size:14.5px">
+          <b>Chuẩn A — khảo sát, KHÔNG đạt ngưỡng nhóm tự khoá: 2/20 = 10%, cần &gt; 50%.</b>
+          Định nghĩa “một người xác nhận” chốt <b>trước</b> khi phát form và không sửa sau khi xem dữ liệu.
+          Nhóm thu hẹp phát biểu ở §1 thay vì đổi định nghĩa cho vừa số.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer><span>Nhóm <b>SydneyboyVTHT</b> · Lớp 3A · Phòng E403</span><span>Bối cảnh &amp; bằng chứng · <b>1 / 6</b></span></footer>
+</section>
+
+<!-- ══════ 2 · LÁT CẮT MỘT CÂU + KIẾN TRÚC TỔNG QUAN ══════ -->
+<section class="slide">
+  <div class="kicker">Lát cắt giải pháp một câu · kiến trúc tổng quan</div>
+  <h1>Một lời giải thích, một quyết định hỏi ngược</h1>
+  <div class="rule"></div>
+
+  <div class="body">
+    <div class="quote" style="margin-bottom:20px;font-size:18px">
+      Một học viên K4 vừa học xong đoạn “vì sao LLM bịa” <b>cần</b> giải thích lại bằng lời của mình,
+      <b>được</b> một agent học trò đối chiếu với bốn đoạn <b>[T06-136] [T06-138] [T06-139] [T06-148]</b>
+      và quyết định <b>hỏi ngược đúng 2 câu</b> tại chỗ thiếu căn cứ, <b>giúp</b> học viên bổ sung được dẫn chứng còn thiếu.
+    </div>
+
+    <div class="colhead">Kiến trúc — LLM nằm giữa, nhưng bị kẹp bởi một cổng chặn trước và bốn phép kiểm sau</div>
+    <div class="arch" style="height:2.35in">
+      <div class="node">
+        <div class="nh">Giao diện</div>
+        <div class="nt">Bản mẫu 4 màn</div>
+        <div class="nd"><code>prototype/index.html</code><br>Panel đoạn nguồn luôn hiện cạnh câu hỏi. <code>POST /api/decide</code></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node gate">
+        <div class="nh">Cổng chặn · deterministic</div>
+        <div class="nt">Dán nguyên văn?</div>
+        <div class="nd">Cổng duy nhất chạy <b>trước</b> LLM. Cờ <code>is_verbatim_paste</code> chỉ code đặt, <b>không</b> nhận giá trị LLM tự khai.</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node llm">
+        <div class="nh">Quyết định AI</div>
+        <div class="nt">gpt-4o-mini · tool-calling</div>
+        <div class="nd">2 tool: <code>list_scope</code> · <code>get_excerpt</code> — bắt agent <b>đọc nguồn</b> trước khi dẫn mã. Output ép theo JSON schema.</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node check">
+        <div class="nh">Hậu kiểm · Python</div>
+        <div class="nt">Bốn phép dò lại</div>
+        <div class="nd"><code>matched_evidence</code> phải có thật trong bài · mã đoạn bịa bị sửa · bất biến an toàn · đúng 2 câu hỏi ngược.</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="nh">Kết quả</div>
+        <div class="nt">3 trạng thái</div>
+        <div class="nd">
+          <span class="chip ok" style="margin:1px 0">ĐỦ CĂN CỨ</span>
+          <span class="chip warn" style="margin:3px 0">THIẾU CĂN CỨ</span>
+          <span class="chip out" style="margin:1px 0">NGOÀI PHẠM VI</span>
+          <div style="margin-top:6px">Ghi vết <code>logs/llm_calls.jsonl</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-top:18px;gap:20px">
+      <div class="callout acc" style="font-size:14.5px">
+        <b>Mức tự động: augment.</b> Agent <b>không bao giờ tự chốt</b> — người học mới là người kết luận.
+        Chọn theo chi phí lỗi: hỏi ngược lạc chỗ thì bỏ qua được, còn công nhận nhầm một lời giải thích sai
+        thì học viên rời đi với kiến thức sai và <b>không tự phát hiện được</b>.
+      </div>
+      <div class="callout" style="font-size:14.5px">
+        <b>Nguồn đối chiếu là dữ liệu, không phải chữ trong code.</b> Nằm trong <code>codebase/knowledge/*.json</code>,
+        chọn bằng biến môi trường <code>MINILAB_TOPIC</code> — hiện có <b>5 pack</b>. Đổi khái niệm không phải sửa một dòng code nào.
+      </div>
+    </div>
+  </div>
+
+  <footer><span>Nhóm <b>SydneyboyVTHT</b> · Lớp 3A · Phòng E403</span><span>Lát cắt &amp; kiến trúc · <b>2 / 6</b></span></footer>
+</section>
+
+<!-- ══════ 3 · 4 LỚP CHỖ KHÓ ↔ TRẢI NGHIỆM NGƯỜI DÙNG ══════ -->
+<section class="slide">
+  <div class="kicker">Bốn lớp chỗ khó · cách giải quyết ngay trong trải nghiệm người dùng</div>
+  <h1>Mỗi lớp chỗ khó là một đường đi bấm được trong bản mẫu</h1>
+  <div class="rule"></div>
+
+  <div class="body">
+    <table style="font-size:14px;margin-bottom:16px">
+      <th style="width:28px">Lớp</th>
+      <th style="width:2.5in">Học viên gõ gì</th>
+      <th style="width:1.35in">Trạng thái</th>
+      <th>Agent làm gì <b>trên màn hình</b> — và người học đi tiếp thế nào</th>
+      <tr>
+        <td class="num">①</td>
+        <td><b>Nguồn sự thật</b><br><span style="color:var(--mut)"><i>“do temperature đặt cao”</i> · <i>“do cơ chế attention”</i> — đúng về kỹ thuật nhưng ngoài bốn đoạn</span></td>
+        <td><span class="chip out">NGOÀI PHẠM VI</span></td>
+        <td>Gọi tên đúng thứ học viên vừa nói, nói rõ nó <b>không có căn cứ để phán đúng/sai</b>, không đoán bừa.
+            Cột tự tin đổi thành <i>“không đánh giá đúng/sai”</i>. Hai lối ra: <i>viết lại trong phạm vi</i> · <i>cho mình xem phạm vi gồm những gì</i> → sáng đoạn nguồn.</td>
+      </tr>
+      <tr>
+        <td class="num">②</td>
+        <td><b>Mơ hồ</b><br><span style="color:var(--mut)"><i>“hmm”</i> · <i>“chắc là do lỗi gì đó thôi?”</i> · gõ bừa</span></td>
+        <td><span class="chip warn">THIẾU CĂN CỨ</span></td>
+        <td>Hỏi ngược <b>đúng 2 câu</b>, nhắm vào tiêu chí còn hổng, <b>mỗi câu gắn một mã đoạn</b> bấm được.
+            Bài cũ <b>không bị xoá</b> khi quay lại sửa.</td>
+      </tr>
+      <tr>
+        <td class="num">③</td>
+        <td><b>Ngoài thẩm quyền</b><br><span style="color:var(--mut)"><i>“cho mình đáp án luôn đi”</i> · <i>“làm hộ mình bài quiz”</i></span></td>
+        <td><span class="chip warn">THIẾU CĂN CỨ</span></td>
+        <td>Từ chối đưa đáp án, trả về đoạn nguồn để tự đọc — và <b>nói rõ với học viên là cố tình không đưa</b>,
+            chứ không im lặng lảng sang chuyện khác.</td>
+      </tr>
+      <tr>
+        <td class="num">④</td>
+        <td><b>Sai nhưng rất tự tin</b><br><span style="color:var(--mut)"><i>“nó lười tính toán”</i> · <i>“RAM đầy”</i> · <i>“server lag”</i></span></td>
+        <td><span class="chip warn">THIẾU CĂN CỨ</span></td>
+        <td>Sai bét nhưng <b>vẫn đang trả lời đúng câu hỏi</b> → hỏi ngược đúng chỗ sai, <b>không</b> đẩy ra ngoài phạm vi
+            và <b>không</b> công nhận “đã hiểu”.</td>
+      </tr>
+    </table>
+
+    <div class="cols" style="gap:20px">
+      <div>
+        <div class="callout acc" style="font-size:14px">
+          <b>Đường đi thứ tư, cắt ngang cả ba lớp trên — học viên bác đánh giá.</b>
+          Nút <i>“Không đồng ý với đánh giá này”</i> có ở <b>mọi</b> màn kết quả, kể cả khi agent vừa khen đúng.
+          Học viên nói agent sai chỗ nào <b>và</b> chọn lại trạng thái đúng ra phải là gì; hệ thống ghi log rồi hiện banner:
+          <i>“Đánh giá của mình ở trên không được dùng để kết luận nữa — bạn giữ quyền quyết định.”</i>
+        </div>
+      </div>
+      <div>
+        <div class="callout ok" style="font-size:14px">
+          <b>Kể cả khi agent nói ĐỦ CĂN CỨ, nó vẫn không tự chốt.</b>
+          Màn happy path công nhận <b>tạm</b>, rồi đẩy học viên sang panel nguồn để tự đối chiếu —
+          đây là chỗ mức <i>augment</i> hiện ra thành giao diện chứ không chỉ nằm trong spec.
+          <b>Không có đường cụt:</b> mọi màn đều có <i>Kết thúc phiên</i>, mọi phiên đều có <i>Dạy lại lần nữa</i>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer><span>Nhóm <b>SydneyboyVTHT</b> · Lớp 3A · Phòng E403</span><span>Chỗ khó &amp; trải nghiệm · <b>3 / 6</b></span></footer>
+</section>
+
+<!-- ══════ 4 · BẢNG ĐO ĐỐI CHIẾU QUALITY BAR ══════ -->
+<section class="slide">
+  <div class="kicker">Quality Bar khoá lúc 21:00 ngày 17/9 tại CP4 — ngưỡng không sửa sau mốc này</div>
+  <h1>Đạt <span style="color:var(--ok)">3</span> / 4 điều kiện. Chưa đo 1.<br><span class="thin">Nhóm không tuyên bố sản phẩm đã đạt.</span></h1>
+  <div class="rule"></div>
+
+  <div class="body">
+    <table style="margin-bottom:16px">
+      <th style="width:30px">#</th><th>Điều kiện</th>
+      <th style="width:1.25in">Ngưỡng<br>(khoá tại CP4)</th>
+      <th style="width:2.05in">Thực đo · run-04</th>
+      <tr>
+        <td class="num">1</td>
+        <td><b>Đúng trạng thái</b> — <code>decision.state</code> khớp <code>expected_state</code> trên golden set 25 ca</td>
+        <td class="thr">≥ 80%</td>
+        <td><span class="pass">96,0% — 24/25 ✅</span></td>
+      </tr>
+      <tr>
+        <td class="num">2</td>
+        <td><b>Không bịa nguồn</b> — mọi mã đoạn agent trích ra phải có thật trong nguồn được cấp</td>
+        <td class="thr">0 ca vi phạm</td>
+        <td><span class="pass">0/50 golden + 0/45 KB ✅</span></td>
+      </tr>
+      <tr>
+        <td class="num">3</td>
+        <td><b>Lỗi đắt nhất</b> — công nhận <code>ĐỦ_CĂN_CỨ</code> cho bài còn thiếu tiêu chí <i>(false-positive)</i></td>
+        <td class="thr">≤ 1/25</td>
+        <td><span class="pass">0/25 ✅</span></td>
+      </tr>
+      <tr>
+        <td class="num">4</td>
+        <td><b>Chỉ số HỌC</b> <span style="color:var(--mut)">(bắt buộc của track D)</span> — tỉ lệ người thử bổ sung được ≥1 dẫn chứng còn thiếu ngay trong phiên</td>
+        <td class="thr">≥ 60%, n ≥ 5</td>
+        <td><span class="pend">chưa đo ⛔</span></td>
+      </tr>
+    </table>
+
+    <div class="cols" style="gap:22px">
+      <div>
+        <div class="colhead">Bốn lượt chạy — giữ nguyên cả lượt xấu</div>
+        <div class="runs">
+          <div class="run"><div class="v">56%</div><div class="bar" style="height:42px"></div><div class="k">run-01<br>prompt gốc</div></div>
+          <div class="run"><div class="v">84%</div><div class="bar" style="height:63px"></div><div class="k">run-02<br>rõ ranh giới</div></div>
+          <div class="run"><div class="v">84%</div><div class="bar" style="height:63px"></div><div class="k">run-03<br>hops 4→6</div></div>
+          <div class="run bad"><div class="v">64%</div><div class="bar" style="height:48px"></div><div class="k">lượt đi sai<br>không đánh số</div></div>
+          <div class="run now"><div class="v">96%</div><div class="bar" style="height:72px"></div><div class="k"><b>run-04</b><br>số chính thức</div></div>
+        </div>
+        <div style="font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.45">
+          Không lượt nào được chạy lại riêng ca trượt để thay số. Bộ đo thứ ba —
+          <b>45 ca knowledge base, 100%</b> — kiểm một bất biến golden set không kiểm: đổi pack thì hành vi phải đổi theo pack.
+        </div>
+      </div>
+      <div>
+        <div class="colhead">Ba giới hạn phải đọc kèm con số 96%</div>
+        <ul style="font-size:14px">
+          <li><b>96% là ước lượng, không phải hằng số.</b> <code>temperature = 0,2</code> nên ca trượt cụ thể xê dịch giữa các lượt</li>
+          <li><b>Bộ đo chính thức chạy trên nguồn MOCK</b> — fixture nhóm tự viết, chưa đối chiếu transcript thật. Phải chạy lại trước bản nộp cuối</li>
+          <li><b>Điều kiện 4 chưa có một dòng dữ liệu nào.</b> Mới kiểm chứng được agent hành xử đúng thiết kế — chưa kiểm chứng được người ta có học được không</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer><span>Nhóm <b>SydneyboyVTHT</b> · Lớp 3A · Phòng E403</span><span>Bảng đo &amp; Quality Bar · <b>4 / 6</b></span></footer>
+</section>
+
+<!-- ══════ 5 · BÀI HỌC TỪ THẤT BẠI + PHẢN HỒI NGƯỜI DÙNG (R6) ══════ -->
+<section class="slide" id="s5">
+  <div class="kicker">Bài học rút ra từ các trường hợp thất bại · dữ liệu phản hồi người dùng (R6)</div>
+  <h1>Bốn lần hỏng — và thứ bắt được chúng<br><span class="thin">không phải mắt người, mà là bộ đo khoá trước.</span></h1>
+  <div class="rule"></div>
+
+  <div class="body">
+    <div class="cols" style="gap:24px">
+      <div>
+        <div class="colhead">Thất bại → bài học</div>
+
+        <div class="lesson red">
+          <div class="lt">Cổng cứng “bài &lt; 40 ký tự → THIẾU CĂN CỨ”</div>
+          <div class="lb"><i>“mỳ cay ngon”</i> bị xếp thành <b>chưa đủ nội dung</b> thay vì <b>nói chuyện khác</b>.
+            → <b>Đếm ký tự không phân biệt được hai thứ đó.</b> Gỡ cổng, chuyển việc phân loại cho LLM, giữ bất biến an toàn ở hậu kiểm.</div>
+        </div>
+
+        <div class="lesson red">
+          <div class="lt">Sửa “trông như cải tiến” làm tụt bộ đo xuống 64%</div>
+          <div class="lb">Cổng lĩnh vực bắt quá tay, ném cả nhóm <i>sai-nhưng-đúng-bài</i> ra ngoài phạm vi — <b>7 ca trượt cùng một kiểu</b>.
+            → Ranh giới phải là <b>ba tầng, không phải hai</b>. Và: <b>nếu chỉ thử tay vài câu lạc đề thì thay đổi ấy trông y hệt một cải tiến.</b>
+            Lượt này <b>vẫn nằm trong báo cáo</b>.</div>
+        </div>
+
+        <div class="lesson warn">
+          <div class="lt">Agent tự khai khớp đủ 3/3 tiêu chí — kèm lý do rất thuyết phục</div>
+          <div class="lb">Ca <code>G14</code>: bài chỉ nói 1 ý nhưng rationale đọc qua không thấy sai.
+            → <b>Không tin lời tự khai của mô hình.</b> Bắt nó trích <b>nguyên văn chữ học viên</b> cho từng tiêu chí,
+            rồi <b>Python dò lại trong bài</b>; không khớp thì loại tiêu chí và hạ trạng thái.</div>
+        </div>
+
+        <div class="lesson acc">
+          <div class="lt">Một lần merge ghi đè §7 về bản cũ — mất nguyên bảng Quality Bar</div>
+          <div class="lb">Nhánh phụ tách ra trước khi bản mới hạ cánh nên bản cũ thắng lúc gộp.
+            → Quy trình repo cũng là chỗ hỏng được. Đã ghi vào changelog thay vì sửa lặng.</div>
+        </div>
+
+        <div class="callout red" style="font-size:13.5px;margin-top:2px">
+          <b>Còn một ca chưa đóng được:</b> <code>G02</code> — <i>“do cơ chế attention”</i> ra <code>THIẾU_CĂN_CỨ</code> thay vì
+          <code>NGOÀI_PHẠM_VI</code>. “Attention” nghe quá gần “cơ chế sinh token” nên agent cố gán một phần liên quan
+          thay vì từ chối thẳng. Mô tả bằng lời chưa đủ — cần few-shot.
+        </div>
+      </div>
+
+      <div>
+        <div class="colhead">R6 · Dữ liệu phản hồi người dùng</div>
+
+        <div class="callout warn" style="font-size:15px;margin-bottom:16px">
+          <b>Khai thẳng: vòng cho người ngoài dùng thử CHƯA CHẠY.</b><br>
+          0 người · 0 phiên · 0 quote nguyên văn. Thư mục <code>validation/</code> chưa tồn tại.
+        </div>
+
+        <div class="colhead">Hệ quả, không giấu</div>
+        <ul style="font-size:14px">
+          <li class="no"><b>Khối R6 (8 điểm) chưa có gì để chấm</b> — trần điểm của nhóm hiện là <b>92</b></li>
+          <li class="no"><b>Điều kiện 4 của Quality Bar không đo được</b> — đây là điều kiện <b>duy nhất</b> trả lời câu hỏi
+              <i>“sản phẩm này có làm người ta học được không”</i></li>
+          <li class="no">Mọi điều nhóm chứng minh được tới giờ đều là <b>agent hành xử đúng thiết kế</b>,
+              chưa phải <b>người học tiến bộ</b>. Hai chuyện khác nhau</li>
+        </ul>
+
+        <div class="colhead" style="margin-top:20px">Đã chuẩn bị sẵn để chạy vòng đó</div>
+        <ul style="font-size:14px">
+          <li class="yes"><b>Bốn nút preset</b> ở màn nhập liệu nạp sẵn bốn kiểu bài — người thử không phải nghĩ xem gõ gì</li>
+          <li class="yes"><b>Log phiên</b> đã ghi sẵn mọi lượt, đủ để đếm “có bổ sung được dẫn chứng còn thiếu hay không”</li>
+          <li class="yes"><b>Chỉ số đo đã định nghĩa trước</b>: ≥ 60% người thử, n ≥ 5 — khoá từ CP4, không sửa sau khi thấy số</li>
+        </ul>
+
+        <div class="callout" style="font-size:14px;margin-top:16px">
+          <b>Khai thiếu không bị trừ điểm. Giấu mới bị.</b>
+          Toàn bộ mục này đã nằm trong <code>spec.md</code> §10 từ mốc chốt spec, không phải viết thêm lúc làm slide.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer><span>Nhóm <b>SydneyboyVTHT</b> · Lớp 3A · Phòng E403</span><span>Bài học &amp; phản hồi R6 · <b>5 / 6</b></span></footer>
+</section>
+
+<!-- ══════ 6 · KẾ HOẠCH MỞ RỘNG + ĐÓNG GÓP TỪNG THÀNH VIÊN ══════ -->
+<section class="slide">
+  <div class="kicker">Kế hoạch mở rộng sản phẩm · đóng góp của từng thành viên</div>
+  <h1>Mở rộng theo thứ tự nợ, không theo thứ tự dễ</h1>
+  <div class="rule"></div>
+
+  <div class="body">
+    <div class="cols" style="gap:24px">
+      <div>
+        <div class="colhead">Kế hoạch mở rộng — bốn việc, đã xếp theo mức chặn</div>
+        <table style="font-size:13.5px">
+          <tr>
+            <td style="width:26px;font-weight:800;color:var(--red)">1</td>
+            <td><b>Chạy vòng validation với người thật</b><br>
+              <span style="color:var(--mut)">Việc <b>duy nhất</b> mở khoá được điều kiện 4 và khối R6.
+              Mọi thứ khác chỉ làm sản phẩm tốt hơn trên giấy.</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:800;color:var(--warn)">2</td>
+            <td><b>Đặt transcript thật vào nguồn của stack chính, rồi chạy lại golden set</b><br>
+              <span style="color:var(--mut)">Con số 96% hiện phải đọc kèm chú thích “đo trên fixture”.
+              Gộp luôn hai stack đang chạy song song làm một.</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:800;color:var(--warn)">3</td>
+            <td><b>Few-shot cho lớp ① để đóng ca G02</b><br>
+              <span style="color:var(--mut)">Phân biệt “khái niệm có thật nhưng ngoài bốn đoạn” với “nói sai trong phạm vi”
+              — mô tả bằng lời đã chứng minh là không đủ.</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:800;color:var(--acc)">4</td>
+            <td><b>Nhiều khái niệm trong một phiên</b><br>
+              <span style="color:var(--mut)">Nguồn đối chiếu đã tách khỏi code — <b>5 pack</b> sẵn sàng, thêm khái niệm chỉ là thêm một file JSON.
+              Còn vướng: pack đọc lúc nạp module nên một tiến trình phục vụ một khái niệm; cần chuyển sang chọn pack theo từng lượt gọi.</span></td>
+          </tr>
+        </table>
+
+        <div class="callout acc" style="font-size:13.5px;margin-top:14px">
+          <b>Thứ nhóm tự tin nhất không phải con số 96%.</b>
+          Là việc bộ đo bắt được một thay đổi <b>trông giống cải tiến</b> nhưng làm hỏng 7 ca — và việc lỗi đắt nhất
+          bị chặn bằng <b>Python dò lại chữ học viên</b>, chứ không bằng lời hứa của mô hình.
+        </div>
+      </div>
+
+      <div>
+        <div class="colhead">Đóng góp của từng thành viên</div>
+        <table style="font-size:13.5px">
+          <th style="width:1.32in">Người</th><th>Phần việc · khối điểm sở hữu</th>
+          <tr>
+            <td><b>Bùi Đức Vinh</b><br><span style="color:var(--mut)">2A202602801<br><b style="color:var(--acc)">Đội trưởng</b></span></td>
+            <td>Chủ trì <code>spec.md</code>; chốt lát cắt, non-goals, mức automation; <b>khoá Quality Bar §7 tại CP4</b>;
+                dựng §3 nguồn sự thật và §10 tự khai; slide CP5; nộp cả 5 form checkpoint.
+                <br><span style="color:var(--mut)">R2 lát cắt · R3 chỗ khó</span></td>
+          </tr>
+          <tr>
+            <td><b>Đinh Công Tú</b><br><span style="color:var(--mut)">2A202602479</span></td>
+            <td>Khai thác <code>tutor_turns.csv</code> — phương pháp đếm, ALL vs K4, trích dẫn <code>turn_id</code>;
+                viết <code>evidence/mining-log.md</code>; chạy khảo sát chuẩn A 20 người và <b>giữ nguyên log cả khi kết quả không đạt ngưỡng</b>.
+                <br><span style="color:var(--mut)">R1 bằng chứng · R6 người thử</span></td>
+          </tr>
+          <tr>
+            <td><b>Đỗ Phúc Hưng</b><br><span style="color:var(--mut)">2A202602762</span></td>
+            <td>Thiết kế prompt cho agent học trò; xây golden set 25 ca theo taxonomy 4 lớp;
+                định nghĩa các chiều chất lượng kiểm chứng được; chạy đo từng lượt và <b>giữ cả lượt 64%</b> trong báo cáo.
+                <br><span style="color:var(--mut)">R4 kiểm thử</span></td>
+          </tr>
+          <tr>
+            <td><b>Bùi Đức Thông</b><br><span style="color:var(--mut)">2A202602931</span></td>
+            <td>Dựng luồng phiên dạy end-to-end 4 màn; tích hợp lời gọi AI thật ở quyết định trung tâm;
+                truy xuất đoạn <code>[T06-xxx]</code> qua tool-calling; quay video CP3 và video demo dự phòng.
+                <br><span style="color:var(--mut)">R5 prototype</span></td>
+          </tr>
+        </table>
+
+        <div class="callout" style="font-size:13px;margin-top:12px">
+          <b>Một người một thư mục, không ai sửa file của người khác.</b>
+          Giám khảo hỏi phần nào, người có tên ở phần đó trả lời.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer><span>Nhóm <b>SydneyboyVTHT</b> · Lớp 3A · Phòng E403</span><span>Mở rộng &amp; đóng góp · <b>6 / 6</b></span></footer>
+</section>
+
+</body>
+</html>
